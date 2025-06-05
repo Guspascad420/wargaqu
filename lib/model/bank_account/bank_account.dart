@@ -9,7 +9,7 @@ abstract class BankAccount with _$BankAccount {
     required String bankName,
     required String accountNumber,
     required String accountHolderName,
-    required String logoAsset
+    String? logoAsset
   }) = _BankAccount;
 
 factory BankAccount.fromJson(Map<String, dynamic> json) => _$BankAccountFromJson(json);
