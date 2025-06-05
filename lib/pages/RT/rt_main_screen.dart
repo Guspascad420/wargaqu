@@ -1,22 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/reusable_main_screen.dart';
+import 'package:wargaqu/model/RT/rt_data.dart';
+import 'package:wargaqu/model/bank_account/bank_account.dart';
+import 'package:wargaqu/pages/RT/dashboard/dashboard_screen.dart';
 import 'package:wargaqu/pages/RT/financial_report/financial_report_screen.dart';
 import 'package:wargaqu/pages/RT/home/rt_home_screen.dart';
 import 'package:wargaqu/pages/citizen/profile/profile_screen.dart';
 
-class RtMainScreen extends StatelessWidget {
+class RtMainScreen extends ConsumerWidget {
   const RtMainScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rtExample = RtData(
+      id: 'rw05_kel_makmur_rt_01',
+      rwId: 'rw_05_kel_makmur',
+      rtNumber: '001',
+      rtName: 'RT 001 Damai Sejahtera', // rtName sekarang diisi
+      registrationUniqueCode: 'RT001DSXYZ', // Isi dengan contoh kode unik
+      secretariatAddress: 'Jl. Damai No. 1, RW 05 Kel. Makmur',
+      citizenCount: 60,
+      currentBalance: 15750000, // Contoh saldo saat ini
+      bankAccounts: [
+        const BankAccount(
+          id: 'bca_rt001_01', // Contoh ID untuk rekening bank
+          bankName: 'Bank Central Asia (BCA)',
+          accountNumber: '0010020030',
+          accountHolderName: 'Kas RT 001 Damai Sejahtera',
+          logoAsset: 'images/bca.png',
+        ),
+        const BankAccount(
+          id: 'mandiri_rt001_01',
+          bankName: 'Bank Mandiri',
+          accountNumber: '900800700600',
+          accountHolderName: 'Bendahara RT 001 Damai Sejahtera',
+          logoAsset: 'images/mandiri.png',
+        ),
+      ],
+      isActive: true,
+    );
+
     String appBarTitleLogic(int selectedIndex, BuildContext context) {
       const userName = "Mbappe";
       switch (selectedIndex) {
         case 0:
           return 'Selamat Datang, $userName!';
         case 1:
-          return 'Laporan Keuangan';
+          return 'Dashboard';
         case 2:
           return '{nama lengkap user}';
         default:
@@ -49,7 +81,7 @@ class RtMainScreen extends StatelessWidget {
         specialTitleTriggerIndex: 1,
         widgetOptions: <Widget>[
           RtHomeScreen(),
-          FinancialReportScreen(),
+          DashboardScreen(rtData: rtExample),
           ProfileScreen(),
         ]
     );
