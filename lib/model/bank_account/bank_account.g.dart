@@ -11,7 +11,7 @@ _BankAccount _$BankAccountFromJson(Map<String, dynamic> json) => _BankAccount(
       bankName: json['bankName'] as String,
       accountNumber: json['accountNumber'] as String,
       accountHolderName: json['accountHolderName'] as String,
-      logoAsset: json['logoAsset'] as String,
+      logoAsset: json['logoAsset'] as String?,
     );
 
 Map<String, dynamic> _$BankAccountToJson(_BankAccount instance) =>
