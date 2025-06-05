@@ -1,0 +1,4 @@
+enum BillType {
+  regular,
+  incidental
+}
