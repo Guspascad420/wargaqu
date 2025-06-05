@@ -149,7 +149,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                         child: Row(
                           children: [
-                            Image.asset(widget.selectedBankAccount.logoAsset, width: 50.w),
+                            Image.asset(widget.selectedBankAccount.logoAsset!, width: 50.w),
                             SizedBox(width: 12.w),
                             Expanded(
                               child: Column(
