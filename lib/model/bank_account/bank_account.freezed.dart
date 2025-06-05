@@ -19,7 +19,7 @@ mixin _$BankAccount {
   String get bankName;
   String get accountNumber;
   String get accountHolderName;
-  String get logoAsset;
+  String? get logoAsset;
 
   /// Create a copy of BankAccount
   /// with the given fields replaced by the non-null parameter values.
@@ -69,7 +69,7 @@ abstract mixin class $BankAccountCopyWith<$Res> {
       String bankName,
       String accountNumber,
       String accountHolderName,
-      String logoAsset});
+      String? logoAsset});
 }
 
 /// @nodoc
@@ -88,7 +88,7 @@ class _$BankAccountCopyWithImpl<$Res> implements $BankAccountCopyWith<$Res> {
     Object? bankName = null,
     Object? accountNumber = null,
     Object? accountHolderName = null,
-    Object? logoAsset = null,
+    Object? logoAsset = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -107,10 +107,10 @@ class _$BankAccountCopyWithImpl<$Res> implements $BankAccountCopyWith<$Res> {
           ? _self.accountHolderName
           : accountHolderName // ignore: cast_nullable_to_non_nullable
               as String,
-      logoAsset: null == logoAsset
+      logoAsset: freezed == logoAsset
           ? _self.logoAsset
           : logoAsset // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -123,7 +123,7 @@ class _BankAccount implements BankAccount {
       required this.bankName,
       required this.accountNumber,
       required this.accountHolderName,
-      required this.logoAsset});
+      this.logoAsset});
   factory _BankAccount.fromJson(Map<String, dynamic> json) =>
       _$BankAccountFromJson(json);
 
@@ -136,7 +136,7 @@ class _BankAccount implements BankAccount {
   @override
   final String accountHolderName;
   @override
-  final String logoAsset;
+  final String? logoAsset;
 
   /// Create a copy of BankAccount
   /// with the given fields replaced by the non-null parameter values.
@@ -193,7 +193,7 @@ abstract mixin class _$BankAccountCopyWith<$Res>
       String bankName,
       String accountNumber,
       String accountHolderName,
-      String logoAsset});
+      String? logoAsset});
 }
 
 /// @nodoc
@@ -212,7 +212,7 @@ class __$BankAccountCopyWithImpl<$Res> implements _$BankAccountCopyWith<$Res> {
     Object? bankName = null,
     Object? accountNumber = null,
     Object? accountHolderName = null,
-    Object? logoAsset = null,
+    Object? logoAsset = freezed,
   }) {
     return _then(_BankAccount(
       id: null == id
@@ -231,10 +231,10 @@ class __$BankAccountCopyWithImpl<$Res> implements _$BankAccountCopyWith<$Res> {
           ? _self.accountHolderName
           : accountHolderName // ignore: cast_nullable_to_non_nullable
               as String,
-      logoAsset: null == logoAsset
+      logoAsset: freezed == logoAsset
           ? _self.logoAsset
           : logoAsset // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
