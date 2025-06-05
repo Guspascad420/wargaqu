@@ -57,64 +57,70 @@ class FinancialReportScreen extends ConsumerWidget {
       ),
     ];
 
-    return Container(
-        margin: EdgeInsets.all(15.h),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pilih Tipe Laporan: ', style: Theme.of(context).textTheme.titleLarge),
-              SizedBox(height: 15.h,),
-              ToggleButtons(
-                isSelected: isSelected,
-                onPressed: (int index) {
-                  final newSelectedType = index == 0 ? ReportType.monthly : ReportType.yearly;
-                  ref.read(selectedReportTypeProvider.notifier).state = newSelectedType;
-                },
-                borderRadius: BorderRadius.circular(chipBorderRadius),
-                selectedColor: Colors.white,
-                color: AppColors.primary400,
-                fillColor: AppColors.primary400,
-                splashColor: AppColors.primary400.withOpacity(0.12),
-                highlightColor: AppColors.primary400.withOpacity(0.1),
-                borderColor: AppColors.primary400,
-                selectedBorderColor: AppColors.primary400,
-                borderWidth: 1.5,
-                constraints: BoxConstraints(
-                  minHeight: 36.h,
-                  minWidth: 100.w,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Laporan Keuangan', style: Theme.of(context).textTheme.titleMedium),
+        centerTitle: true,
+      ),
+      body: Container(
+          margin: EdgeInsets.all(15.h),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Pilih Tipe Laporan: ', style: Theme.of(context).textTheme.titleLarge),
+                SizedBox(height: 15.h,),
+                ToggleButtons(
+                  isSelected: isSelected,
+                  onPressed: (int index) {
+                    final newSelectedType = index == 0 ? ReportType.monthly : ReportType.yearly;
+                    ref.read(selectedReportTypeProvider.notifier).state = newSelectedType;
+                  },
+                  borderRadius: BorderRadius.circular(chipBorderRadius),
+                  selectedColor: Colors.white,
+                  color: AppColors.primary400,
+                  fillColor: AppColors.primary400,
+                  splashColor: AppColors.primary400.withOpacity(0.12),
+                  highlightColor: AppColors.primary400.withOpacity(0.1),
+                  borderColor: AppColors.primary400,
+                  selectedBorderColor: AppColors.primary400,
+                  borderWidth: 1.5,
+                  constraints: BoxConstraints(
+                    minHeight: 36.h,
+                    minWidth: 100.w,
+                  ),
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
+                      child: Text(
+                        'Bulanan',
+                        style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
+                      child: Text(
+                        'Tahunan',
+                        style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
                 ),
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
-                    child: Text(
-                      'Bulanan',
-                      style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
-                    child: Text(
-                      'Tahunan',
-                      style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  if (currentSelectedType == ReportType.monthly)...[
-                    for (var report in monthlyReports)
-                      ReportItemCard(reportData: report)
-                  ]
-                  else...[
+                Column(
+                  children: [
+                    if (currentSelectedType == ReportType.monthly)...[
+                      for (var report in monthlyReports)
+                        ReportItemCard(reportData: report)
+                    ]
+                    else...[
 
-                  ]
-                ],
-              )
-            ],
-          ),
-        )
+                    ]
+                  ],
+                )
+              ],
+            ),
+          )
+      ),
     );
   }
 
