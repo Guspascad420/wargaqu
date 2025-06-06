@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/reusable_main_screen.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
+import 'package:wargaqu/model/report/report.dart';
 import 'package:wargaqu/pages/RT/dashboard/dashboard_screen.dart';
 import 'package:wargaqu/pages/RT/financial_report/financial_report_screen.dart';
 import 'package:wargaqu/pages/RT/home/rt_home_screen.dart';
@@ -40,6 +41,18 @@ class RtMainScreen extends ConsumerWidget {
         ),
       ],
       isActive: true,
+    );
+    
+    final ReportData monthlyReport = ReportData.monthly(
+        id: 'rt01_rw05_2025-06',
+        entityId: 'rt01_rw05_kel_makmur',
+        periodYearMonth: '2025-06',
+        monthlyIncome: 5500000.0,
+        monthlyExpenses: 3200000.0,
+        netMonthlyResult: 2300000.0, // (5.500.000 - 3.200.000)
+        incomingTransactionCount: 52,
+        outgoingTransactionCount: 15,
+        lastUpdated: DateTime.now()
     );
 
     String appBarTitleLogic(int selectedIndex, BuildContext context) {
@@ -81,7 +94,7 @@ class RtMainScreen extends ConsumerWidget {
         specialTitleTriggerIndex: 1,
         widgetOptions: <Widget>[
           RtHomeScreen(),
-          DashboardScreen(rtData: rtExample),
+          DashboardScreen(rtData: rtExample, monthlyReport: monthlyReport),
           ProfileScreen(),
         ]
     );
