@@ -114,6 +114,8 @@ class MonthlyReport extends ReportData {
       required this.monthlyIncome,
       required this.monthlyExpenses,
       required this.netMonthlyResult,
+      required this.incomingTransactionCount,
+      required this.outgoingTransactionCount,
       required this.periodYearMonth,
       this.lastUpdated,
       final String? $type})
@@ -129,6 +131,8 @@ class MonthlyReport extends ReportData {
   final double monthlyIncome;
   final double monthlyExpenses;
   final double netMonthlyResult;
+  final double incomingTransactionCount;
+  final double outgoingTransactionCount;
   final String periodYearMonth;
   @override
   final DateTime? lastUpdated;
@@ -165,6 +169,12 @@ class MonthlyReport extends ReportData {
                 other.monthlyExpenses == monthlyExpenses) &&
             (identical(other.netMonthlyResult, netMonthlyResult) ||
                 other.netMonthlyResult == netMonthlyResult) &&
+            (identical(
+                    other.incomingTransactionCount, incomingTransactionCount) ||
+                other.incomingTransactionCount == incomingTransactionCount) &&
+            (identical(
+                    other.outgoingTransactionCount, outgoingTransactionCount) ||
+                other.outgoingTransactionCount == outgoingTransactionCount) &&
             (identical(other.periodYearMonth, periodYearMonth) ||
                 other.periodYearMonth == periodYearMonth) &&
             (identical(other.lastUpdated, lastUpdated) ||
@@ -173,12 +183,21 @@ class MonthlyReport extends ReportData {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, entityId, monthlyIncome,
-      monthlyExpenses, netMonthlyResult, periodYearMonth, lastUpdated);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      entityId,
+      monthlyIncome,
+      monthlyExpenses,
+      netMonthlyResult,
+      incomingTransactionCount,
+      outgoingTransactionCount,
+      periodYearMonth,
+      lastUpdated);
 
   @override
   String toString() {
-    return 'ReportData.monthly(id: $id, entityId: $entityId, monthlyIncome: $monthlyIncome, monthlyExpenses: $monthlyExpenses, netMonthlyResult: $netMonthlyResult, periodYearMonth: $periodYearMonth, lastUpdated: $lastUpdated)';
+    return 'ReportData.monthly(id: $id, entityId: $entityId, monthlyIncome: $monthlyIncome, monthlyExpenses: $monthlyExpenses, netMonthlyResult: $netMonthlyResult, incomingTransactionCount: $incomingTransactionCount, outgoingTransactionCount: $outgoingTransactionCount, periodYearMonth: $periodYearMonth, lastUpdated: $lastUpdated)';
   }
 }
 
@@ -196,6 +215,8 @@ abstract mixin class $MonthlyReportCopyWith<$Res>
       double monthlyIncome,
       double monthlyExpenses,
       double netMonthlyResult,
+      double incomingTransactionCount,
+      double outgoingTransactionCount,
       String periodYearMonth,
       DateTime? lastUpdated});
 }
@@ -218,6 +239,8 @@ class _$MonthlyReportCopyWithImpl<$Res>
     Object? monthlyIncome = null,
     Object? monthlyExpenses = null,
     Object? netMonthlyResult = null,
+    Object? incomingTransactionCount = null,
+    Object? outgoingTransactionCount = null,
     Object? periodYearMonth = null,
     Object? lastUpdated = freezed,
   }) {
@@ -241,6 +264,14 @@ class _$MonthlyReportCopyWithImpl<$Res>
       netMonthlyResult: null == netMonthlyResult
           ? _self.netMonthlyResult
           : netMonthlyResult // ignore: cast_nullable_to_non_nullable
+              as double,
+      incomingTransactionCount: null == incomingTransactionCount
+          ? _self.incomingTransactionCount
+          : incomingTransactionCount // ignore: cast_nullable_to_non_nullable
+              as double,
+      outgoingTransactionCount: null == outgoingTransactionCount
+          ? _self.outgoingTransactionCount
+          : outgoingTransactionCount // ignore: cast_nullable_to_non_nullable
               as double,
       periodYearMonth: null == periodYearMonth
           ? _self.periodYearMonth

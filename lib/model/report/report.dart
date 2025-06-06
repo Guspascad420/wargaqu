@@ -14,6 +14,8 @@ sealed class ReportData with _$ReportData {
     required double monthlyIncome,
     required double monthlyExpenses,
     required double netMonthlyResult,
+    required double incomingTransactionCount,
+    required double outgoingTransactionCount,
     required String periodYearMonth,
     DateTime? lastUpdated,
   }) = MonthlyReport;

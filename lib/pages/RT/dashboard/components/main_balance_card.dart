@@ -3,9 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
+import 'package:wargaqu/model/report/report.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-Widget mainBalanceCard(BuildContext context, RtData rtData) {
+Widget mainBalanceCard(BuildContext context, RtData rtData, ReportData monthlyReport) {
   final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   int currentBalance = rtData.currentBalance ?? 0;
@@ -14,7 +15,7 @@ Widget mainBalanceCard(BuildContext context, RtData rtData) {
 
   return Card(
     elevation: 4.0,
-    margin: EdgeInsets.zero, // Margin diatur oleh parent jika perlu
+    margin: EdgeInsets.symmetric(horizontal: 15.w), // Margin diatur oleh parent jika perlu
     shape: RoundedRectangleBorder(
         side: BorderSide(color: AppColors.primary400, width: 1),
         borderRadius: BorderRadius.circular(12.r)

@@ -36,6 +36,8 @@ class FinancialReportScreen extends ConsumerWidget {
         netMonthlyResult: 2100000.0,
         periodYearMonth: '2025-04',
         lastUpdated: DateTime(2025, 4, 30),
+        incomingTransactionCount:  30,
+        outgoingTransactionCount: 10,
       ),
       ReportData.monthly(
         id: 'rt01_rw05_2025-05',
@@ -45,6 +47,8 @@ class FinancialReportScreen extends ConsumerWidget {
         netMonthlyResult: 2050000.0,
         periodYearMonth: '2025-05',
         lastUpdated: DateTime(2025, 6, 4),
+        incomingTransactionCount:  30,
+        outgoingTransactionCount: 10,
       ),
       ReportData.monthly(
         id: 'rt01_rw05_2025-06',
@@ -54,6 +58,8 @@ class FinancialReportScreen extends ConsumerWidget {
         netMonthlyResult: 2300000.0,
         periodYearMonth: '2025-06',
         lastUpdated: DateTime.now(),
+        incomingTransactionCount:  30,
+        outgoingTransactionCount: 10,
       ),
     ];
 

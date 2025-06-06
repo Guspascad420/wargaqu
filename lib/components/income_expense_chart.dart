@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:wargaqu/model/pie_chart/pie_chart_section.dart' hide PieChartSectionData;
 import 'package:wargaqu/theme/app_colors.dart';
 
 final touchedIndexProvider = StateProvider<int>((ref) => -1);
@@ -34,12 +33,11 @@ class IncomeExpenseDonutChart extends ConsumerWidget {
     final TextStyle labelTextStyle = GoogleFonts.roboto(
       fontSize: 13.sp,
       fontWeight: FontWeight.w500,
-      color: Colors.black87,
     );
     final TextStyle touchedValueStyle = GoogleFonts.roboto(
       fontSize: 18.sp,
       fontWeight: FontWeight.bold,
-      color: Theme.of(context).primaryColorDark, // Atau warna lain yang menonjol
+      color: Colors.blue.shade400, // Atau warna lain yang menonjol
     );
 
     final touchedIndex = ref.watch(touchedIndexProvider);

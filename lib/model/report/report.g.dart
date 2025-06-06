@@ -13,6 +13,10 @@ MonthlyReport _$MonthlyReportFromJson(Map<String, dynamic> json) =>
       monthlyIncome: (json['monthlyIncome'] as num).toDouble(),
       monthlyExpenses: (json['monthlyExpenses'] as num).toDouble(),
       netMonthlyResult: (json['netMonthlyResult'] as num).toDouble(),
+      incomingTransactionCount:
+          (json['incomingTransactionCount'] as num).toDouble(),
+      outgoingTransactionCount:
+          (json['outgoingTransactionCount'] as num).toDouble(),
       periodYearMonth: json['periodYearMonth'] as String,
       lastUpdated: json['lastUpdated'] == null
           ? null
@@ -27,6 +31,8 @@ Map<String, dynamic> _$MonthlyReportToJson(MonthlyReport instance) =>
       'monthlyIncome': instance.monthlyIncome,
       'monthlyExpenses': instance.monthlyExpenses,
       'netMonthlyResult': instance.netMonthlyResult,
+      'incomingTransactionCount': instance.incomingTransactionCount,
+      'outgoingTransactionCount': instance.outgoingTransactionCount,
       'periodYearMonth': instance.periodYearMonth,
       'lastUpdated': instance.lastUpdated?.toIso8601String(),
       'runtimeType': instance.$type,
