@@ -22,9 +22,7 @@ class _RtHomeScreenState extends State<RtHomeScreen> {
           servicesWidgets: [
             GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const RegularBillsScreen())
-                  );
+
                 },
                 child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
