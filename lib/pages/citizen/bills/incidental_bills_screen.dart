@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wargaqu/components/reusable_bills_ui.dart';
-import 'package:wargaqu/model/bill_type.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 
 class IncidentalBillsScreen extends StatefulWidget {
   const IncidentalBillsScreen({super.key});

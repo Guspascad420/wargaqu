@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:wargaqu/model/bill_type.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/pages/citizen/bank_account/bank_account_selection_screen.dart';
 
 class BillItemCard extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/payment_detail_dialog.dart';
 import 'package:wargaqu/model/bill/bill.dart';
-import 'package:wargaqu/model/bill_type.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/pages/citizen/bills/tabs/bills_tab.dart';
 import 'package:wargaqu/pages/citizen/bills/tabs/history_tab.dart';
 

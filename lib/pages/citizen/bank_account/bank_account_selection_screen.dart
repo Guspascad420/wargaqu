@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
-import 'package:wargaqu/model/bill_type.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/pages/citizen/payment/payment_screen.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

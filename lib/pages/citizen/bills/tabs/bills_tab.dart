@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/bill_item_card.dart';
 import 'package:wargaqu/model/bill/bill.dart';
-import 'package:wargaqu/model/bill_type.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 
 class BillsTab extends StatelessWidget {
   const BillsTab({super.key, required this.bill, required this.billType,
     required this.title, required this.subtitle});
 
   final Bill bill;
-  final BillType billType;
+  final BillType
+  billType;
   final String title;
   final String subtitle;
 
