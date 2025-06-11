@@ -26,7 +26,7 @@ class ReusableBillsUI extends StatelessWidget {
     final Bill bill = Bill(
         id: 'IKJ-2025-07-001', // ID unik buat tagihan ini
         billName: 'Iuran Juli 2025',
-        billType: BillType.regular.name,
+        billType: BillType.regular,
         createdBy: 'Pengurus RW 05 Sejahtera',
         amount: 20000,
         dueDate: DateTime(2025, 7, 10, 23, 59), // Tanggal 10 Juli 2025, jam 23:59
@@ -54,7 +54,7 @@ class ReusableBillsUI extends StatelessWidget {
     final Bill bill = Bill(
         id: 'IKJ-2025-07-001', // ID unik buat tagihan ini
         billName: 'Iuran Juli 2025',
-        billType: BillType.regular.name,
+        billType: BillType.regular,
         createdBy: 'Pengurus RW 05 Sejahtera',
         amount: 20000,
         dueDate: DateTime(2025, 7, 10, 23, 59), // Tanggal 10 Juli 2025, jam 23:59
