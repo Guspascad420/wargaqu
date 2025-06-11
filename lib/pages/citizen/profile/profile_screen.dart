@@ -48,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
                       style: GoogleFonts.roboto(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
