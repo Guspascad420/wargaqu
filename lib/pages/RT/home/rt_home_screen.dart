@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/reusable_home_screen.dart';
-import 'package:wargaqu/pages/citizen/bills/incidental_bills_screen.dart';
-import 'package:wargaqu/pages/citizen/bills/regular_bills_screen.dart';
+import 'package:wargaqu/pages/RT/citizen_activity/citizen_activity_screen.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 class RtHomeScreen extends StatefulWidget {
@@ -22,7 +21,9 @@ class _RtHomeScreenState extends State<RtHomeScreen> {
           servicesWidgets: [
             GestureDetector(
                 onTap: () {
-
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const CitizenActivityScreen())
+                  );
                 },
                 child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -47,9 +48,7 @@ class _RtHomeScreenState extends State<RtHomeScreen> {
             ),
             GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const RegularBillsScreen())
-                  );
+
                 },
                 child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -74,9 +73,7 @@ class _RtHomeScreenState extends State<RtHomeScreen> {
             ),
             GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const IncidentalBillsScreen())
-                  );
+
                 },
                 child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
