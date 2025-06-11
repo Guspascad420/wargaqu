@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -5,7 +6,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/report_item_card.dart';
 import 'package:wargaqu/model/report/report.dart';
+import 'package:wargaqu/services/report_service.dart';
 import 'package:wargaqu/theme/app_colors.dart';
+
+final reportServiceProvider = Provider<ReportService>((ref) {
+  return ReportService(FirebaseFirestore.instance);
+});
+
+final reportListProvider = FutureProvider.family<List<ReportData>, ({String userId, ReportType reportType})>((ref, args) {
+  final service = ref.watch(reportServiceProvider);
+  return service.fetchReports(args.userId, args.reportType);
+});
 
 final selectedReportTypeProvider = StateProvider<ReportType>((ref) {
   return ReportType.monthly;
