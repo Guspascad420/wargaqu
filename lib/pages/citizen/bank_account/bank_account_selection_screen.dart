@@ -10,20 +10,21 @@ import 'package:wargaqu/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final bankAccountsProvider = Provider<List<BankAccount>>((ref) {
-  // Data dummy, ganti dengan data asli atau fetch dari database/API
   return [
     BankAccount(
         id: 'bca1',
         bankName: 'BCA',
         accountNumber: '**** **** **** 1234',
         accountHolderName: 'Pengurus RT 05 RW 02',
-        logoAsset: 'images/bca.png'),
+        logoAsset: 'images/bca.png'
+    ),
     BankAccount(
         id: 'bri1',
         bankName: 'BRI',
         accountNumber: '**** **** **** 9012',
         accountHolderName: 'Bendahara RT 05',
-        logoAsset: 'images/bri.png'),
+        logoAsset: 'images/bri.png'
+    ),
   ];
 });
 
@@ -187,7 +188,6 @@ class BankAccountSelectionScreen extends ConsumerWidget {
                   final selectedAccount = bankAccounts.firstWhere(
                         (account) => account.id == selectedAccountId,
                   );
-
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => PaymentScreen(selectedBankAccount: selectedAccount))
                   );
