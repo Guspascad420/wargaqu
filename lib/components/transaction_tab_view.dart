@@ -25,7 +25,7 @@ class TransactionTabView extends ConsumerWidget{
     return GoogleFonts.roboto(
       fontSize: 14.sp,
       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-      color: isSelected ? Theme.of(context).primaryColorDark : Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -56,8 +56,8 @@ class TransactionTabView extends ConsumerWidget{
     final double borderRadius = 12.r;
 
     return Container(
-      height: 40.h, // Sesuaikan tinggi keseluruhan
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      height: 40.h,
+      margin: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -67,7 +67,6 @@ class TransactionTabView extends ConsumerWidget{
           final double sliderWidth = constraints.maxWidth / 2;
           return Stack(
             children: [
-              // 1. Slider putih yang bisa bergeser
               AnimatedAlign(
                 alignment: _getAlignment(selectedType),
                 duration: const Duration(milliseconds: 250),
