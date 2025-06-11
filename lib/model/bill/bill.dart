@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
 part 'bill.freezed.dart';
 part 'bill.g.dart';
 
@@ -7,7 +8,8 @@ abstract class Bill with _$Bill {
   const factory Bill({
     required String id,
     required String billName,
-    required String billType,
+    @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
+    required BillType billType,
     required String createdBy,
     required double amount,
     required DateTime dueDate,
@@ -17,3 +19,6 @@ abstract class Bill with _$Bill {
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
 }
+
+BillType _billTypeFromJson(String jsonValue) => BillType.fromString(jsonValue);
+String _billTypeToJson(BillType billType) => billType.name;

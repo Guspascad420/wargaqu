@@ -17,7 +17,8 @@ T _$identity<T>(T value) => value;
 mixin _$Bill {
   String get id;
   String get billName;
-  String get billType;
+  @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
+  BillType get billType;
   String get createdBy;
   double get amount;
   DateTime get dueDate;
@@ -73,7 +74,8 @@ abstract mixin class $BillCopyWith<$Res> {
   $Res call(
       {String id,
       String billName,
-      String billType,
+      @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
+      BillType billType,
       String createdBy,
       double amount,
       DateTime dueDate,
@@ -114,7 +116,7 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
       billType: null == billType
           ? _self.billType
           : billType // ignore: cast_nullable_to_non_nullable
-              as String,
+              as BillType,
       createdBy: null == createdBy
           ? _self.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
@@ -145,6 +147,7 @@ class _Bill implements Bill {
   const _Bill(
       {required this.id,
       required this.billName,
+      @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       required this.billType,
       required this.createdBy,
       required this.amount,
@@ -158,7 +161,8 @@ class _Bill implements Bill {
   @override
   final String billName;
   @override
-  final String billType;
+  @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
+  final BillType billType;
   @override
   final String createdBy;
   @override
@@ -225,7 +229,8 @@ abstract mixin class _$BillCopyWith<$Res> implements $BillCopyWith<$Res> {
   $Res call(
       {String id,
       String billName,
-      String billType,
+      @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
+      BillType billType,
       String createdBy,
       double amount,
       DateTime dueDate,
@@ -266,7 +271,7 @@ class __$BillCopyWithImpl<$Res> implements _$BillCopyWith<$Res> {
       billType: null == billType
           ? _self.billType
           : billType // ignore: cast_nullable_to_non_nullable
-              as String,
+              as BillType,
       createdBy: null == createdBy
           ? _self.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
