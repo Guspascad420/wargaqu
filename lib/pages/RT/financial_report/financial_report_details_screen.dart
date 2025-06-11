@@ -41,7 +41,8 @@ class FinancialReportDetailsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 10.h),
                   Text('Detail Laporan', style: Theme.of(context).textTheme.titleLarge),
-                  Text('Berikut adalah detail laporan keuangan', style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
+                  Text('Berikut adalah detail laporan keuangan',
+                    style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
                 ],
               ),
             )
