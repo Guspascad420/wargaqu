@@ -7,12 +7,13 @@ part 'rt_data.g.dart';
 @freezed
 abstract class RtData with _$RtData {
   const factory RtData({
-    @JsonKey(name: 'rtId') required String id,
+    required String id,
     required String rwId,
     required String rtNumber,
     required String rtName,
     required String registrationUniqueCode,
     String? secretariatAddress,
+    String? uniqueCodeStatus,
     int? citizenCount,
     int? currentBalance,
     int? previousMonthClosingBalance,
