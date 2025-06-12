@@ -49,68 +49,68 @@ class BillItemCard extends StatelessWidget {
     final dateFormatter = DateFormat('d MMMM yyyy',);
 
     return InkWell(
-      onTap: () {
-        if (status == null && billType != null) {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => BankAccountSelectionScreen(
-                 billType: billType!, title: 'Iuran Februari 2024', amount: 20000
-              ))
-          );
-        } else {
-          showPaymentDetailDialog!(context);
-        }
-      },
-      child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300, width: 1.w),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: Theme.of(context).textTheme.titleMedium),
-                      SizedBox(height: 4.h),
-                      Text(
-                        'Tenggat Bayar: ${dateFormatter.format(dueDate)}',
-                        style: GoogleFonts.roboto(
-                          fontSize: 13.sp,
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        'Nominal: ${currencyFormatter.format(amount)}',
-                        style: GoogleFonts.roboto(
-                          fontSize: 13.sp,
-                        ),
-                      ),
-                      if (status != null && status!.isNotEmpty) ...[
-                        SizedBox(height: 2.h),
+        onTap: () {
+          if (status == null && billType != null) {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => BankAccountSelectionScreen(
+                    billType: billType!, title: 'Iuran Februari 2024', amount: 20000
+                ))
+            );
+          } else {
+            showPaymentDetailDialog!(context);
+          }
+        },
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300, width: 1.w),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: Theme.of(context).textTheme.titleMedium),
+                        SizedBox(height: 4.h),
                         Text(
-                          'Status: $status',
+                          'Tenggat Bayar: ${dateFormatter.format(dueDate)}',
                           style: GoogleFonts.roboto(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: _getStatusColor(status)
+                            fontSize: 13.sp,
                           ),
                         ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'Nominal: ${currencyFormatter.format(amount)}',
+                          style: GoogleFonts.roboto(
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                        if (status != null && status!.isNotEmpty) ...[
+                          SizedBox(height: 2.h),
+                          Text(
+                            'Status: $status',
+                            style: GoogleFonts.roboto(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: _getStatusColor(status)
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  )
-              ),
-              SizedBox(width: 16.w),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey.shade500,
-                size: 36.r,
-              ),
-            ],
-          )
-      )
+                    )
+                ),
+                SizedBox(width: 16.w),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey.shade500,
+                  size: 36.r,
+                ),
+              ],
+            )
+        )
     );
   }
 }
