@@ -35,9 +35,6 @@ class CitizenActivityScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedBillType = ref.watch(billTypeProvider);
-    final TextEditingController searchController = TextEditingController();
-
     List<ProgressSegment> socialSegments = [
       ProgressSegment(value: 5, color: AppColors.positive, label: '50%',
           labelTextStyle: GoogleFonts.roboto(
