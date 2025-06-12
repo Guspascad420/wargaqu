@@ -53,8 +53,10 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
 
           TextFormField(
             controller: widget.emailController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Email',
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.surface,
               prefixIcon: Icon(Icons.email_outlined),
             ),
             keyboardType: TextInputType.emailAddress,
@@ -76,6 +78,8 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
             decoration: InputDecoration(
               labelText: 'Kata Sandi',
               prefixIcon: const Icon(Icons.lock_outline),
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.surface,
               suffixIcon: IconButton(
                 icon: Icon(
                   _isPasswordVisible
