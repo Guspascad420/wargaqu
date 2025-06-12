@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wargaqu/pages/auth/RW/rw_login_form.dart';
 import 'package:wargaqu/pages/auth/RT/rt_login_form.dart';
 import 'package:wargaqu/pages/auth/citizen/citizen_login_form.dart';
 
@@ -73,24 +74,31 @@ class LoginChoiceScreen extends StatelessWidget {
                 )
               ],
             ),
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-                margin: const EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                  color: Color(0xFF58B961),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: [
-                    Image.asset('images/rafiki.png', scale: 2.3),
-                    const SizedBox(height: 10),
-                    Text('Sebagai RW', style: GoogleFonts.roboto(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    )),
-                  ],
-                )
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const RwLoginForm())
+                );
+              },
+              child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+                  margin: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF58B961),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.asset('images/rafiki.png', scale: 2.3),
+                      const SizedBox(height: 10),
+                      Text('Sebagai RW', style: GoogleFonts.roboto(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      )),
+                    ],
+                  )
+              )
             ),
           ],
         ),
