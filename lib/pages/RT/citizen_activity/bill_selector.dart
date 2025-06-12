@@ -85,8 +85,6 @@ class BillSelector extends ConsumerWidget {
                 ref.read(selectedBillProvider.notifier).state = bill;
               }
             },
-
-            // This builds the list of items that appear when the dropdown is opened.
             dropdownMenuEntries: availableBills.map<DropdownMenuEntry<Bill>>((Bill bill) {
               return DropdownMenuEntry<Bill>(
                 value: bill, // The actual Bill object as the value for this entry
