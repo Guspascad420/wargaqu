@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
-import 'package:wargaqu/pages/RW/rw_registration_form.dart';
+import 'package:wargaqu/pages/RW/rw_main_screen.dart';
+import 'package:wargaqu/pages/auth/RW/rw_registration_form.dart';
 
 class RwLoginForm extends StatefulWidget {
   const RwLoginForm({super.key});
@@ -36,7 +37,11 @@ class _RwLoginFormState extends State<RwLoginForm> {
                 emailController: _emailController,
                 passwordController: _passwordController,
                 subtitle: 'Halo RW! Masuk ke akun Anda untuk dapat menggunakan layanan kami',
-                onLoginPressed: () {}, onForgotPasswordPressed: () {},
+                onLoginPressed: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const RwMainScreen())
+                  );
+                }, onForgotPasswordPressed: () {},
                 onRegistrationOptionPressed: () {
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (context) => const RwRegistrationForm())

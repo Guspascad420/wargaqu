@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:wargaqu/pages/RW/rw_login_form.dart';
+import 'package:wargaqu/pages/auth/RW/rw_login_form.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 class RwRegistrationForm extends StatefulWidget {
