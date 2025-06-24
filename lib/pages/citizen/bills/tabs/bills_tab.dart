@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/bill_item_card.dart';
 import 'package:wargaqu/model/bill/bill.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
+import 'package:wargaqu/pages/citizen/bank_account/bank_account_selection_screen.dart';
 
 class BillsTab extends StatelessWidget {
   const BillsTab({super.key, required this.bill, required this.billType,
     required this.title, required this.subtitle});
-
   final Bill bill;
   final BillType
   billType;
@@ -27,7 +27,13 @@ class BillsTab extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge),
           SizedBox(height: 15.sp),
           BillItemCard(billType: billType, title: bill.billName, dueDate: bill.dueDate,
-              amount: bill.amount)
+              amount: bill.amount, onItemTapped: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => BankAccountSelectionScreen(
+                        billType: billType, title: 'Iuran Februari 2024', amount: 20000
+                    ))
+                );
+              })
         ],
       )
     );

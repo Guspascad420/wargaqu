@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
-import 'package:wargaqu/pages/citizen/bank_account/bank_account_selection_screen.dart';
 
 class BillItemCard extends StatelessWidget {
   final BillType? billType;
@@ -12,6 +11,7 @@ class BillItemCard extends StatelessWidget {
   final double amount;
   final String? status;
   final void Function(BuildContext)? showPaymentDetailDialog;
+  final void Function() onItemTapped;
 
   const BillItemCard({
     super.key,
@@ -21,20 +21,36 @@ class BillItemCard extends StatelessWidget {
     required this.amount,
     this.status,
     this.showPaymentDetailDialog,
+    required this.onItemTapped,
   });
+
+  Color _getStatusFontColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'Lunas':
+        return Colors.green.shade800;
+      case 'Belum bayar':
+        return Colors.orange.shade800;
+      case 'Menunggu konfirmasi':
+        return Colors.blue.shade800;
+      case 'Ditolak':
+        return Colors.red.shade800;
+      default:
+        return Colors.grey.shade800;
+    }
+  }
 
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'Lunas':
-        return Colors.green.shade600;
+        return Colors.green.shade100;
       case 'Belum bayar':
-        return Colors.orange.shade700;
+        return Colors.orange.shade100;
       case 'Menunggu konfirmasi':
-        return Colors.blue.shade600;
+        return Colors.blue.shade100;
       case 'Ditolak':
-        return Colors.red.shade700;
+        return Colors.red.shade100;
       default:
-        return Colors.grey.shade700;
+        return Colors.grey.shade100;
     }
   }
 
@@ -51,11 +67,7 @@ class BillItemCard extends StatelessWidget {
     return InkWell(
         onTap: () {
           if (status == null && billType != null) {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => BankAccountSelectionScreen(
-                    billType: billType!, title: 'Iuran Februari 2024', amount: 20000
-                ))
-            );
+            onItemTapped();
           } else {
             showPaymentDetailDialog!(context);
           }
@@ -66,41 +78,42 @@ class BillItemCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300, width: 1.w),
               borderRadius: BorderRadius.circular(8.r),
+              color: _getStatusColor(status),
             ),
             child: Row(
               children: [
                 Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title, style: Theme.of(context).textTheme.titleMedium),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'Tenggat Bayar: ${dateFormatter.format(dueDate)}',
-                          style: GoogleFonts.roboto(
-                            fontSize: 13.sp,
-                          ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: Theme.of(context).textTheme.titleMedium),
+                      SizedBox(height: 4.h),
+                      Text(
+                        'Tenggat Bayar: ${dateFormatter.format(dueDate)}',
+                        style: GoogleFonts.roboto(
+                          fontSize: 13.sp,
                         ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Nominal: ${currencyFormatter.format(amount)}',
+                        style: GoogleFonts.roboto(
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                      if (status != null && status!.isNotEmpty) ...[
                         SizedBox(height: 2.h),
                         Text(
-                          'Nominal: ${currencyFormatter.format(amount)}',
+                          'Status: $status',
                           style: GoogleFonts.roboto(
-                            fontSize: 13.sp,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: _getStatusFontColor(status)
                           ),
                         ),
-                        if (status != null && status!.isNotEmpty) ...[
-                          SizedBox(height: 2.h),
-                          Text(
-                            'Status: $status',
-                            style: GoogleFonts.roboto(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: _getStatusColor(status)
-                            ),
-                          ),
-                        ],
                       ],
-                    )
+                    ],
+                  ),
                 ),
                 SizedBox(width: 16.w),
                 Icon(
