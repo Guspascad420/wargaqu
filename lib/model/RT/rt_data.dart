@@ -9,7 +9,7 @@ abstract class RtData with _$RtData {
   const factory RtData({
     required String id,
     required String rwId,
-    required String rtNumber,
+    required int rtNumber,
     required String rtName,
     required String registrationUniqueCode,
     String? secretariatAddress,
