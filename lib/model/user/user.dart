@@ -4,24 +4,24 @@ part 'user.g.dart';
 
 
 @freezed
-abstract class User with _$User {
-  const factory User({
+abstract class UserModel with _$UserModel {
+  const factory UserModel({
     required String id,
     required String email,
     required String fullName,
-    required String nik,
+    String? nik,
     String? phoneNumber,
     required String address,
     String? currentOccupation,
     String? residencyStatus,
     required String rwId,
-    required String rtId,
+    String? rtId,
     @Default('citizen') String role,
     String? profilePictureUrl,
-    @Default({}) Map<String, String> duesStatusByPeriod,
+    @Default({}) Map<String, String> billsStatus,
     DateTime? joinedTimestamp,
-  }) = _User;
+  }) = _UserModel;
 
-  factory User.fromJson(Map<String, dynamic> json) =>
-      _$UserFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 }
