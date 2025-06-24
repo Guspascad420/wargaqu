@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/reusable_home_screen.dart';
-import 'package:wargaqu/model/RT/rt_data.dart';
 import 'package:wargaqu/model/RW/rw_data.dart';
-import 'package:wargaqu/pages/RW/citizen_list/rw_citizen_screen.dart';
+import 'package:wargaqu/pages/RW/rt_management/rt_management_screen.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
+import 'package:wargaqu/providers/rw_providers.dart';
 
 class RwHomeScreen extends ConsumerStatefulWidget {
-  const RwHomeScreen({super.key, required this.rwData, required this.rtDataList});
+  const RwHomeScreen({super.key, required this.rwData});
 
   final RwData rwData;
-  final List<RtData> rtDataList;
 
   @override
   ConsumerState<RwHomeScreen> createState() => _RwHomeScreenState();
@@ -20,14 +20,22 @@ class RwHomeScreen extends ConsumerStatefulWidget {
 class _RwHomeScreenState extends ConsumerState<RwHomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final asyncRwSummary = ref.watch(rwSummaryProvider);
+
     return SingleChildScrollView(
       child: ReusableHomeScreen(
-          subtitle: '{Name_RW} telah memiliki {jumlah_rt_terhubung} yang terhubung',
+          subtitle: asyncRwSummary.when(
+            loading: () => 'Memuat data RW...',
+            error: (err, stack) => 'Gagal memuat data',
+            data: (summary) {
+              return summary;
+            },
+          ),
           servicesWidgets: [
             GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => RwCitizenScreen(rtDataList: widget.rtDataList))
+                      MaterialPageRoute(builder: (context) => RtManagementScreen())
                   );
                 },
                 child: Container(
@@ -42,7 +50,7 @@ class _RwHomeScreenState extends ConsumerState<RwHomeScreen> {
                       children: [
                         Image.asset('images/group_chat.png', width: 140.w,),
                         SizedBox(height: 10.h),
-                        Text('Pantau Profil Warga', style: GoogleFonts.roboto(
+                        Text('Manajemen Data RT', style: GoogleFonts.roboto(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

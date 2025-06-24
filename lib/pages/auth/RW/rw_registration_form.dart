@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/auth/RW/rw_login_form.dart';
+import 'package:wargaqu/providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class RwRegistrationForm extends StatefulWidget {
+class RwRegistrationForm extends ConsumerStatefulWidget {
   const RwRegistrationForm({super.key});
 
   @override
-  State<RwRegistrationForm> createState() => _RwRegistrationFormState();
+  ConsumerState<RwRegistrationForm> createState() => _RwRegistrationFormState();
 }
 
-class _RwRegistrationFormState extends State<RwRegistrationForm> {
+class _RwRegistrationFormState extends ConsumerState<RwRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
+  bool _didSubmit = false;
 
   final RegExp _emailRegExp = RegExp(
     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
   );
   final RegExp _phoneRegExp = RegExp(r"^0[0-9]{9,12}$");
 
-  final TextEditingController _namaLengkapController = TextEditingController();
-  final TextEditingController _nikController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
-  final TextEditingController _noKkController = TextEditingController();
-  final TextEditingController _noTeleponController = TextEditingController();
-  final TextEditingController _pekerjaanController = TextEditingController();
-  final TextEditingController _statusKependudukanController = TextEditingController();
-  final TextEditingController _kodeRtController = TextEditingController();
+  final TextEditingController _namaRwController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _kodeRwController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _namaLengkapController.dispose();
-    _nikController.dispose();
-    _alamatController.dispose();
-    _noKkController.dispose();
-    _noTeleponController.dispose();
-    _pekerjaanController.dispose();
-    _statusKependudukanController.dispose();
-    _kodeRtController.dispose();
+    _namaRwController.dispose();
+    _addressController.dispose();
+    _phoneNumberController.dispose();
+    _fullNameController.dispose();
+    _kodeRwController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -48,6 +46,28 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(registrationNotifierProvider, (prev, next) {
+      if (!_didSubmit) return;
+
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${next.error}')),
+        );
+
+        print(next.error);
+
+      } else if (next is AsyncData<void>) {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const RwMainScreen())
+        );
+        setState(() {
+          _didSubmit = false;
+        });
+      }
+    });
+
+    final regState = ref.watch(registrationNotifierProvider);
+
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -68,7 +88,7 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                     SizedBox(height: 30.h),
                     Text('Daftar Akun', style: Theme.of(context).textTheme.titleLarge),
                     SizedBox(height: 10.h),
-                    Text('Halo RT! Daftarkan akun dengan data RT Anda',
+                    Text('Halo RW! Daftarkan akun dengan data RW Anda',
                         style: Theme.of(context).textTheme.bodyLarge),
                     SizedBox(height: 20.h),
                     Form(
@@ -76,24 +96,11 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                       child: Column(
                         children: <Widget>[
                           TextFormField(
-                            controller: _namaLengkapController,
+                            key: const Key('addressField'),
+                            controller: _addressController,
                             decoration: InputDecoration(
-                              labelText: 'Nama RT',
-                              prefixIcon: Icon(Icons.person, size: 24.r),
-                            ),
-                            keyboardType: TextInputType.name,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Nama RT wajib diisi';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 16.h),
-
-                          TextFormField(
-                            controller: _alamatController,
-                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Alamat',
                               prefixIcon: Icon(Icons.home, size: 24.r),
                             ),
@@ -109,8 +116,11 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
-                            controller: _noTeleponController,
+                            key: const Key('phoneNumberField'),
+                            controller: _phoneNumberController,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Nomor Telepon',
                               prefixIcon: Icon(Icons.phone, size: 24.r),
                             ),
@@ -128,8 +138,11 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
-                            controller: _kodeRtController,
+                            key: const Key('rwUniqueCodeField'),
+                            controller: _kodeRwController,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Kode Unik RW',
                               prefixIcon: Icon(Icons.qr_code_scanner, size: 24.r),
                             ),
@@ -144,8 +157,30 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
+                            key: const Key('fullNameField'),
+                            controller: _fullNameController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                              labelText: 'Nama Lengkap',
+                              prefixIcon: Icon(Icons.person, size: 24.r),
+                            ),
+                            keyboardType: TextInputType.text,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Nama Lengkap harus diisi';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16.h),
+
+                          TextFormField(
+                            key: const Key('emailField'),
                             controller: _emailController,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Email',
                               prefixIcon: Icon(Icons.email, size: 24.r),
                             ),
@@ -163,9 +198,12 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
+                            key: const Key('passwordField'),
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Kata Sandi',
                               prefixIcon: Icon(Icons.lock, size: 24.r),
                               helperText: 'Minimal 6 karakter.',
@@ -195,22 +233,36 @@ class _RwRegistrationFormState extends State<RwRegistrationForm> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
+                              key: const Key('submitButton'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary400,
-                                padding: EdgeInsets.symmetric(vertical: 16.h), // Padding vertikal dengan .h
+                                padding: EdgeInsets.symmetric(vertical: 16.h),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r), // Radius dengan .r
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                               ),
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-                                  // Logika pendaftaran
+                                  setState(() {
+                                    _didSubmit = true;
+                                  });
+                                  ref.read(registrationNotifierProvider.notifier).registerRwOfficial(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                    fullName: _fullNameController.text,
+                                    rwUniqueCode: _kodeRwController.text,
+                                    address: _addressController.text,
+                                    phoneNumber: _phoneNumberController.text
+                                  );
                                 }
                               },
-                              child: Text(
-                                'Daftar',
-                                style: GoogleFonts.roboto(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w500),
-                              ),
+                              child: regState.isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text(
+                                      'Daftar',
+                                      style: GoogleFonts.roboto(fontSize: 18.sp,
+                                          color: Colors.white, fontWeight: FontWeight.w500),
+                                    ),
                             ),
                           ),
                           SizedBox(height: 24.h),

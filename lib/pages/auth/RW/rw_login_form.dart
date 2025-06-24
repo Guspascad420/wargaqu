@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
 import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/auth/RW/rw_registration_form.dart';
+import 'package:wargaqu/providers.dart';
 
-class RwLoginForm extends StatefulWidget {
+class RwLoginForm extends ConsumerStatefulWidget {
   const RwLoginForm({super.key});
 
   @override
-  State<RwLoginForm> createState() => _RwLoginFormState();
+  ConsumerState<RwLoginForm> createState() => _RwLoginFormState();
 }
 
-class _RwLoginFormState extends State<RwLoginForm> {
+class _RwLoginFormState extends ConsumerState<RwLoginForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool _didSubmit = false;
 
   @override
   void dispose() {
@@ -25,6 +27,25 @@ class _RwLoginFormState extends State<RwLoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(loginNotifierProvider, (prev, next) {
+      if (!_didSubmit) return;
+
+      if (prev is AsyncLoading && !next.isLoading) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${next.error}')),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const RwMainScreen()),
+          );
+          setState(() {
+            _didSubmit = false;
+          });
+        }
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -38,9 +59,15 @@ class _RwLoginFormState extends State<RwLoginForm> {
                 passwordController: _passwordController,
                 subtitle: 'Halo RW! Masuk ke akun Anda untuk dapat menggunakan layanan kami',
                 onLoginPressed: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const RwMainScreen())
-                  );
+                  if (_formKey.currentState!.validate()) {
+                    setState(() {
+                      _didSubmit = true;
+                    });
+                    ref.read(loginNotifierProvider.notifier).loginUser(
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                    );
+                  }
                 }, onForgotPasswordPressed: () {},
                 onRegistrationOptionPressed: () {
                   Navigator.of(context).pushReplacement(
