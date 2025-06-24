@@ -6,7 +6,6 @@ import 'package:wargaqu/components/reusable_home_screen.dart';
 import 'package:wargaqu/model/RW/rw_data.dart';
 import 'package:wargaqu/pages/RW/rt_management/rt_management_screen.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
-import 'package:wargaqu/providers/rw_providers.dart';
 
 class RwHomeScreen extends ConsumerStatefulWidget {
   const RwHomeScreen({super.key, required this.rwData});

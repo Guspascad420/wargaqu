@@ -20,7 +20,7 @@ class _RwRegistrationFormState extends ConsumerState<RwRegistrationForm> {
   bool _didSubmit = false;
 
   final RegExp _emailRegExp = RegExp(
-    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+    r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
   );
   final RegExp _phoneRegExp = RegExp(r"^0[0-9]{9,12}$");
 
@@ -53,8 +53,6 @@ class _RwRegistrationFormState extends ConsumerState<RwRegistrationForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${next.error}')),
         );
-
-        print(next.error);
 
       } else if (next is AsyncData<void>) {
         Navigator.of(context).push(

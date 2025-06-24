@@ -6,7 +6,6 @@ import 'package:wargaqu/model/RW/rw_data.dart';
 import 'package:wargaqu/pages/RW/home/rw_home_screen.dart';
 import 'package:wargaqu/pages/RW/profile/rw_profile_screen.dart';
 import 'package:wargaqu/pages/RW/rt_financial_report/rt_financial_report_screen.dart';
-import 'package:wargaqu/providers/rw_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
 class RwMainScreen extends ConsumerWidget {
