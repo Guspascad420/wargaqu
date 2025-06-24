@@ -42,8 +42,6 @@ class _BillManagementScreenState extends ConsumerState<BillManagementScreen> wit
   void _handleFabPressed() {
     switch (_currentTabIndex) {
       case 0:
-      // Aksi untuk Tab 1
-        print("FAB on Tab 1 Pressed: Adding new item...");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Aksi untuk Tab Pertama: Tambah Item Baru')),
         );

@@ -9,9 +9,15 @@ import 'package:wargaqu/model/bill/bill_type.dart';
 final billTypeProvider = StateProvider<BillType>((ref) => BillType.regular);
 final availableBillsProvider = Provider<List<Bill>>((ref) {
   return [
-    Bill(id: '1', billName: 'Iuran Januari 2025', billType: BillType.regular, createdBy: 'Admin', amount: 50.0, dueDate: DateTime.now().add(const Duration(days: 10)), paymentMethod: 'Card', paymentStatus: 'Pending'),
-    Bill(id: '2', billName: 'Iuran Februari 2025', billType: BillType.regular, createdBy: 'Admin', amount: 75.0, dueDate: DateTime.now().add(const Duration(days: 5)), paymentMethod: 'Bank Transfer', paymentStatus: 'Pending'),
-    Bill(id: '3', billName: 'Iuran perbaikan portal', billType: BillType.incidental, createdBy: 'Admin', amount: 30.0, dueDate: DateTime.now().add(const Duration(days: 15)), paymentMethod: 'Card', paymentStatus: 'Paid'),
+    Bill(id: '1', billName: 'Iuran Januari 2025', billType: BillType.regular,
+        createdBy: 'Admin', amount: 50.0, dueDate: DateTime.now().add(const Duration(days: 10)),
+        paymentMethod: 'Card', paymentStatus: 'Pending'),
+    Bill(id: '2', billName: 'Iuran Februari 2025', billType: BillType.regular,
+        createdBy: 'Admin', amount: 75.0, dueDate: DateTime.now().add(const Duration(days: 5)),
+        paymentMethod: 'Bank Transfer', paymentStatus: 'Pending'),
+    Bill(id: '3', billName: 'Iuran perbaikan portal', billType: BillType.incidental,
+        createdBy: 'Admin', amount: 30.0, dueDate: DateTime.now().add(const Duration(days: 15)),
+        paymentMethod: 'Card', paymentStatus: 'Paid'),
   ];
 });
 final selectedBillProvider = StateProvider<Bill?>((ref) => null);

@@ -22,7 +22,6 @@ class _AddBillsScreenState extends ConsumerState<AddBillsScreen> {
   final _descriptionController = TextEditingController();
 
   DateTime? _selectedDueDate;
-  String? _selectedTargetGroup;
 
   @override
   void dispose() {
@@ -63,6 +62,7 @@ class _AddBillsScreenState extends ConsumerState<AddBillsScreen> {
       inputFormatters: inputFormatters,
       validator: validator,
       maxLines: maxLines,
+      style: GoogleFonts.roboto(color: Colors.black),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,

@@ -25,7 +25,7 @@ class BillManagementTab extends StatelessWidget {
             },
             child: BillItemCard(billType: availableBills[index].billType,
                 title: availableBills[index].billName, dueDate: availableBills[index].dueDate,
-                amount: availableBills[index].amount),
+                amount: availableBills[index].amount, onItemTapped: () {}),
           );
         },
       ),
