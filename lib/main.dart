@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:wargaqu/pages/RT/rt_main_screen.dart';
+import 'package:wargaqu/pages/RW/rw_main_screen.dart';
+import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
+import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/user_providers.dart';
 import 'package:wargaqu/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -33,71 +38,60 @@ class MyApp extends StatelessWidget {
             home: child
         );
       },
-      child: const LoginChoiceScreen(),
+      child: const AuthWrapper(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateChangesProvider);
+
+    return authState.when(
+      data: (user) {
+        if (user == null) {
+          return const LoginChoiceScreen();
+        } else {
+          return RoleBasedRedirect(userId: user.uid);
+        }
+      },
+      loading: () => const Scaffold(),
+      // Kalo ada error
+      error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class RoleBasedRedirect extends ConsumerWidget {
+  final String userId;
+  const RoleBasedRedirect({super.key, required this.userId});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userProfileState = ref.watch(userDocStreamProvider);
+
+    return userProfileState.when(
+      data: (snapshot) {
+        final userProfile = snapshot.data() as Map<String, dynamic>;
+
+        switch (userProfile['role']) {
+          case 'citizen':
+            return const CitizenMainScreen();
+          case 'rt_official':
+          case 'bendahara_rt':
+            return const RtMainScreen();
+          case 'rw_official':
+          case 'bendahara_rw':
+            return const RwMainScreen();
+          default:
+            return const LoginChoiceScreen();
+        }
+      },
+      loading: () => const Scaffold(),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))
     );
   }
 }
