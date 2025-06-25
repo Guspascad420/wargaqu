@@ -5,6 +5,10 @@ class AuthService {
 
   AuthService(this._firebaseAuth);
 
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
+  }
+
   Future<fb_auth.User?> signUpWithEmailAndPassword({
     required String email,
     required String password,
