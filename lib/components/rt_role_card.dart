@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 enum UniqueCodeStatus { available, used, notGenerated }
@@ -36,6 +38,108 @@ class RtRoleCard extends ConsumerStatefulWidget {
 
 class _RtRoleCardState extends ConsumerState<RtRoleCard> {
   bool _isLoading = false;
+
+  void _copyToClipboard(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    Navigator.pop(context); // Tutup bottom sheet setelah salin
+  }
+
+  Future<void> _shareViaWhatsApp(BuildContext context, String text) async {
+    final String whatsappUrl = "whatsapp://send?text=${Uri.encodeComponent(text)}";
+    final Uri url = Uri.parse(whatsappUrl);
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        // Kalau WhatsApp nggak terinstall, kasih info aja
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('WhatsApp tidak terinstall di perangkat ini. 📱'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal membuka WhatsApp. Error: $e 😥'),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      Navigator.pop(context); // Tutup bottom sheet
+    }
+  }
+
+  void _showShareOptions(BuildContext context, String textToShare) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bc) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20.r),
+              topRight: Radius.circular(20.r),
+            ),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
+          child: Wrap(
+            children: <Widget>[
+              // Title di atas opsi
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  child: Text(
+                    'Pilih Aksi',
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary400,
+                    ),
+                  ),
+                ),
+              ),
+              Divider(height: 1.h, color: Colors.grey[300]),
+              SizedBox(height: 10.h),
+              // Opsi "Salin"
+              ListTile(
+                leading: Icon(Icons.copy, size: 24.w, color: Colors.blueGrey),
+                title: Text('Salin Teks', style: TextStyle(fontSize: 16.sp)),
+                onTap: () => _copyToClipboard(context, textToShare),
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'images/whatsapp.png', // Pastiin ada icon WA di folder assets
+                  width: 24.w,
+                  height: 24.h,
+                ),
+                title: Text('Bagikan via WhatsApp', style: TextStyle(fontSize: 16.sp)),
+                onTap: () => _shareViaWhatsApp(context, textToShare),
+              ),
+              SizedBox(height: 10.h),
+              Divider(height: 1.h, color: Colors.grey[300]),
+              SizedBox(height: 10.h),
+              // Tombol Batal
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Batal',
+                    style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
     return Padding(
@@ -184,7 +288,7 @@ class _RtRoleCardState extends ConsumerState<RtRoleCard> {
                   ElevatedButton.icon(
                     icon: const Icon(Icons.share, size: 16, color: Colors.white),
                     label: Text(
-                      'Kirim via WA',
+                      'Kirim',
                       style: GoogleFonts.roboto(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -198,7 +302,9 @@ class _RtRoleCardState extends ConsumerState<RtRoleCard> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: widget.onShare,
+                    onPressed: () {
+                      _showShareOptions(context, widget.uniqueCode ?? '');
+                    },
                   ),
                 ],
                 if (widget.status == UniqueCodeStatus.used)
