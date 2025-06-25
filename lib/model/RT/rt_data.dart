@@ -11,7 +11,7 @@ abstract class RtData with _$RtData {
     required String rwId,
     required int rtNumber,
     required String rtName,
-    required String registrationUniqueCode,
+    String? registrationUniqueCode,
     String? secretariatAddress,
     String? uniqueCodeStatus,
     int? citizenCount,
