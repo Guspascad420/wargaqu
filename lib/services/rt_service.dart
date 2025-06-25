@@ -10,6 +10,50 @@ class RtService {
 
   RtService(this._firestore);
 
+  Future<({String role, String rtId, String rwId})> validateRt(String uniqueCode) async {
+    try {
+      final querySnapshot = await _firestore
+          .collectionGroup('registrationCodes')
+          .where('code', isEqualTo: uniqueCode)
+          .where('status', isEqualTo: 'AVAILABLE')
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('Kode unik tidak valid!');
+      }
+      final codeDoc = querySnapshot.docs.first;
+      final String rtId = codeDoc.reference.parent.parent!.id;
+      final String role = codeDoc.data()['role'];
+
+      final DocumentSnapshot rtDoc = await _firestore.collection('rts').doc(rtId).get();
+
+      final rwMap = rtDoc.data() as Map<String, dynamic>;
+      final String rwIdValue = rwMap['rwId'];
+      return (rtId: rtId, role: role, rwId: rwIdValue);
+    } on FirebaseException catch (e) {
+      print('======================================================');
+      print('ERROR ASLI DARI FIREBASE:');
+      print(e); // Ini nampilin objek errornya
+      print('PESAN LENGKAPNYA:');
+      print(e.message); // <-- LINK AJAIBNYA ADA DI SINI
+      print('======================================================');
+
+      throw Exception('Gagal mengambil data: ${e.message}');
+    }
+  }
+
+  Future<void> claimRtCode(String rtId, String role, String officialName, String uniqueCode, WriteBatch batch) async {
+    final querySnapshot = await _firestore.collection('rts')
+        .doc(rtId).collection('registrationCodes').where('code', isEqualTo: uniqueCode).limit(1).get();
+    final uniqueCodeRef = querySnapshot.docs.first.reference;
+
+    batch.update(uniqueCodeRef, {
+      'role': role,
+      'status': 'USED',
+    });
+  }
+
   Stream<DocumentSnapshot<Map<String, dynamic>>> fetchRtDocStream(String rtId) {
     return _firestore
         .collection('rts')

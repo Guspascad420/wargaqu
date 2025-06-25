@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_screenutil
+import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/auth/RT/rt_login_form.dart';
+import 'package:wargaqu/providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class RtRegistrationForm extends StatefulWidget {
+class RtRegistrationForm extends ConsumerStatefulWidget {
   const RtRegistrationForm({super.key});
 
   @override
-  State<RtRegistrationForm> createState() => _RtRegistrationFormState();
+  ConsumerState<RtRegistrationForm> createState() => _RtRegistrationFormState();
 }
 
-class _RtRegistrationFormState extends State<RtRegistrationForm> {
+class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
+  bool _didSubmit = false;
 
   final RegExp _emailRegExp = RegExp(
-    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+    r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
   );
   final RegExp _phoneRegExp = RegExp(r"^0[0-9]{9,12}$");
 
-  final TextEditingController _namaLengkapController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
-  final TextEditingController _noKkController = TextEditingController();
   final TextEditingController _noTeleponController = TextEditingController();
-  final TextEditingController _pekerjaanController = TextEditingController();
-  final TextEditingController _statusKependudukanController = TextEditingController();
-  final TextEditingController _kodeRtController = TextEditingController();
+  final TextEditingController _uniqueCodeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _namaLengkapController.dispose();
+    _fullNameController.dispose();
     _nikController.dispose();
     _alamatController.dispose();
-    _noKkController.dispose();
     _noTeleponController.dispose();
-    _pekerjaanController.dispose();
-    _statusKependudukanController.dispose();
-    _kodeRtController.dispose();
+    _uniqueCodeController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -48,6 +46,25 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(registrationNotifierProvider, (prev, next) {
+      if (!_didSubmit) return;
+
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${next.error}')),
+        );
+
+      } else if (next is AsyncData<void>) {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const RtMainScreen())
+        );
+        setState(() {
+          _didSubmit = false;
+        });
+      }
+    });
+    final regState = ref.watch(registrationNotifierProvider);
+
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -76,15 +93,16 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                       child: Column(
                         children: <Widget>[
                           TextFormField(
-                            controller: _namaLengkapController,
+                            key: const Key('fullNameField'),
+                            controller: _fullNameController,
                             decoration: InputDecoration(
-                              labelText: 'Nama RT',
+                              labelText: 'Nama Lengkap',
                               prefixIcon: Icon(Icons.person, size: 24.r),
                             ),
                             keyboardType: TextInputType.name,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Nama RT wajib diisi';
+                                return 'Nama Lengkap wajib diisi';
                               }
                               return null;
                             },
@@ -92,6 +110,24 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
+                            key: const Key('nikField'),
+                            controller: _nikController,
+                            decoration: InputDecoration(
+                              labelText: 'NIK',
+                              prefixIcon: Icon(Icons.credit_card, size: 24.r),
+                            ),
+                            keyboardType: TextInputType.name,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'NIK wajib diisi';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16.h),
+
+                          TextFormField(
+                            key: const Key('addressField'),
                             controller: _alamatController,
                             decoration: InputDecoration(
                               labelText: 'Alamat',
@@ -109,6 +145,7 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
+                            key: const Key('phoneNumberField'),
                             controller: _noTeleponController,
                             decoration: InputDecoration(
                               labelText: 'Nomor Telepon',
@@ -128,7 +165,8 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
-                            controller: _kodeRtController,
+                            key: const Key('rtUniqueCodeField'),
+                            controller: _uniqueCodeController,
                             decoration: InputDecoration(
                               labelText: 'Kode Unik RT',
                               prefixIcon: Icon(Icons.qr_code_scanner, size: 24.r),
@@ -144,6 +182,7 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           SizedBox(height: 16.h),
 
                           TextFormField(
+                            key: const Key('emailField'),
                             controller: _emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
@@ -162,7 +201,8 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           ),
                           SizedBox(height: 16.h),
 
-                          TextFormField(
+                            TextFormField(
+                            key: const Key('passwordField'),
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
@@ -195,22 +235,37 @@ class _RtRegistrationFormState extends State<RtRegistrationForm> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
+                              key: const Key('submitButton'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary200,
+                                backgroundColor: AppColors.primary400,
                                 padding: EdgeInsets.symmetric(vertical: 16.h), // Padding vertikal dengan .h
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r), // Radius dengan .r
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                               ),
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-                                  // Logika pendaftaran
+                                  setState(() {
+                                    _didSubmit = true;
+                                  });
+                                  ref.read(registrationNotifierProvider.notifier).registerRtOfficial(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                    fullName: _fullNameController.text,
+                                    nik: _nikController.text,
+                                    phoneNumber: _noTeleponController.text,
+                                    address: _alamatController.text,
+                                    rtUniqueCode: _uniqueCodeController.text,
+                                  );
                                 }
                               },
-                              child: Text(
-                                'Daftar',
-                                style: GoogleFonts.roboto(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w500),
-                              ),
+                              child: regState.isLoading
+                                  ? CircularProgressIndicator(color: Colors.white)
+                                  : Text(
+                                      'Daftar',
+                                      style: GoogleFonts.roboto(fontSize: 18.sp,
+                                          color: Colors.white, fontWeight: FontWeight.w500),
+                                    ),
                             ),
                           ),
                           SizedBox(height: 24.h),

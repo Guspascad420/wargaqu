@@ -30,7 +30,7 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
       registrationUniqueCode: 'RT01MWRXYZ',
       uniqueCodeStatus: 'USED',
       secretariatAddress: 'Jl. Mawar No. 1, Griya Asri',
-      citizenCount: 52,
+      population: 52,
       currentBalance: 15850000,
       previousMonthClosingBalance: 13550000,
       bankAccounts: [
@@ -53,7 +53,7 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
       registrationUniqueCode: 'RT02MLTABC',
       uniqueCodeStatus: 'AVAILABLE',
       secretariatAddress: 'Jl. Melati No. 1, Griya Asri',
-      citizenCount: 48,
+      population: 48,
       currentBalance: 12300000,
       previousMonthClosingBalance: 11800000,
       bankAccounts: [
@@ -75,7 +75,7 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
       rtName: 'RT 003 Anggrek',
       registrationUniqueCode: 'RT03AGKDEF',
       uniqueCodeStatus: 'AVAILABLE',
-      citizenCount: 60,
+      population: 60,
       currentBalance: 20500000,
       previousMonthClosingBalance: 20500000, // Contoh jika saldo belum berubah
       // bankAccounts dibiarkan kosong, akan menggunakan default list kosong
@@ -90,7 +90,7 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
       rtName: 'RT 004 Kamboja',
       registrationUniqueCode: 'RT04KMBGHI',
       uniqueCodeStatus: 'EXPIRED',
-      citizenCount: 0,
+      population: 0,
       currentBalance: 0,
       isActive: false, // Contoh RT yang tidak aktif
     ),
@@ -98,24 +98,6 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
 });
 
 final selectedRtProvider = StateProvider<RtData?>((ref) => null);
-
-final rwSummaryProvider = Provider<AsyncValue<String>>((ref) {
-  final rwData = ref.watch(loggedInRwDataProvider);
-  if (rwData == null) {
-    return const AsyncValue.loading(); // Atau AsyncError
-  }
-
-  final asyncRtList = ref.watch(rtListStreamProvider(rwData.id));
-
-  return asyncRtList.when(
-    data: (rtList) {
-      final summary = '${rwData.rwName} telah memiliki ${rtList.length} RT yang terhubung';
-      return AsyncValue.data(summary);
-    },
-    loading: () => const AsyncValue.loading(),
-    error: (err, stack) => AsyncValue.error(err, stack),
-  );
-});
 
 final rtServiceProvider = Provider<RtService>((ref) {
   return RtService(ref.watch(firestoreProvider));
@@ -131,6 +113,35 @@ final deleteCodeNotifierProvider = AsyncNotifierProvider.autoDispose<DeleteCodeN
 
 final addNewRtNotifierProvider = AsyncNotifierProvider<AddNewRtNotifier, void>(() {
   return AddNewRtNotifier();
+});
+
+final rtDataProvider = Provider.autoDispose<RtData?>((ref) {
+  final asyncRtDoc = ref.watch(rtDocStreamProvider);
+
+  return asyncRtDoc.when(
+    data: (doc) {
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+      final dataWithId = doc.data()! as Map<String, dynamic>..['id'] = doc.id;
+      return RtData.fromJson(dataWithId);
+    },
+    loading: () => null,
+    error: (e, s) {
+      return null;
+    },
+  );
+});
+
+final rtSummaryProvider = Provider<AsyncValue<String>>((ref) {
+  final rtData = ref.watch(rtDataProvider);
+  if (rtData == null) {
+    return const AsyncValue.loading();
+  }
+  final population = rtData.population ?? 0;
+  final rwData = ref.watch(rwDataProvider(rtData.rwId));
+
+  return AsyncValue.data('${rtData.rtName} memiliki $population warga yang terhubung dan sudah terhubung pada ${rwData?.rwName}');
 });
 
 final rtDocStreamProvider = StreamProvider.autoDispose<DocumentSnapshot>((ref) {
