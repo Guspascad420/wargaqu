@@ -11,6 +11,8 @@ import 'package:wargaqu/pages/citizen/notifications/notifications_screen.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 import 'package:wargaqu/utils/currency_input_formatter.dart';
 
+import '../providers/rt_providers.dart';
+
 class ReusableMainScreen extends ConsumerStatefulWidget {
   const ReusableMainScreen(
       {super.key,
@@ -21,15 +23,17 @@ class ReusableMainScreen extends ConsumerStatefulWidget {
       this.specialAppBarColorTriggerIndex,
       this.specialAppBarColor,
       this.defaultAppBarColor,
-      this.specialTitleTriggerIndex});
+      this.specialTitleTriggerIndex,
+      this.fabTriggerIndex});
 
   final List<BottomNavigationBarItem> bottomNavigationBarItems;
   final List<Widget> widgetOptions;
-  final String Function(int selectedIndex, BuildContext context)?
+  final String? Function(int selectedIndex, BuildContext context)?
       appBarTitleBuilder;
   final double Function(int selectedIndex)? toolbarHeightBuilder;
   final int? specialAppBarColorTriggerIndex;
   final int? specialTitleTriggerIndex;
+  final int? fabTriggerIndex;
   final Color? specialAppBarColor;
   final Color? defaultAppBarColor;
 
@@ -106,7 +110,6 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
 
   Widget amountInputContainer(Color backgroundColor, String sign, TextEditingController amountController,
       FocusNode focusNode, TransactionType selectedType) {
-    amountController.text = '${sign}0';
     return Container(
       color: backgroundColor,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
@@ -160,24 +163,30 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
 
   Widget mainTransactionSheetContent(BuildContext context,
       WidgetRef ref,
-      List<BankAccount> bankAccounts,
-      String currentTitle,
+      List<BankAccount> mockBankAccounts,
+      TextEditingController titleController,
+      String expectedSign,
       VoidCallback onEditTitleTap) {
+
     final selectedType = ref.watch(transactionTypeProvider);
-    final String sign =
-    selectedType == TransactionType.income ? '+' : '-';
-    final currentText = _amountController.text;
-    final expectedSign = selectedType == TransactionType.income ? '+' : '-';
-    final String? selectedAccountId = ref.watch(selectedAccountIdProvider);
+    final selectedAccountId = ref.watch(selectedAccountIdProvider);
+    final bankAccounts = ref.watch(rtDataProvider)?.bankAccounts;
+    List<DropdownMenuItem<String>> menuItems = [
+      DropdownMenuItem<String>(
+        value: "Kas Tunai RT",
+        child: Text("Kas Tunai RT", style: GoogleFonts.roboto(fontSize: 15.sp,
+            fontWeight: FontWeight.w500)),
+      )
+    ];
 
-    if (!currentText.startsWith(expectedSign)) {
-      final raw = currentText.replaceAll(RegExp(r'^[-+]+'), '');
-      final newText = '$expectedSign$raw';
-
-      _amountController.value = TextEditingValue(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length),
-      );
+    if (bankAccounts != null) {
+     List<DropdownMenuItem<String>> bankAccountMenuItems = bankAccounts.map((BankAccount account) {
+        return DropdownMenuItem<String>(
+          value: account.id,
+          child: Text(account.bankName, style: GoogleFonts.roboto(fontSize: 15.sp, fontWeight: FontWeight.w500)),
+        );
+      }).toList();
+      menuItems.addAll(bankAccountMenuItems);
     }
 
     return SingleChildScrollView(
@@ -193,7 +202,7 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
             child: TransactionTabView(),
           ),
           amountInputContainer(_getBottomSheetBackgroundColor(selectedType),
-              sign, _amountController, _focusNode, selectedType),
+              expectedSign, _amountController, _focusNode, selectedType),
           InkWell(
             onTap: onEditTitleTap,
             child: _buildDetailRow(
@@ -202,7 +211,17 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
                 'Judul',
                 Padding(
                   padding: EdgeInsetsGeometry.symmetric(vertical: 8.h),
-                  child: Icon(Icons.keyboard_arrow_right_rounded),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      titleController.text.isEmpty
+                          ? Text('Wajib diisi',
+                              style: GoogleFonts.roboto(fontSize: 15.sp, color: Colors.red))
+                          : Text(titleController.text,
+                          style: GoogleFonts.roboto(fontSize: 15.sp, color: Colors.grey)),
+                      Icon(Icons.keyboard_arrow_right_rounded)
+                    ],
+                  ),
                 )
             ),
           ),
@@ -216,12 +235,7 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
               hint: Text('Pilih...', style: GoogleFonts.roboto(fontSize: 15.sp)),
               underline: const SizedBox.shrink(),
               icon: Icon(Icons.expand_more, color: Theme.of(context).primaryColor),
-              items: bankAccounts.map((BankAccount account) {
-                return DropdownMenuItem<String>(
-                  value: account.id,
-                  child: Text(account.bankName, style: GoogleFonts.roboto(fontSize: 15.sp, fontWeight: FontWeight.w500)),
-                );
-              }).toList(),
+              items: menuItems,
               onChanged: (String? newValue) {
                 ref.read(selectedAccountIdProvider.notifier).state = newValue;
               },
@@ -270,7 +284,7 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
     );
   }
 
-  Widget _buildStickySaveButton(BuildContext context) {
+  Widget _buildStickySaveButton(BuildContext context, TextEditingController titleController) {
     return Container(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
       width: double.infinity,
@@ -285,8 +299,9 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
           ]
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context); // Tutup bottom sheet
+        onPressed: (_amountController.text.substring(1,2) == '0'
+            || titleController.text.isEmpty) ? null : () {
+          Navigator.pop(context);
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 16),
@@ -323,10 +338,9 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
               ),
               Text('Tambah Judul', style: GoogleFonts.roboto(fontSize: 18.sp,
                   fontWeight: FontWeight.bold, color: Colors.white)),
-              TextButton(
-                onPressed: () => onSave(controller.text), // Panggil callback save
-                child: Text('Simpan', style: GoogleFonts.roboto(fontSize: 16.sp,
-                    fontWeight: FontWeight.bold, color: Colors.white)),
+              IconButton(
+                  onPressed: () => onSave(controller.text),
+                  icon: Icon(Icons.check, color: Colors.white)
               )
             ],
           ),
@@ -360,8 +374,12 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
 
   void _showAddTransactionSheet(BuildContext context, List<BankAccount> bankAccounts) {
     bool isEditingTitle = false;
-    String transactionTitle = '';
     final titleController = TextEditingController();
+
+    final initialSelectedType = ref.read(transactionTypeProvider); // Read once
+    final initialSign = initialSelectedType == TransactionType.income ? '+' : '-';
+    _amountController.text = '${initialSign}0';
+    String transactionTitle = '';
 
     showModalBottomSheet(
       context: context,
@@ -375,18 +393,41 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
                 _focusNode.requestFocus();
               }
             });
-
             return PopScope(
               canPop: !isEditingTitle,
               onPopInvoked: (bool didPop) {
                 if (didPop) return;
 
                 setModalState(() {
+                  transactionTitle = titleController.text;
                   isEditingTitle = false;
                 });
               },
               child: Consumer(
                 builder: (context, ref, child) {
+                  final selectedType = ref.watch(transactionTypeProvider);
+                  final String currentText = _amountController.text;
+                  final String expectedSign = selectedType == TransactionType.income ? '+' : '-';
+                  final String currentSignPrefix = currentText.isNotEmpty ? currentText[0] : '';
+
+                  // Only update if the prefix is wrong AND there's more than just a sign or empty
+                  if (currentSignPrefix.isNotEmpty && currentSignPrefix != expectedSign) {
+                    final String numericPart = currentText.substring(1);
+
+                    // Schedule update after build to avoid conflicts
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      // Check again in callback in case of rapid changes
+                      if (_amountController.text.isNotEmpty && _amountController.text[0] != expectedSign) {
+                        _amountController.value = TextEditingValue(
+                          text: '$expectedSign$numericPart',
+                          selection: TextSelection.fromPosition(
+                            TextPosition(offset: ('$expectedSign$numericPart').length),
+                          ),
+                        );
+                      }
+                    });
+                  }
+
                   return Container(
                     height: MediaQuery.of(context).size.height * 0.9,
                     decoration: BoxDecoration(
@@ -410,22 +451,22 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
                             }
                         )
                         : Column(
-                            children: [
-                              Expanded(
-                                child: mainTransactionSheetContent(
-                                    context, ref, bankAccounts,
-                                    transactionTitle,
-                                        () {
+                      children: [
+                        Expanded(
+                            child: mainTransactionSheetContent(
+                                context, ref, bankAccounts,
+                                titleController, expectedSign,
+                                    () {
                                       setModalState(() {
                                         titleController.text = transactionTitle;
                                         isEditingTitle = true;
                                       });
                                     }
-                                )
-                              ),
-                              _buildStickySaveButton(context)
-                            ],
-                          ),
+                            )
+                        ),
+                        _buildStickySaveButton(context, titleController)
+                      ],
+                    ),
                   );
                 },
               ),
@@ -438,16 +479,21 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("DEBUG: Setting initial amount: ${_amountController.text}");
+
     Color appBarBackgroundColor;
-    final List<BankAccount> bankAccounts = ref.watch(bankAccountsProvider);
+    Color appBarTitleColor;
+    final List<BankAccount> bankAccounts = ref.watch(mockBankAccountsProvider);
 
     if (widget.specialAppBarColorTriggerIndex != null &&
         _selectedIndex == widget.specialAppBarColorTriggerIndex) {
       appBarBackgroundColor = widget.specialAppBarColor ?? AppColors.primary400;
+      appBarTitleColor = Colors.white;
     } else {
       appBarBackgroundColor = widget.defaultAppBarColor ??
           Theme.of(context).appBarTheme.backgroundColor ??
           Colors.deepPurple;
+      appBarTitleColor = Theme.of(context).colorScheme.onSurface;
     }
 
     final double currentToolbarHeight =
@@ -456,8 +502,8 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
         widget.appBarTitleBuilder?.call(_selectedIndex, context) ?? "WargaQu";
 
     Widget? currentFab;
-    if (widget.specialTitleTriggerIndex != null &&
-        _selectedIndex == widget.specialTitleTriggerIndex) {
+    if (widget.fabTriggerIndex != null &&
+        _selectedIndex == widget.fabTriggerIndex) {
       currentFab = FloatingActionButton(
         onPressed: () => _showAddTransactionSheet(context, bankAccounts),
         backgroundColor: Theme.of(context).primaryColor,
@@ -477,7 +523,11 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
               style: widget.specialTitleTriggerIndex != null &&
                       _selectedIndex == widget.specialTitleTriggerIndex
                   ? Theme.of(context).textTheme.titleMedium
-                  : Theme.of(context).textTheme.titleLarge),
+                  : GoogleFonts.roboto(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: appBarTitleColor,
+                    )),
           centerTitle: widget.specialTitleTriggerIndex != null &&
                   _selectedIndex == widget.specialTitleTriggerIndex
               ? true
@@ -500,7 +550,8 @@ class _ReusableMainScreenState extends ConsumerState<ReusableMainScreen> {
             transitionBuilder: (Widget child, Animation<double> animation) {
               return ScaleTransition(scale: animation, child: child);
             },
-            child: currentFab ?? const SizedBox.shrink()),
+            child: currentFab ?? const SizedBox.shrink()
+        ),
         floatingActionButtonAnimator: NoFabAnimation(),
         body: widget.widgetOptions.elementAt(_selectedIndex),
         bottomNavigationBar: BottomNavigationBar(
