@@ -16,14 +16,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Bill {
   String get id;
+  String get rtId;
   String get billName;
   @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
   BillType get billType;
-  String get createdBy;
   double get amount;
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
   DateTime get dueDate;
-  String get paymentMethod;
-  String get paymentStatus;
 
   /// Create a copy of Bill
   /// with the given fields replaced by the non-null parameter values.
@@ -41,28 +40,23 @@ mixin _$Bill {
         (other.runtimeType == runtimeType &&
             other is Bill &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.rtId, rtId) || other.rtId == rtId) &&
             (identical(other.billName, billName) ||
                 other.billName == billName) &&
             (identical(other.billType, billType) ||
                 other.billType == billType) &&
-            (identical(other.createdBy, createdBy) ||
-                other.createdBy == createdBy) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
-            (identical(other.paymentMethod, paymentMethod) ||
-                other.paymentMethod == paymentMethod) &&
-            (identical(other.paymentStatus, paymentStatus) ||
-                other.paymentStatus == paymentStatus));
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, billName, billType,
-      createdBy, amount, dueDate, paymentMethod, paymentStatus);
+  int get hashCode =>
+      Object.hash(runtimeType, id, rtId, billName, billType, amount, dueDate);
 
   @override
   String toString() {
-    return 'Bill(id: $id, billName: $billName, billType: $billType, createdBy: $createdBy, amount: $amount, dueDate: $dueDate, paymentMethod: $paymentMethod, paymentStatus: $paymentStatus)';
+    return 'Bill(id: $id, rtId: $rtId, billName: $billName, billType: $billType, amount: $amount, dueDate: $dueDate)';
   }
 }
 
@@ -73,14 +67,13 @@ abstract mixin class $BillCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      String rtId,
       String billName,
       @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       BillType billType,
-      String createdBy,
       double amount,
-      DateTime dueDate,
-      String paymentMethod,
-      String paymentStatus});
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      DateTime dueDate});
 }
 
 /// @nodoc
@@ -96,18 +89,20 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
+    Object? rtId = null,
     Object? billName = null,
     Object? billType = null,
-    Object? createdBy = null,
     Object? amount = null,
     Object? dueDate = null,
-    Object? paymentMethod = null,
-    Object? paymentStatus = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rtId: null == rtId
+          ? _self.rtId
+          : rtId // ignore: cast_nullable_to_non_nullable
               as String,
       billName: null == billName
           ? _self.billName
@@ -117,10 +112,6 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
           ? _self.billType
           : billType // ignore: cast_nullable_to_non_nullable
               as BillType,
-      createdBy: null == createdBy
-          ? _self.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String,
       amount: null == amount
           ? _self.amount
           : amount // ignore: cast_nullable_to_non_nullable
@@ -129,14 +120,6 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
           ? _self.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      paymentMethod: null == paymentMethod
-          ? _self.paymentMethod
-          : paymentMethod // ignore: cast_nullable_to_non_nullable
-              as String,
-      paymentStatus: null == paymentStatus
-          ? _self.paymentStatus
-          : paymentStatus // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -146,33 +129,29 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
 class _Bill implements Bill {
   const _Bill(
       {required this.id,
+      required this.rtId,
       required this.billName,
       @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       required this.billType,
-      required this.createdBy,
       required this.amount,
-      required this.dueDate,
-      required this.paymentMethod,
-      required this.paymentStatus});
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      required this.dueDate});
   factory _Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
 
   @override
   final String id;
+  @override
+  final String rtId;
   @override
   final String billName;
   @override
   @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
   final BillType billType;
   @override
-  final String createdBy;
-  @override
   final double amount;
   @override
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
   final DateTime dueDate;
-  @override
-  final String paymentMethod;
-  @override
-  final String paymentStatus;
 
   /// Create a copy of Bill
   /// with the given fields replaced by the non-null parameter values.
@@ -195,28 +174,23 @@ class _Bill implements Bill {
         (other.runtimeType == runtimeType &&
             other is _Bill &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.rtId, rtId) || other.rtId == rtId) &&
             (identical(other.billName, billName) ||
                 other.billName == billName) &&
             (identical(other.billType, billType) ||
                 other.billType == billType) &&
-            (identical(other.createdBy, createdBy) ||
-                other.createdBy == createdBy) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
-            (identical(other.paymentMethod, paymentMethod) ||
-                other.paymentMethod == paymentMethod) &&
-            (identical(other.paymentStatus, paymentStatus) ||
-                other.paymentStatus == paymentStatus));
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, billName, billType,
-      createdBy, amount, dueDate, paymentMethod, paymentStatus);
+  int get hashCode =>
+      Object.hash(runtimeType, id, rtId, billName, billType, amount, dueDate);
 
   @override
   String toString() {
-    return 'Bill(id: $id, billName: $billName, billType: $billType, createdBy: $createdBy, amount: $amount, dueDate: $dueDate, paymentMethod: $paymentMethod, paymentStatus: $paymentStatus)';
+    return 'Bill(id: $id, rtId: $rtId, billName: $billName, billType: $billType, amount: $amount, dueDate: $dueDate)';
   }
 }
 
@@ -228,14 +202,13 @@ abstract mixin class _$BillCopyWith<$Res> implements $BillCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      String rtId,
       String billName,
       @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       BillType billType,
-      String createdBy,
       double amount,
-      DateTime dueDate,
-      String paymentMethod,
-      String paymentStatus});
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      DateTime dueDate});
 }
 
 /// @nodoc
@@ -251,18 +224,20 @@ class __$BillCopyWithImpl<$Res> implements _$BillCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
+    Object? rtId = null,
     Object? billName = null,
     Object? billType = null,
-    Object? createdBy = null,
     Object? amount = null,
     Object? dueDate = null,
-    Object? paymentMethod = null,
-    Object? paymentStatus = null,
   }) {
     return _then(_Bill(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rtId: null == rtId
+          ? _self.rtId
+          : rtId // ignore: cast_nullable_to_non_nullable
               as String,
       billName: null == billName
           ? _self.billName
@@ -272,10 +247,6 @@ class __$BillCopyWithImpl<$Res> implements _$BillCopyWith<$Res> {
           ? _self.billType
           : billType // ignore: cast_nullable_to_non_nullable
               as BillType,
-      createdBy: null == createdBy
-          ? _self.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String,
       amount: null == amount
           ? _self.amount
           : amount // ignore: cast_nullable_to_non_nullable
@@ -284,14 +255,6 @@ class __$BillCopyWithImpl<$Res> implements _$BillCopyWith<$Res> {
           ? _self.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      paymentMethod: null == paymentMethod
-          ? _self.paymentMethod
-          : paymentMethod // ignore: cast_nullable_to_non_nullable
-              as String,
-      paymentStatus: null == paymentStatus
-          ? _self.paymentStatus
-          : paymentStatus // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }

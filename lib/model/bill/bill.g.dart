@@ -8,22 +8,18 @@ part of 'bill.dart';
 
 _Bill _$BillFromJson(Map<String, dynamic> json) => _Bill(
       id: json['id'] as String,
+      rtId: json['rtId'] as String,
       billName: json['billName'] as String,
       billType: _billTypeFromJson(json['billType'] as String),
-      createdBy: json['createdBy'] as String,
       amount: (json['amount'] as num).toDouble(),
-      dueDate: DateTime.parse(json['dueDate'] as String),
-      paymentMethod: json['paymentMethod'] as String,
-      paymentStatus: json['paymentStatus'] as String,
+      dueDate: _timestampFromJson(json['dueDate'] as Timestamp),
     );
 
 Map<String, dynamic> _$BillToJson(_Bill instance) => <String, dynamic>{
       'id': instance.id,
+      'rtId': instance.rtId,
       'billName': instance.billName,
       'billType': _billTypeToJson(instance.billType),
-      'createdBy': instance.createdBy,
       'amount': instance.amount,
-      'dueDate': instance.dueDate.toIso8601String(),
-      'paymentMethod': instance.paymentMethod,
-      'paymentStatus': instance.paymentStatus,
+      'dueDate': _timestampToJson(instance.dueDate),
     };
