@@ -78,7 +78,6 @@ class BillItemCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300, width: 1.w),
               borderRadius: BorderRadius.circular(8.r),
-              color: _getStatusColor(status),
             ),
             child: Row(
               children: [
