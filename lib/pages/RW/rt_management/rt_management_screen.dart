@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/rt_item_card.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
-import 'package:wargaqu/pages/RW/rt_management/new_rt_form_screen.dart';
+import 'package:wargaqu/pages/RW/rt_management/new_rt_form.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
@@ -40,7 +40,7 @@ class _RwCitizenScreenState extends ConsumerState<RtManagementScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const NewRtFormScreen())
+              MaterialPageRoute(builder: (context) => const NewRtForm())
           );
         },
         label: Text('Tambah Data RT Baru'),
@@ -81,7 +81,7 @@ class _RwCitizenScreenState extends ConsumerState<RtManagementScreen> {
                           return RtItemCard(
                             rtId: rt.id,
                             rtName: rt.rtName,
-                            population: rt.citizenCount ?? 0,
+                            population: rt.population ?? 0,
                             isActive: rt.isActive,
                           );
                         },
