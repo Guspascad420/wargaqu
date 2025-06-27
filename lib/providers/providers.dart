@@ -16,6 +16,7 @@ import 'package:wargaqu/services/bill_service.dart';
 import 'package:wargaqu/services/payment_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
+import '../notifiers/logout_notifier.dart';
 import '../notifiers/transaction_notifier.dart';
 import '../pages/RT/financial_report/financial_report_screen.dart';
 import '../services/report_service.dart';
@@ -108,4 +109,8 @@ final paymentHistoryProvider = FutureProvider.family<List<Payment>, ({String use
 final reportsProvider = StreamProvider.autoDispose.family<List<ReportData>, ({String rtId, ReportType reportType})>((ref, args) {
   final service = ref.watch(reportServiceProvider);
   return service.fetchReports(args.rtId, args.reportType);
+});
+
+final logoutNotifierProvider = AsyncNotifierProvider.autoDispose<LogoutNotifier, void>(() {
+  return LogoutNotifier();
 });

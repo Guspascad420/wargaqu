@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wargaqu/providers/providers.dart';
 
-class ProfileScreen extends StatelessWidget {
+import '../../login_choice.dart';
+
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logoutState = ref.watch(logoutNotifierProvider);
+
+    ref.listen<AsyncValue<void>>(logoutNotifierProvider, (previous, next) {
+      if (previous is AsyncLoading && !next.isLoading) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal keluar: ${next.error}')),
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginChoiceScreen()),
+                (Route<dynamic> route) => false,
+          );
+        }
+      }
+    });
+
     return Container(
       margin: EdgeInsets.all(15.h),
       child: Column(
@@ -82,9 +103,11 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 elevation: 2,
               ),
-              onPressed: () {
-
-              },
+              onPressed: logoutState.isLoading
+                ? null
+                : () {
+                    ref.read(logoutNotifierProvider.notifier).signOut();
+                  },
             ),
           ),
         ],
