@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class PaymentMethodSettingsScreen extends StatelessWidget {
-  const PaymentMethodSettingsScreen({super.key, required this.bankAccounts});
+class PaymentMethodSettingsTab extends StatelessWidget {
+  const PaymentMethodSettingsTab({super.key, required this.bankAccounts});
 
   final List<BankAccount> bankAccounts;
 
@@ -20,7 +20,20 @@ class PaymentMethodSettingsScreen extends StatelessWidget {
             SizedBox(height: 15.h),
             Text('Rekening Bank Resmi', style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: 10.h),
-            ListView.separated(
+            bankAccounts.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.account_balance_wallet_outlined, size: 120.h,),
+                    Text('Belum Ada Rekening Bank Ditambahkan', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center,),
+                    Text('Tekan tombol + di bawah untuk memulai', style: GoogleFonts.roboto(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.normal,
+                      color: Color(0xFF74696D),
+                    ), textAlign: TextAlign.center),
+                  ],
+                )
+              : ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
@@ -77,30 +90,6 @@ class PaymentMethodSettingsScreen extends StatelessWidget {
                 separatorBuilder: (context, index) => SizedBox(height: 12.h),
                 itemCount: bankAccounts.length
             ),
-            SizedBox(height: 15.h),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                label: Text(
-                  'Tambah Rekening Baru',
-                  style: GoogleFonts.roboto(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary400,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.w),
-                  ),
-                  elevation: 2,
-                ),
-                onPressed: () {
-                },
-              ),
-            )
           ],
         ),
       )
