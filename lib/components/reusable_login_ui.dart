@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class ReusableLoginUI extends StatefulWidget {
+class ReusableLoginUI extends ConsumerStatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -25,10 +27,10 @@ class ReusableLoginUI extends StatefulWidget {
   });
 
   @override
-  State<ReusableLoginUI> createState() => _ReusableLoginUIState();
+  ConsumerState<ReusableLoginUI> createState() => _ReusableLoginUIState();
 }
 
-class _ReusableLoginUIState extends State<ReusableLoginUI> {
+class _ReusableLoginUIState extends ConsumerState<ReusableLoginUI> {
   bool _isPasswordVisible = false;
   final RegExp _emailRegExp = RegExp(
     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
@@ -36,6 +38,8 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
 
   @override
   Widget build(BuildContext context) {
+    final loginState = ref.watch(loginNotifierProvider);
+
     return Form(
       key: widget.formKey,
       child: Column(
@@ -52,6 +56,7 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
           const SizedBox(height: 10),
 
           TextFormField(
+            key: const Key('emailField'),
             controller: widget.emailController,
             decoration: InputDecoration(
               labelText: 'Email',
@@ -73,6 +78,7 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
           const SizedBox(height: 16),
 
           TextFormField(
+            key: const Key('passwordField'),
             controller: widget.passwordController,
             obscureText: !_isPasswordVisible,
             decoration: InputDecoration(
@@ -118,6 +124,7 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
           const SizedBox(height: 24),
 
           ElevatedButton(
+            key: const Key('loginButton'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary400,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -126,14 +133,16 @@ class _ReusableLoginUIState extends State<ReusableLoginUI> {
               ),
             ),
             onPressed: widget.onLoginPressed,
-            child: Text(
-              widget.loginButtonText,
-              style: GoogleFonts.roboto(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            child: loginState.isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    widget.loginButtonText,
+                    style: GoogleFonts.roboto(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
           const SizedBox(height: 24),
           Row(
