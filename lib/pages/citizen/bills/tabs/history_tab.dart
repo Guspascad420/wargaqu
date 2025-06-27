@@ -26,7 +26,7 @@ class HistoryTab extends StatelessWidget {
             SizedBox(height: 15.sp),
             BillItemCard(title: 'Iuran Februari 2024',
               dueDate: DateTime.utc(2024, 11, 9), amount: 20000, status: 'Belum bayar',
-                showPaymentDetailDialog: showPaymentDetailDialog)
+                showPaymentDetailDialog: showPaymentDetailDialog, onItemTapped: () {})
           ],
         )
     );

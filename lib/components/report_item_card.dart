@@ -24,11 +24,6 @@ class ReportItemCard extends StatelessWidget {
     final monthYearFormatterMY = DateFormat('MMMM yyyy');
     final Widget contentWidgets = switch (reportData) {
       MonthlyReport(
-        id: final id,
-        entityId: final entityId,
-        monthlyIncome: final monthlyIncome,
-        monthlyExpenses: final monthlyExpenses,
-        netMonthlyResult: final netMonthlyResult,
         periodYearMonth: final periodYearMonth,
         lastUpdated: final lastUpdated
       ) => InkWell(

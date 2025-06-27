@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/components/payment_detail_dialog.dart';
 import 'package:wargaqu/model/bill/bill.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
+import 'package:wargaqu/model/payment/payment.dart';
 import 'package:wargaqu/pages/citizen/bills/tabs/bills_tab.dart';
 import 'package:wargaqu/pages/citizen/bills/tabs/history_tab.dart';
 
@@ -23,15 +24,14 @@ class ReusableBillsUI extends StatelessWidget {
   final String historyTabSubtitle;
 
   void _showPaymentDetailDialog(BuildContext context) {
-    final Bill bill = Bill(
-        id: 'IKJ-2025-07-001', // ID unik buat tagihan ini
+    final Payment payment = Payment(
+        id: 'IKJ-2025-07-001',
         billName: 'Iuran Juli 2025',
         billType: BillType.regular,
-        createdBy: 'Pengurus RW 05 Sejahtera',
-        amount: 20000,
-        dueDate: DateTime(2025, 7, 10, 23, 59), // Tanggal 10 Juli 2025, jam 23:59
-        paymentMethod: 'Mandiri transfer',
-        paymentStatus: 'Menunggu konfirmasi'
+        amountPaid: 20000,
+        dueDate: DateTime(2025, 7, 10, 23, 59),
+      billPeriod: '', paymentTimestamp: DateTime.now(),
+      paymentMethod: '', status: '', paymentProofUrl: '', // Tanggal 10 Juli 2025, jam 23:59
     );
 
     showDialog(
@@ -42,7 +42,7 @@ class ReusableBillsUI extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.r),
           ),
           elevation: 2,
-          child: PaymentDetailDialogContent(data: bill),
+          child: PaymentDetailDialogContent(data: payment),
         );
       },
     );
@@ -52,14 +52,12 @@ class ReusableBillsUI extends StatelessWidget {
   Widget build(BuildContext context) {
     const double tabBarHeight = kTextTabBarHeight;
     final Bill bill = Bill(
-        id: 'IKJ-2025-07-001', // ID unik buat tagihan ini
+        id: 'IKJ-2025-07-001',
+        rtId: '008',
         billName: 'Iuran Juli 2025',
         billType: BillType.regular,
-        createdBy: 'Pengurus RW 05 Sejahtera',
         amount: 20000,
         dueDate: DateTime(2025, 7, 10, 23, 59), // Tanggal 10 Juli 2025, jam 23:59
-        paymentMethod: 'Mandiri transfer',
-        paymentStatus: 'Menunggu konfirmasi'
     );
 
     return DefaultTabController(

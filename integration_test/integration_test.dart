@@ -10,7 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/auth/RW/rw_registration_form.dart';
 import 'package:wargaqu/theme/app_theme.dart';
-import 'package:wargaqu/pages/RW/rt_management/new_rt_form_screen.dart';
+import 'package:wargaqu/pages/RW/rt_management/new_rt_form.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -91,7 +91,7 @@ void main() {
                     home: child
                 );
               },
-              child: const NewRtFormScreen(),
+              child: const NewRtForm(),
             ),
           )
       );
@@ -107,7 +107,7 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      expect(find.byType(NewRtFormScreen), findsNothing);
+      expect(find.byType(NewRtForm), findsNothing);
     });
   });
 }

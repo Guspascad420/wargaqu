@@ -9,26 +9,9 @@ import 'package:wargaqu/pages/citizen/payment/payment_screen.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final bankAccountsProvider = Provider<List<BankAccount>>((ref) {
-  return [
-    BankAccount(
-        id: 'bca1',
-        bankName: 'BCA',
-        accountNumber: '**** **** **** 1234',
-        accountHolderName: 'Pengurus RT 05 RW 02',
-        logoAsset: 'images/bca.png'
-    ),
-    BankAccount(
-        id: 'bri1',
-        bankName: 'BRI',
-        accountNumber: '**** **** **** 9012',
-        accountHolderName: 'Bendahara RT 05',
-        logoAsset: 'images/bri.png'
-    ),
-  ];
-});
+import '../../../providers/rt_providers.dart';
 
-final selectedAccountIdProvider = StateProvider<String?>((ref) => null);
+final selectedAccountIdProvider = StateProvider<String?>((ref) => 'Kas Tunai RT');
 
 class BankAccountSelectionScreen extends ConsumerWidget {
   final BillType billType;
@@ -39,7 +22,7 @@ class BankAccountSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<BankAccount> bankAccounts = ref.watch(bankAccountsProvider);
+    final List<BankAccount> bankAccounts = ref.watch(mockBankAccountsProvider);
     final String? selectedAccountId = ref.watch(selectedAccountIdProvider);
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',

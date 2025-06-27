@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:wargaqu/providers/providers.dart';
 
-class SearchAndFilterSection extends StatelessWidget {
+class SearchAndFilterSection extends ConsumerWidget {
   const SearchAndFilterSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedStatus = ref.watch(filterStatusProvider);
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       decoration: BoxDecoration(
@@ -47,13 +51,21 @@ class SearchAndFilterSection extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               children: [
                 SizedBox(width: 15.w),
-                FilterChip(label: const Text('Semua'), onSelected: (b){}),
+                ChoiceChip(label: const Text('Semua'), onSelected: (b) {
+                  ref.read(filterStatusProvider.notifier).state = 'Semua';
+                }, selected: selectedStatus == 'Semua'),
                 SizedBox(width: 8.w),
-                FilterChip(label: const Text('Lunas'), onSelected: (b){}, selected: true),
+                ChoiceChip(label: const Text('Lunas'), onSelected: (b) {
+                  ref.read(filterStatusProvider.notifier).state = 'Lunas';
+                }, selected: selectedStatus == 'Lunas'),
                 SizedBox(width: 8.w),
-                FilterChip(label: const Text('Belum Bayar'), onSelected: (b){}),
+                ChoiceChip(label: const Text('Belum Bayar'), onSelected: (b) {
+                  ref.read(filterStatusProvider.notifier).state = 'Belum Bayar';
+                }, selected: selectedStatus == 'Belum Bayar'),
                 SizedBox(width: 8.w),
-                FilterChip(label: const Text('Perlu Konfirmasi'), onSelected: (b){}),
+                ChoiceChip(label: const Text('Perlu Konfirmasi'), onSelected: (b) {
+                  ref.read(filterStatusProvider.notifier).state = 'Perlu Konfirmasi';
+                }, selected: selectedStatus == 'Perlu Konfirmasi'),
                 SizedBox(width: 15.w),
               ],
             ),

@@ -29,7 +29,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 70, // Kompresi sedikit biar gak kegedean
+        imageQuality: 70,
       );
 
       if (pickedFile != null) {
@@ -104,6 +104,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       },
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -4,9 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:wargaqu/model/RT/rt_data.dart';
+import 'package:wargaqu/model/bill/bill_type.dart';
+import 'package:wargaqu/pages/RT/bill_management/add_bills_screen.dart';
+import 'package:wargaqu/pages/RT/bill_management/new_bank_account_form/new_bank_account_form.dart';
 import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/auth/RT/rt_login_form.dart';
 import 'package:wargaqu/pages/auth/RT/rt_registration_form.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/theme/app_theme.dart';
 
 void main() {
@@ -58,7 +63,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(rtUniqueCodeField);
       await tester
-          .pumpAndSettle(); // Penting untuk menunggu setelah ensureVisible
+          .pumpAndSettle();
       await tester.enterText(
           rtUniqueCodeField, 'KETUA-UMWRVTMGYDTU50JH9XYK-XCR5XC');
       await tester.pumpAndSettle();
@@ -83,8 +88,7 @@ void main() {
   });
 
   group('Login and Home Screen Flow', () {
-    testWidgets(
-        'Setelah login berhasil, halaman home harus menampilkan nama user',
+    testWidgets('Setelah login berhasil, halaman home harus menampilkan nama user',
         (WidgetTester tester) async {
       await tester.pumpWidget(
           ProviderScope(
@@ -124,5 +128,119 @@ void main() {
     // testWidgets('Tombol lain di home berfungsi', (WidgetTester tester) async {
     //   // ...
     // });
+  });
+
+  group('Add new bank account', () {
+    final testRtData = RtData(
+      id: 'UMwRVTMgydtU50jH9xyk',
+      rwId: '', rtNumber: 001, rtName: '',
+    );
+
+    testWidgets('User bisa menambahkan rekening bank', (WidgetTester tester) async {
+      await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              // Override rtDataProvider with your specific testRtData instance
+              rtDataProvider.overrideWithValue(testRtData),
+            ],
+            child: ScreenUtilInit(
+              designSize: const Size(360, 800),
+              minTextAdapt: true,
+              splitScreenMode: true,
+              builder: (context, child) {
+                return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    theme: lightTheme,
+                    darkTheme: darkTheme,
+                    themeMode: ThemeMode.system,
+                    home: child);
+              },
+              child: const NewBankAccountForm(),
+            ),
+          )
+      );
+      final Finder dropdownMenuFinder = find.byType(DropdownMenu<String>);
+      expect(dropdownMenuFinder, findsOneWidget);
+
+      final Finder accountNumberField = find.byKey(
+          const Key('accountNumberField'));
+      final Finder accountHolderField = find.byKey(
+          const Key('accountHolderField'));
+      final Finder submitButton = find.byKey(const Key('submitButton'));
+
+      // Enter text into the fields
+      await tester.tap(dropdownMenuFinder);
+      await tester.pumpAndSettle();
+      final String bankToSelect = 'Bank Mandiri';
+      final Finder bankMenuItemFinder = find.text(bankToSelect).last;
+
+      expect(bankMenuItemFinder, findsOneWidget);
+      await tester.tap(bankMenuItemFinder);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(accountNumberField, '1234567890');
+      await tester.pumpAndSettle();
+
+      await tester.enterText(accountHolderField, 'Kylian Mbappe');
+      await tester.pumpAndSettle();
+
+      // Ensure the submit button is visible and tap it
+      await tester.ensureVisible(submitButton);
+      await tester.pumpAndSettle();
+      await tester.tap(submitButton);
+
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(NewBankAccountForm), findsNothing);
+
+      // Wait for navigation or any async operations to complete
+    });
+  });
+
+  group('Add new bill', () {
+    final testRtData = RtData(
+      id: 'UMwRVTMgydtU50jH9xyk',
+      rwId: '', rtNumber: 001, rtName: '',
+    );
+
+    testWidgets('User bisa menambahkan rekening bank', (WidgetTester tester) async {
+      await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              // Override rtDataProvider with your specific testRtData instance
+              rtDataProvider.overrideWithValue(testRtData),
+            ],
+            child: ScreenUtilInit(
+              designSize: const Size(360, 800),
+              minTextAdapt: true,
+              splitScreenMode: true,
+              builder: (context, child) {
+                return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    theme: lightTheme,
+                    darkTheme: darkTheme,
+                    themeMode: ThemeMode.system,
+                    home: child);
+              },
+              child: const AddBillsScreen(billType: BillType.regular),
+            ),
+          )
+      );
+
+      await tester.enterText(find.byKey(const Key('titleField')), 'Iuran Januari 2025');
+      await tester.enterText(find.byKey(const Key('amountField')), '50000');
+      await tester.tap(find.text('Pilih tanggal...'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('descriptionField')), 'Untuk petugas sampah mingguan');
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Simpan'));
+
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(NewBankAccountForm), findsNothing);
+    });
   });
 }

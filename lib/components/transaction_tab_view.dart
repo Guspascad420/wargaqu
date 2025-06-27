@@ -25,7 +25,7 @@ class TransactionTabView extends ConsumerWidget{
     return GoogleFonts.roboto(
       fontSize: 14.sp,
       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-      color: Theme.of(context).colorScheme.onSurface,
+      color: isSelected ? Colors.black : Colors.white,
     );
   }
 
@@ -91,8 +91,8 @@ class TransactionTabView extends ConsumerWidget{
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _buildTabItem(context, ref, 'Expense', TransactionType.expense, selectedType),
-                  _buildTabItem(context, ref, 'Income', TransactionType.income, selectedType),
+                  _buildTabItem(context, ref, 'Pengeluaran', TransactionType.expense, selectedType),
+                  _buildTabItem(context, ref, 'Pemasukan', TransactionType.income, selectedType),
                 ],
               ),
             ],

@@ -4,11 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:segmented_progress_bar/segmented_progress_bar.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
+import 'package:wargaqu/model/payment/payment_confirmation_details.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/bill_selector.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/citizen_activity_screen.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/citizen_status_graph.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/persistent_header_delegate.dart';
+import 'package:wargaqu/pages/RT/citizen_activity/profile/citizen_profile_screen.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/search_and_filter_section.dart';
+import 'package:wargaqu/pages/RT/confirm_payment/payment_confirmation_screen.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 class CitizenActivityScreen extends ConsumerWidget {
@@ -61,6 +65,15 @@ class CitizenActivityScreen extends ConsumerWidget {
       ),
     ];
 
+    final paymentDetailBudi = PaymentConfirmationDetails(
+      paymentId: 'pym_juni_001',
+      residentName: 'Nyoman Ayu Carmenita',
+      address: 'Blok C-12, Griya Asri',
+      billName: 'Iuran Keamanan - Juni 2025',
+      amount: 50000,
+      proofOfPaymentImageUrl: 'https://i.imgur.com/8pL4kG6.png', // Contoh URL gambar struk
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -85,12 +98,20 @@ class CitizenActivityScreen extends ConsumerWidget {
             pinned: true,
           ),
           SliverList.builder(
-            itemCount: 20, // Jumlah warga
+            itemCount: 20,
             itemBuilder: (context, index) {
-              return ListTile(
-                leading: CircleAvatar(child: Text('${index + 1}')),
-                title: Text('Warga ke-${index + 1}'),
-                subtitle: const Text('Blok A-12'),
+              return InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) =>
+                          PaymentConfirmationScreen(details: paymentDetailBudi))
+                  );
+                },
+                child: ListTile(
+                  leading: CircleAvatar(child: Text('${index + 1}')),
+                  title: Text('Warga ke-${index + 1}'),
+                  subtitle: const Text('Blok A-12'),
+                ),
               );
             },
           ),

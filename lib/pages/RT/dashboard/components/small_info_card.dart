@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-Widget smallInfoCard(BuildContext context, double amount,
+Widget smallInfoCard(BuildContext context, int amount,
     String title, Color amountColor, IconData icon, String periodInfo) {
   final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 

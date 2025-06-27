@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/model/user/user.dart';
-import 'package:wargaqu/pages/auth/citizen/citizen_login_form.dart';
-import 'package:wargaqu/pages/auth/citizen/citizen_registration_form.dart' hide authServiceProvider;
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/pages/auth/citizen/citizen_registration_form.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
@@ -11,6 +10,53 @@ class RegistrationNotifier extends AsyncNotifier<void> {
   @override
   Future<void> build() async {
     return;
+  }
+
+  Future<void> registerRtOfficial({
+    required String email,
+    required String password,
+    required String fullName,
+    required String nik,
+    required String phoneNumber,
+    required String address,
+    required String rtUniqueCode,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final authService = ref.read(authServiceProvider);
+      final userService = ref.read(userServiceProvider);
+      final rtService = ref.read(rtServiceProvider);
+
+      final result = await rtService.validateRt(rtUniqueCode);
+
+      final firebaseUser = await authService.signUpWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (firebaseUser == null) {
+        throw Exception('Gagal membuat akun autentikasi.');
+      }
+
+      final newUser = UserModel(
+        id: firebaseUser.uid,
+        email: email,
+        fullName: fullName,
+        role: result.role,
+        phoneNumber: phoneNumber,
+        nik: nik,
+        rtId: result.rtId,
+        rwId: result.rwId,
+        address: address,
+      );
+      final batch = ref.read(firestoreProvider).batch();
+
+      await userService.createUserProfile(newUser, batch);
+
+      await rtService.claimRtCode(result.rtId, result.role, fullName, rtUniqueCode, batch);
+
+      await batch.commit();
+    });
   }
 
   Future<void> registerRwOfficial({

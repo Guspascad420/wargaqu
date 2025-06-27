@@ -6,16 +6,16 @@ class ReportService {
 
   ReportService(this._firestore);
 
-  Future<List<ReportData>> fetchReports(String userId, ReportType reportType) async {
+  Stream<List<ReportData>> fetchReports(String rtId, ReportType reportType) {
     String collectionName = ReportType.monthly == reportType ? 'monthlyReports' : 'yearlyReports';
 
-    try {
-      final snapshot = await _firestore
-          .collection(collectionName)
-          .orderBy('lastUpdated', descending: true)
-          .limit(20)
-          .get();
-
+    final querySnapshotStream = _firestore
+        .collection(collectionName)
+        .where('entityId', isEqualTo: rtId)
+        .orderBy('lastUpdated', descending: true)
+        .limit(20)
+        .snapshots();
+    return querySnapshotStream.map((snapshot) {
       if (snapshot.docs.isEmpty) {
         return [];
       }
@@ -25,13 +25,6 @@ class ReportService {
         data['id'] = doc.id;
         return ReportData.fromJson(data);
       }).toList();
-
-    } on FirebaseException catch (e) {
-      print('Firebase Error fetching payment history: ${e.message}');
-      throw Exception('Gagal memuat riwayat pembayaran: ${e.code}');
-    } catch (e) {
-      print('General Error fetching payment history: $e');
-      throw Exception('Terjadi kesalahan tidak terduga.');
-    }
+    });
   }
 }

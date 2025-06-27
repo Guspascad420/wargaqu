@@ -3,9 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/model/bill/bill.dart';
+import 'package:wargaqu/model/payment/payment.dart';
 
 class PaymentDetailDialogContent extends StatelessWidget {
-  final Bill data;
+  final Payment data;
 
   const PaymentDetailDialogContent({super.key, required this.data});
 
@@ -102,21 +103,21 @@ class PaymentDetailDialogContent extends StatelessWidget {
         children: [
           _buildSectionTitle(context, 'Detail Iuran'),
           _buildDetailRow(context, 'Nama Iuran', data.billName, valueWeight: FontWeight.w500),
-          _buildDetailRow(context, 'Dibuat oleh', data.createdBy),
-          _buildDetailRow(context, 'Nominal', currencyFormatter.format(data.amount), valueWeight: FontWeight.w500),
+          // _buildDetailRow(context, 'Dibuat oleh', data.createdBy),
+          _buildDetailRow(context, 'Nominal', currencyFormatter.format(data.amountPaid), valueWeight: FontWeight.w500),
 
           SizedBox(height: 10.h),
 
           _buildSectionTitle(context, 'Detail Pembayaran'),
-          _buildDetailRow(context, 'Batas Bayar', '${dateFormatter.format(data.dueDate)} WIB'),
+          // _buildDetailRow(context, 'Batas Bayar', '${dateFormatter.format(data.dueDate)} WIB'),
           _buildDetailRow(context, 'Media Bayar', data.paymentMethod),
           _buildDetailRow(context,
             'Status',
-            data.paymentStatus,
-            valueColor: _getStatusColor(data.paymentStatus),
+            data.status,
+            valueColor: _getStatusColor(data.status),
             valueWeight: FontWeight.bold,
           ),
-          if (data.paymentStatus == 'Menunggu konfirmasi')...[
+          if (data.status == 'Menunggu konfirmasi')...[
             _buildPaymentProofRow(context),
           ],
           SizedBox(height: 24.h),

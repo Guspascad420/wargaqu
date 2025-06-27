@@ -4,78 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_screenutil
-import 'package:wargaqu/model/auth/auth_state.dart';
-import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/pages/auth/citizen/citizen_login_form.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/services/auth_service.dart';
-import 'package:wargaqu/services/user_db_service.dart';
+import 'package:wargaqu/services/user_service.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-
-final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(fb_auth.FirebaseAuth.instance);
-});
 final userDbServiceProvider = Provider<UserDbService>((ref) {
   return UserDbService(FirebaseFirestore.instance);
 });
-
-class RegistrationNotifier extends AsyncNotifier<AuthState> {
-  @override
-  Future<AuthState> build() async {
-    return const AuthState();
-  }
-
-  Future<void> registerUser({
-    required String email,
-    required String password,
-    required String nik,
-    required String fullName,
-    String? phoneNumber,
-    required String address,
-    String? currentOccupation,
-    String? residencyStatus,
-    required String rwId,
-    required String rtId
-  }) async {
-    state = const AsyncValue.loading();
-
-    try {
-      // Langkah 1: Buat user di Firebase Auth
-      final authService = ref.read(authServiceProvider);
-      final firebaseUser = await authService.signUpWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      if (firebaseUser == null) {
-        throw Exception('Gagal membuat akun autentikasi.');
-      }
-
-      final newUser = User(
-        id: firebaseUser.uid,
-        email: email,
-        nik: nik,
-        rtId: rtId,
-        fullName: fullName,
-        phoneNumber: phoneNumber,
-        address: address,
-        currentOccupation: currentOccupation,
-        residencyStatus: residencyStatus,
-        rwId: rwId,
-      );
-
-      final userDbService = ref.read(userDbServiceProvider);
-      await userDbService.createUserProfile(newUser);
-
-      state = AsyncValue.data(const AuthState(status: AuthStateStatus.success));
-      debugPrint('Registrasi berhasil untuk: $email');
-
-    } catch (e) {
-      debugPrint('Error di RegistrationNotifier: $e');
-      state = AsyncValue.error(e.toString(), StackTrace.current);
-    }
-  }
-}
 
 class CitizenRegistrationForm extends ConsumerStatefulWidget {
   const CitizenRegistrationForm({super.key});
@@ -101,6 +38,7 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
   final TextEditingController _pekerjaanController = TextEditingController();
   final TextEditingController _statusKependudukanController = TextEditingController();
   final TextEditingController _kodeRtController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -112,6 +50,7 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
     _noKkController.dispose();
     _noTeleponController.dispose();
     _pekerjaanController.dispose();
+    _fullNameController.dispose();
     _statusKependudukanController.dispose();
     _kodeRtController.dispose();
     _emailController.dispose();
@@ -121,6 +60,17 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(registrationNotifierProvider, (prev, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
+      }
+      if (!next.isLoading && !next.hasError && prev is AsyncLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registrasi RW berhasil!')));
+      }
+    });
+
+    final regState = ref.watch(registrationNotifierProvider);
+
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -286,6 +236,23 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Kode Unik RT wajib diisi.';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16.h),
+
+                          TextFormField(
+                            controller: _fullNameController,
+                            decoration: InputDecoration(
+                              labelText: 'Nama Lengkap',
+                              prefixIcon: Icon(Icons.person, size: 24.r),
+                            ),
+                            keyboardType: TextInputType.text,
+                            maxLines: 3,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Nama Lengkap harus diisi';
                               }
                               return null;
                             },
