@@ -10,17 +10,15 @@ MonthlyReport _$MonthlyReportFromJson(Map<String, dynamic> json) =>
     MonthlyReport(
       id: json['id'] as String,
       entityId: json['entityId'] as String,
-      monthlyIncome: (json['monthlyIncome'] as num).toDouble(),
-      monthlyExpenses: (json['monthlyExpenses'] as num).toDouble(),
-      netMonthlyResult: (json['netMonthlyResult'] as num).toDouble(),
+      monthlyIncome: (json['monthlyIncome'] as num?)?.toInt() ?? 0,
+      monthlyExpenses: (json['monthlyExpenses'] as num?)?.toInt() ?? 0,
+      netMonthlyResult: (json['netMonthlyResult'] as num?)?.toInt() ?? 0,
       incomingTransactionCount:
-          (json['incomingTransactionCount'] as num).toDouble(),
+          (json['incomingTransactionCount'] as num?)?.toInt() ?? 0,
       outgoingTransactionCount:
-          (json['outgoingTransactionCount'] as num).toDouble(),
+          (json['outgoingTransactionCount'] as num?)?.toInt() ?? 0,
       periodYearMonth: json['periodYearMonth'] as String,
-      lastUpdated: json['lastUpdated'] == null
-          ? null
-          : DateTime.parse(json['lastUpdated'] as String),
+      lastUpdated: _timestampFromJson(json['lastUpdated'] as Timestamp),
       $type: json['runtimeType'] as String?,
     );
 
@@ -34,7 +32,7 @@ Map<String, dynamic> _$MonthlyReportToJson(MonthlyReport instance) =>
       'incomingTransactionCount': instance.incomingTransactionCount,
       'outgoingTransactionCount': instance.outgoingTransactionCount,
       'periodYearMonth': instance.periodYearMonth,
-      'lastUpdated': instance.lastUpdated?.toIso8601String(),
+      'lastUpdated': _timestampToJson(instance.lastUpdated),
       'runtimeType': instance.$type,
     };
 
@@ -44,13 +42,11 @@ YearlyReport _$YearlyReportFromJson(Map<String, dynamic> json) => YearlyReport(
       annualIncome: (json['annualIncome'] as num).toDouble(),
       annualExpenses: (json['annualExpenses'] as num).toDouble(),
       netAnnualResult: (json['netAnnualResult'] as num).toDouble(),
-      reportYear: (json['reportYear'] as num).toInt(),
+      reportYear: (json['reportYear'] as num).toDouble(),
       averageMonthlyIncome: (json['averageMonthlyIncome'] as num?)?.toDouble(),
       averageMonthlyExpenses:
           (json['averageMonthlyExpenses'] as num?)?.toDouble(),
-      lastUpdated: json['lastUpdated'] == null
-          ? null
-          : DateTime.parse(json['lastUpdated'] as String),
+      lastUpdated: _timestampFromJson(json['lastUpdated'] as Timestamp),
       $type: json['runtimeType'] as String?,
     );
 
@@ -64,6 +60,6 @@ Map<String, dynamic> _$YearlyReportToJson(YearlyReport instance) =>
       'reportYear': instance.reportYear,
       'averageMonthlyIncome': instance.averageMonthlyIncome,
       'averageMonthlyExpenses': instance.averageMonthlyExpenses,
-      'lastUpdated': instance.lastUpdated?.toIso8601String(),
+      'lastUpdated': _timestampToJson(instance.lastUpdated),
       'runtimeType': instance.$type,
     };

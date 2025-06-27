@@ -29,7 +29,8 @@ ReportData _$ReportDataFromJson(Map<String, dynamic> json) {
 mixin _$ReportData {
   String get id;
   String get entityId;
-  DateTime? get lastUpdated;
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+  DateTime get lastUpdated;
 
   /// Create a copy of ReportData
   /// with the given fields replaced by the non-null parameter values.
@@ -69,7 +70,11 @@ abstract mixin class $ReportDataCopyWith<$Res> {
           ReportData value, $Res Function(ReportData) _then) =
       _$ReportDataCopyWithImpl;
   @useResult
-  $Res call({String id, String entityId, DateTime? lastUpdated});
+  $Res call(
+      {String id,
+      String entityId,
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      DateTime lastUpdated});
 }
 
 /// @nodoc
@@ -86,7 +91,7 @@ class _$ReportDataCopyWithImpl<$Res> implements $ReportDataCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? entityId = null,
-    Object? lastUpdated = freezed,
+    Object? lastUpdated = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -97,10 +102,10 @@ class _$ReportDataCopyWithImpl<$Res> implements $ReportDataCopyWith<$Res> {
           ? _self.entityId
           : entityId // ignore: cast_nullable_to_non_nullable
               as String,
-      lastUpdated: freezed == lastUpdated
+      lastUpdated: null == lastUpdated
           ? _self.lastUpdated
           : lastUpdated // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
     ));
   }
 }
@@ -111,13 +116,14 @@ class MonthlyReport extends ReportData {
   const MonthlyReport(
       {required this.id,
       required this.entityId,
-      required this.monthlyIncome,
-      required this.monthlyExpenses,
-      required this.netMonthlyResult,
-      required this.incomingTransactionCount,
-      required this.outgoingTransactionCount,
+      this.monthlyIncome = 0,
+      this.monthlyExpenses = 0,
+      this.netMonthlyResult = 0,
+      this.incomingTransactionCount = 0,
+      this.outgoingTransactionCount = 0,
       required this.periodYearMonth,
-      this.lastUpdated,
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      required this.lastUpdated,
       final String? $type})
       : $type = $type ?? 'monthly',
         super._();
@@ -128,14 +134,20 @@ class MonthlyReport extends ReportData {
   final String id;
   @override
   final String entityId;
-  final double monthlyIncome;
-  final double monthlyExpenses;
-  final double netMonthlyResult;
-  final double incomingTransactionCount;
-  final double outgoingTransactionCount;
+  @JsonKey()
+  final int monthlyIncome;
+  @JsonKey()
+  final int monthlyExpenses;
+  @JsonKey()
+  final int netMonthlyResult;
+  @JsonKey()
+  final int incomingTransactionCount;
+  @JsonKey()
+  final int outgoingTransactionCount;
   final String periodYearMonth;
   @override
-  final DateTime? lastUpdated;
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+  final DateTime lastUpdated;
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -212,13 +224,14 @@ abstract mixin class $MonthlyReportCopyWith<$Res>
   $Res call(
       {String id,
       String entityId,
-      double monthlyIncome,
-      double monthlyExpenses,
-      double netMonthlyResult,
-      double incomingTransactionCount,
-      double outgoingTransactionCount,
+      int monthlyIncome,
+      int monthlyExpenses,
+      int netMonthlyResult,
+      int incomingTransactionCount,
+      int outgoingTransactionCount,
       String periodYearMonth,
-      DateTime? lastUpdated});
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      DateTime lastUpdated});
 }
 
 /// @nodoc
@@ -242,7 +255,7 @@ class _$MonthlyReportCopyWithImpl<$Res>
     Object? incomingTransactionCount = null,
     Object? outgoingTransactionCount = null,
     Object? periodYearMonth = null,
-    Object? lastUpdated = freezed,
+    Object? lastUpdated = null,
   }) {
     return _then(MonthlyReport(
       id: null == id
@@ -256,31 +269,31 @@ class _$MonthlyReportCopyWithImpl<$Res>
       monthlyIncome: null == monthlyIncome
           ? _self.monthlyIncome
           : monthlyIncome // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       monthlyExpenses: null == monthlyExpenses
           ? _self.monthlyExpenses
           : monthlyExpenses // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       netMonthlyResult: null == netMonthlyResult
           ? _self.netMonthlyResult
           : netMonthlyResult // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       incomingTransactionCount: null == incomingTransactionCount
           ? _self.incomingTransactionCount
           : incomingTransactionCount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       outgoingTransactionCount: null == outgoingTransactionCount
           ? _self.outgoingTransactionCount
           : outgoingTransactionCount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       periodYearMonth: null == periodYearMonth
           ? _self.periodYearMonth
           : periodYearMonth // ignore: cast_nullable_to_non_nullable
               as String,
-      lastUpdated: freezed == lastUpdated
+      lastUpdated: null == lastUpdated
           ? _self.lastUpdated
           : lastUpdated // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
     ));
   }
 }
@@ -297,7 +310,8 @@ class YearlyReport extends ReportData {
       required this.reportYear,
       this.averageMonthlyIncome,
       this.averageMonthlyExpenses,
-      this.lastUpdated,
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      required this.lastUpdated,
       final String? $type})
       : $type = $type ?? 'yearly',
         super._();
@@ -311,11 +325,12 @@ class YearlyReport extends ReportData {
   final double annualIncome;
   final double annualExpenses;
   final double netAnnualResult;
-  final int reportYear;
+  final double reportYear;
   final double? averageMonthlyIncome;
   final double? averageMonthlyExpenses;
   @override
-  final DateTime? lastUpdated;
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+  final DateTime lastUpdated;
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -393,10 +408,11 @@ abstract mixin class $YearlyReportCopyWith<$Res>
       double annualIncome,
       double annualExpenses,
       double netAnnualResult,
-      int reportYear,
+      double reportYear,
       double? averageMonthlyIncome,
       double? averageMonthlyExpenses,
-      DateTime? lastUpdated});
+      @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+      DateTime lastUpdated});
 }
 
 /// @nodoc
@@ -419,7 +435,7 @@ class _$YearlyReportCopyWithImpl<$Res> implements $YearlyReportCopyWith<$Res> {
     Object? reportYear = null,
     Object? averageMonthlyIncome = freezed,
     Object? averageMonthlyExpenses = freezed,
-    Object? lastUpdated = freezed,
+    Object? lastUpdated = null,
   }) {
     return _then(YearlyReport(
       id: null == id
@@ -445,7 +461,7 @@ class _$YearlyReportCopyWithImpl<$Res> implements $YearlyReportCopyWith<$Res> {
       reportYear: null == reportYear
           ? _self.reportYear
           : reportYear // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       averageMonthlyIncome: freezed == averageMonthlyIncome
           ? _self.averageMonthlyIncome
           : averageMonthlyIncome // ignore: cast_nullable_to_non_nullable
@@ -454,10 +470,10 @@ class _$YearlyReportCopyWithImpl<$Res> implements $YearlyReportCopyWith<$Res> {
           ? _self.averageMonthlyExpenses
           : averageMonthlyExpenses // ignore: cast_nullable_to_non_nullable
               as double?,
-      lastUpdated: freezed == lastUpdated
+      lastUpdated: null == lastUpdated
           ? _self.lastUpdated
           : lastUpdated // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
     ));
   }
 }
