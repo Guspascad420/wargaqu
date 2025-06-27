@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/pages/RT/citizen_verification/citizen_verification_card.dart';
+import 'package:wargaqu/theme/app_colors.dart';
 
 import '../../../providers/rt_providers.dart';
 
@@ -31,9 +32,13 @@ class CitizenVerificationScreen extends ConsumerWidget {
         error: (err, stack) => Text(err.toString()),
         data: (pendingCitizens) {
           return pendingCitizens.isEmpty
-              ? Center(
+              ? Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.w),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Icon(Icons.check_circle_outline, color: AppColors.positive, size: 125.w),
+                      SizedBox(height: 10.h,),
                       Text('Semua Sudah Beres!', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
                       Text('Kerja bagus! Saat ini tidak ada pendaftaran warga baru yang memerlukan persetujuan Anda',
                           style: GoogleFonts.roboto(

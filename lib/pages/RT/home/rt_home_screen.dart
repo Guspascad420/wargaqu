@@ -119,7 +119,7 @@ class _RtHomeScreenState extends ConsumerState<RtHomeScreen> {
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 15),
-                      margin: const EdgeInsets.only(bottom: 10),
+                      margin: const EdgeInsets.only(bottom: 20),
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: AppColors.positive,

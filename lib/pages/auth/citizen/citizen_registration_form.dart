@@ -320,13 +320,16 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                               ),
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-                                  // Logika pendaftaran
+
                                 }
                               },
-                              child: Text(
-                                'Daftar',
-                                style: GoogleFonts.roboto(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.w500),
-                              ),
+                              child: regState.isLoading
+                                  ? CircularProgressIndicator(color: Colors.white)
+                                  : Text(
+                                      'Daftar',
+                                      style: GoogleFonts.roboto(fontSize: 18.sp,
+                                          color: Colors.white, fontWeight: FontWeight.w500),
+                                    ),
                             ),
                           ),
                           SizedBox(height: 24.h),

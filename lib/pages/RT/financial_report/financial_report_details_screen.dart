@@ -16,7 +16,8 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
 
   final ReportData reportData;
 
-  Widget _transactionItemCard(BuildContext context, String title, int amount, TransactionType type) {
+  Widget _transactionItemCard(BuildContext context, String title, int amount,
+      TransactionType type, NumberFormat formatter) {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         margin: EdgeInsets.only(bottom: 10.h),
@@ -41,7 +42,7 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
               children: [
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
                 SizedBox(height: 3.h),
-                Text('$amount', style: GoogleFonts.roboto(fontSize: 15.sp))
+                Text(formatter.format(amount), style: GoogleFonts.roboto(fontSize: 15.sp))
               ],
             )
           ],
@@ -54,6 +55,7 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final rtData = ref.watch(rtDataProvider);
     final asyncTransactions = ref.watch(transactionsProvider(rtData!.id));
+    final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     final Widget widget = switch (reportData) {
 
@@ -68,7 +70,7 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
       ) => Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              title: Text('Laporan ${DateFormat('MMMM yyyy').format(DateTime.tryParse("$periodYearMonth-01") ?? DateTime.now())}'
+              title: Text('Laporan ${DateFormat('MMMM yyyy', 'id_ID').format(DateTime.tryParse("$periodYearMonth-01") ?? DateTime.now())}'
                   , style: Theme.of(context).textTheme.titleMedium),
               ),
             body: Padding(
@@ -101,9 +103,9 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
                               final transaction = transactions[index];
                               return switch(transaction) {
                                 IncomeTransaction() => _transactionItemCard(context, transaction.description,
-                                    transaction.amount, TransactionType.income),
+                                    transaction.amount, TransactionType.income, currencyFormatter),
                                 ExpenseTransaction() => _transactionItemCard(context, transaction.description,
-                                    transaction.amount, TransactionType.expense),
+                                    transaction.amount, TransactionType.expense,currencyFormatter),
                                 TransactionData() => throw UnimplementedError(),
                               };
                             }

@@ -10,18 +10,12 @@ class ReportItemCard extends StatelessWidget {
 
   const ReportItemCard({super.key, required this.reportData});
 
-  String formatReportTitle(String periodYearMonth) {
-    try {
-      final DateTime date = DateTime.parse('$periodYearMonth-01');
-      return DateFormat('MMMM yyyy', 'id_ID').format(date);
-    } catch (e) {
-      return periodYearMonth;
-    }
+  String formatReportTitle(DateTime date) {
+    return DateFormat('MMMM yyyy', 'id_ID').format(date);
   }
 
   @override
   Widget build(BuildContext context) {
-    final monthYearFormatterMY = DateFormat('MMMM yyyy');
     final Widget contentWidgets = switch (reportData) {
       MonthlyReport(
         periodYearMonth: final periodYearMonth,
@@ -46,10 +40,10 @@ class ReportItemCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(monthYearFormatterMY.format(DateTime.tryParse("$periodYearMonth-01") ?? DateTime.now()), style: Theme.of(context).textTheme.titleMedium),
+                        Text(formatReportTitle(DateTime.tryParse("$periodYearMonth-01") ?? DateTime.now()), style: Theme.of(context).textTheme.titleMedium),
                         SizedBox(height: 4.h),
                         Text(
-                          'Terakhir diperbarui: ${DateFormat('dd-MM-yyyy').format(lastUpdated!)}',
+                          'Terakhir diperbarui: ${DateFormat('dd-MM-yyyy').format(lastUpdated)}',
                           style: GoogleFonts.roboto(
                             fontSize: 13.sp,
                           ),

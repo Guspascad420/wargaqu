@@ -16,7 +16,7 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rtData = ref.watch(rtDataProvider);
-    final String currentMonthName = DateFormat('MMMM').format(DateTime.now());
+    final String currentMonthName = DateFormat.MMMM('id_ID').format(DateTime.now());
 
     final int currentMonthIncome = rtData?.currentMonthIncome ?? 0;
     final int currentMonthExpenses = rtData?.currentMonthExpenses ?? 0;
