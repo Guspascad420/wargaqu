@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/reusable_home_screen.dart';
 import 'package:wargaqu/pages/RT/bill_management/bill_management_screen.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/citizen_activity_screen.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
+import 'package:wargaqu/theme/app_colors.dart';
 
-class RtHomeScreen extends StatefulWidget {
+class RtHomeScreen extends ConsumerStatefulWidget {
   const RtHomeScreen({super.key});
 
   @override
-  State<RtHomeScreen> createState() => _RtHomeScreenState();
+  ConsumerState<RtHomeScreen> createState() => _RtHomeScreenState();
 }
 
-class _RtHomeScreenState extends State<RtHomeScreen> {
+class _RtHomeScreenState extends ConsumerState<RtHomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final asyncRtSummary = ref.watch(rtSummaryProvider);
+
     return SingleChildScrollView(
       child: ReusableHomeScreen(
-          subtitle: '{Name_RT} telah memiliki {jumlah_warga_terhubung} yang terhubung dan sudah terhubung pada {Name_RW}',
+          subtitle: asyncRtSummary.when(
+            loading: () => 'Memuat data RW...',
+            error: (err, stack) => 'Gagal memuat data',
+            data: (summary) {
+              return summary;
+            },
+          ),
           servicesWidgets: [
             GestureDetector(
                 onTap: () {
@@ -57,14 +68,41 @@ class _RtHomeScreenState extends State<RtHomeScreen> {
                     margin: const EdgeInsets.only(bottom: 10),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xFF58B961),
+                      color: AppColors.secondary100,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
                       children: [
-                        Image.asset('images/group_chat.png', width: 140.w,),
+                        Image.asset('images/group_chat.png', width: 140.w),
                         SizedBox(height: 10.h),
                         Text('Pengelolaan Pembayaran Iuran', style: GoogleFonts.roboto(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        )),
+                      ],
+                    )
+                )
+            ),
+            GestureDetector(
+                onTap: () {
+                  // Navigator.of(context).push(
+                  //     MaterialPageRoute(builder: (context) => const BillManagementScreen())
+                  // );
+                },
+                child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppColors.positive,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: [
+                        Image.asset('images/confirmed_bro.png', width: 140.w),
+                        SizedBox(height: 10.h),
+                        Text('Verifikasi Warga', style: GoogleFonts.roboto(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
