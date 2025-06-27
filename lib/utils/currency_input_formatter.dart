@@ -8,8 +8,7 @@ class SignedAmountFormatter extends TextInputFormatter {
   SignedAmountFormatter({required this.sign});
 
   @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     String input = newValue.text;
 
     final numericOnly = input.replaceAll(RegExp(r'[^0-9]'), '');
@@ -30,9 +29,46 @@ class SignedAmountFormatter extends TextInputFormatter {
 
     final newText = '$sign$formatted';
 
+    if (newText.isEmpty || newText == '+' || newText == '-') {
+      String prefix = (newText.startsWith('-') || oldValue.text.startsWith('-')) ? '-' : '+';
+      if (newText.isEmpty) { // If user deletes everything
+        return TextEditingValue(
+          text: '${prefix}0',
+          selection: TextSelection.collapsed(offset: ('${prefix}0').length),
+        );
+      }
+      // If only a sign is left, keep it
+      if (newText == '+' || newText == '-') {
+        return newValue;
+      }
+    }
+
+    print("DEBUG: Formatter: old='${oldValue.text}', new='${newValue.text}', returning='${newText}'");
+
     return TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(offset: newText.length),
     );
+  }
+
+  static int formatCurrencyStringToInt(String formattedAmount) {
+    if (formattedAmount.isEmpty) {
+      return 0; // Or throw an error, depending on desired behavior for empty input
+    }
+
+    String amountWithoutSign = formattedAmount;
+    if (formattedAmount.startsWith('+') || formattedAmount.startsWith('-')) {
+      amountWithoutSign = formattedAmount.substring(1);
+    }
+
+    String cleanedAmount = amountWithoutSign.replaceAll('.', '');
+
+    // 3. Parse to integer
+    try {
+      return int.parse(cleanedAmount);
+    } catch (e) {
+      print("Error parsing amount: '$formattedAmount' -> '$cleanedAmount'. Error: $e");
+      return 0;
+    }
   }
 }
