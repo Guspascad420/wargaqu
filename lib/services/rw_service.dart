@@ -14,7 +14,7 @@ class RwService {
     final snapshot = await query.get();
 
     if (snapshot.docs.isEmpty) {
-      throw Exception('Kode unik tidak valid, sudah digunakan, atau tidak ditemukan.');
+      throw Exception('Kode unik tidak valid, sudah digunakan, atau tidak ditemukan');
     }
 
     return snapshot.docs.first.id;

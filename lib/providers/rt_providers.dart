@@ -6,8 +6,10 @@ import 'package:wargaqu/model/RT/rt_data.dart';
 import 'package:wargaqu/model/RT/rt_officials.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
 import 'package:wargaqu/model/generate_code/generate_code_state.dart';
+import 'package:wargaqu/model/transaction/transaction_data.dart';
 import 'package:wargaqu/model/unique_code/unique_code.dart';
 import 'package:wargaqu/model/user/user.dart';
+import 'package:wargaqu/notifiers/add_new_bank_account_notifier.dart';
 import 'package:wargaqu/notifiers/delete_code_notifier.dart';
 import 'package:wargaqu/notifiers/generate_code_notifier.dart';
 import 'package:wargaqu/notifiers/add_new_rt_notifier.dart';
@@ -16,9 +18,44 @@ import 'package:wargaqu/providers/user_providers.dart';
 import 'package:wargaqu/services/rt_service.dart';
 import 'package:wargaqu/services/rw_service.dart';
 
+import '../model/bill/bill.dart';
+import '../model/bill/bill_type.dart';
+
 final firestoreProvider = Provider((ref) => FirebaseFirestore.instance);
 
 final rwServiceProvider = Provider((ref) => RwService(ref.watch(firestoreProvider)));
+
+final billTypeProvider = StateProvider<BillType>((ref) => BillType.regular);
+final mockAvailableBillsProvider = Provider<List<Bill>>((ref) {
+  return [
+    Bill(id: '1', billName: 'Iuran Januari 2025', billType: BillType.regular, rtId: '008',
+        amount: 50.0, dueDate: DateTime.now().add(const Duration(days: 10))),
+    Bill(id: '2', billName: 'Iuran Februari 2025', billType: BillType.regular, rtId: '008',
+        amount: 75.0, dueDate: DateTime.now().add(const Duration(days: 5))),
+    Bill(id: '3', billName: 'Iuran perbaikan portal', billType: BillType.incidental, rtId: '008',
+        amount: 30.0, dueDate: DateTime.now().add(const Duration(days: 15))),
+  ];
+});
+final selectedBillProvider = StateProvider<Bill?>((ref) => null);
+
+final mockBankAccountsProvider = Provider<List<BankAccount>>((ref) {
+  return [
+    BankAccount(
+        id: 'bca1',
+        bankName: 'BCA',
+        accountNumber: '**** **** **** 1234',
+        accountHolderName: 'Pengurus RT 05 RW 02',
+        logoAsset: 'images/bca.png'
+    ),
+    BankAccount(
+        id: 'bri1',
+        bankName: 'BRI',
+        accountNumber: '**** **** **** 9012',
+        accountHolderName: 'Bendahara RT 05',
+        logoAsset: 'images/bri.png'
+    ),
+  ];
+});
 
 final rtDataListProvider = Provider<List<RtData>>((ref) {
   return [
@@ -113,6 +150,10 @@ final deleteCodeNotifierProvider = AsyncNotifierProvider.autoDispose<DeleteCodeN
 
 final addNewRtNotifierProvider = AsyncNotifierProvider<AddNewRtNotifier, void>(() {
   return AddNewRtNotifier();
+});
+
+final addNewBankAccountNotifierProvider = AsyncNotifierProvider<AddNewBankAccountNotifier, void>(() {
+  return AddNewBankAccountNotifier();
 });
 
 final rtDataProvider = Provider.autoDispose<RtData?>((ref) {
@@ -212,3 +253,7 @@ final rtManagementProvider = FutureProvider<RtManagement?>((ref) async {
   return RtManagement(chairman: chairman, treasurers: treasurers, registrationCodes: codes);
 });
 
+final transactionsProvider = StreamProvider.autoDispose.family<List<TransactionData>, String>((ref, rtId) {
+  final rtService = ref.watch(rtServiceProvider);
+  return rtService.fetchTransactions(rtId);
+});

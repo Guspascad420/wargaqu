@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
+import 'package:wargaqu/model/bank_account/bank_account.dart';
 import 'package:wargaqu/model/expense/expense.dart';
 import 'package:wargaqu/model/report/report.dart';
 import 'package:wargaqu/model/unique_code/unique_code.dart';
 import 'package:wargaqu/model/user/user.dart';
+
+import '../model/income/income.dart';
+import '../model/transaction/transaction_data.dart';
 
 class RtService {
   final FirebaseFirestore _firestore;
@@ -32,13 +38,6 @@ class RtService {
       final String rwIdValue = rwMap['rwId'];
       return (rtId: rtId, role: role, rwId: rwIdValue);
     } on FirebaseException catch (e) {
-      print('======================================================');
-      print('ERROR ASLI DARI FIREBASE:');
-      print(e); // Ini nampilin objek errornya
-      print('PESAN LENGKAPNYA:');
-      print(e.message); // <-- LINK AJAIBNYA ADA DI SINI
-      print('======================================================');
-
       throw Exception('Gagal mengambil data: ${e.message}');
     }
   }
@@ -180,34 +179,169 @@ class RtService {
       }).toList();
     });
   }
+  Stream<List<TransactionData>> fetchTransactions(String rtId) {
+    final incomeSnapshotStream = _firestore
+        .collection('rts')
+        .doc(rtId)
+        .collection('incomes')
+        .snapshots();
+
+    Stream<List<TransactionData>> incomeStream = incomeSnapshotStream.map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return TransactionData.fromJson(data);
+      }).toList();
+    });
+
+    final expenseSnapshotStream = _firestore
+        .collection('rts')
+        .doc(rtId)
+        .collection('expenses')
+        .snapshots();
+
+    Stream<List<TransactionData>> expenseStream = expenseSnapshotStream.map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return TransactionData.fromJson(data);
+      }).toList();
+    });
+
+
+    return Rx.combineLatest2(
+      incomeStream,
+      expenseStream,
+       (List<TransactionData> incomes, List<TransactionData> expenses) {
+        final combinedList = [...incomes, ...expenses];
+        combinedList.sort((a, b) => b.transactionDate.compareTo(a.transactionDate));
+        return combinedList;
+      },
+    );
+  }
+
 
   Future<void> addExpense({
     required String rtId,
     required Expense newExpense,
   }) async
   {
+    final rtDocRef = _firestore.collection('rts').doc(rtId);
+    final newExpenseDocRef = rtDocRef.collection('expenses').doc();
+
+    final currentDate = DateTime.now();
+    final periodId = DateFormat('yyyy-MM').format(currentDate);
+    final reportId = '${rtId}_$periodId';
+    final reportDocRef = _firestore.collection('monthlyReports').doc(reportId);
+
     try {
-      final rtDocRef = _firestore.collection('rts').doc(rtId);
-      final newExpenseDocRef = rtDocRef.collection('expenses').doc();
+      await _firestore.runTransaction((transaction) async {
+        final reportDoc = await transaction.get(reportDocRef);
 
-      final batch = _firestore.batch();
+        transaction.set(newExpenseDocRef, {
+          ...newExpense.toJson(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
 
-      batch.set(newExpenseDocRef, newExpense.toJson());
+        transaction.update(rtDocRef, {
+          'currentBalance': FieldValue.increment(-newExpense.amount),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'currentMonthExpenses': FieldValue.increment(newExpense.amount),
+        });
 
-      batch.update(rtDocRef, {
-        'currentBalance': FieldValue.increment(-newExpense.amount),
-        'updatedAt': FieldValue.serverTimestamp(),
+        if (!reportDoc.exists) {
+          transaction.set(reportDocRef, {
+            'entityId': rtId,
+            'periodYearMonth': periodId,
+            'monthlyIncome': 0,
+            'monthlyExpenses': newExpense.amount,
+            'netMonthlyResult': -newExpense.amount,
+            'outgoingTransactionCount': 1,
+          });
+        }
+        else {
+          final currentData = reportDoc.data()!;
+          final newNetResult = (currentData['monthlyIncome'] ?? 0) - newExpense.amount - (currentData['monthlyExpenses'] ?? 0);
+
+          transaction.update(reportDocRef, {
+            'monthlyExpenses': FieldValue.increment(newExpense.amount),
+            'outgoingTransactionCount': FieldValue.increment(1),
+            'netMonthlyResult': newNetResult,
+          });
+        }
       });
-
-      await batch.commit();
-
-
     } on FirebaseException catch (e) {
       print('Firebase Error saat mencatat pengeluaran: ${e.message}');
       throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
     } catch (e) {
       print('General Error saat mencatat pengeluaran: $e');
       throw Exception('Terjadi kesalahan tidak terduga.');
+    }
+  }
+
+  Future<void> addIncome({
+    required String rtId,
+    required Income newIncome,
+  }) async {
+    final rtDocRef = _firestore.collection('rts').doc(rtId);
+    final newIncomeDocRef = rtDocRef.collection('incomes').doc();
+
+    final currentDate = DateTime.now();
+    final periodId = DateFormat('yyyy-MM').format(currentDate);
+    final reportId = '${rtId}_$periodId';
+    final reportDocRef = _firestore.collection('monthlyReports').doc(reportId);
+
+    try {
+      await _firestore.runTransaction((transaction) async {
+        final reportDoc = await transaction.get(reportDocRef);
+
+        transaction.set(newIncomeDocRef, {
+          ...newIncome.toJson(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        transaction.update(rtDocRef, {
+          'currentBalance': FieldValue.increment(newIncome.amount),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'currentMonthIncome': FieldValue.increment(newIncome.amount),
+        });
+
+        if (!reportDoc.exists) {
+          transaction.set(reportDocRef, {
+            'entityId': rtId,
+            'periodYearMonth': periodId,
+            'monthlyIncome': newIncome.amount,
+            'monthlyExpenses': 0,
+            'netMonthlyResult': newIncome.amount,
+            'incomingTransactionCount': 1,
+            'outgoingTransactionCount': 0,
+            'lastUpdated': FieldValue.serverTimestamp(),
+          });
+        } else {
+          final currentData = reportDoc.data()!;
+          final newNetResult = (currentData['monthlyIncome'] ?? 0) + newIncome.amount - (currentData['monthlyExpenses'] ?? 0);
+
+          transaction.update(reportDocRef, {
+            'monthlyIncome': FieldValue.increment(newIncome.amount),
+            'incomingTransactionCount': FieldValue.increment(1),
+            'netMonthlyResult': newNetResult,
+            'lastUpdated': FieldValue.serverTimestamp(),
+          });
+        }
+      });
+    } on FirebaseException catch (e) {
+      print('Firebase Error saat mencatat pengeluaran: ${e.message}');
+      throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
+    } catch (e) {
+      print("Gagal menjalankan transaksi: $e");
+      // Lempar lagi errornya biar bisa ditangani di Notifier/UI
+      throw Exception("Gagal menyimpan transaksi pemasukan.");
     }
   }
 
@@ -243,6 +377,22 @@ class RtService {
     }
   }
 
+  Future<void> addBankAccount({
+    required String rtId,
+    required String bankName,
+    required String accountNumber,
+    required String accountHolderName,
+  }) async {
+    try {
+      final bankAccount = BankAccount(bankName: bankName, accountNumber: accountNumber, accountHolderName: accountHolderName);
+      await _firestore.collection('rts').doc(rtId).update({'bankAccounts': FieldValue.arrayUnion([bankAccount.toJson()])});
+    } on FirebaseException catch (e) {
+      throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan tidak terduga.');
+    }
+  }
+
   Future<void> addNewRt({
     required int rtNumber,
     required String rtName,
@@ -257,6 +407,7 @@ class RtService {
         'address': address,
         'currentBalance': 0,
         'registrationUniqueCode': '',
+        'bankAccounts': []
       });
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');

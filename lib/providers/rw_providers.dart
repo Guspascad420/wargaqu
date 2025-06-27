@@ -12,6 +12,24 @@ final rwDocStreamProvider = StreamProvider.autoDispose
   return rwService.fetchRwDocStream(rwId);
 });
 
+final rwSummaryProvider = Provider<AsyncValue<String>>((ref) {
+  final rwData = ref.watch(loggedInRwDataProvider);
+  if (rwData == null) {
+    return const AsyncValue.loading(); // Atau AsyncError
+  }
+
+  final asyncRtList = ref.watch(rtListStreamProvider(rwData.id));
+
+  return asyncRtList.when(
+    data: (rtList) {
+      final summary = '${rwData.rwName} telah memiliki ${rtList.length} RT yang terhubung';
+      return AsyncValue.data(summary);
+    },
+    loading: () => const AsyncValue.loading(),
+    error: (err, stack) => AsyncValue.error(err, stack),
+  );
+});
+
 final rwDataProvider = Provider.autoDispose.family<RwData?, String>((ref, rwId) {
   final asyncRwDoc = ref.watch(rwDocStreamProvider(rwId));
 
