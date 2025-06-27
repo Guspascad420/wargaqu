@@ -6,17 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/report_item_card.dart';
 import 'package:wargaqu/model/report/report.dart';
+import 'package:wargaqu/providers/providers.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/services/report_service.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-final reportServiceProvider = Provider<ReportService>((ref) {
-  return ReportService(FirebaseFirestore.instance);
-});
-
-final reportListProvider = FutureProvider.family<List<ReportData>, ({String userId, ReportType reportType})>((ref, args) {
-  final service = ref.watch(reportServiceProvider);
-  return service.fetchReports(args.userId, args.reportType);
-});
+import '../../../components/transaction_tab_view.dart';
 
 final selectedReportTypeProvider = StateProvider<ReportType>((ref) {
   return ReportType.monthly;
@@ -27,117 +22,116 @@ class FinancialReportScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final rtData = ref.watch(rtDataProvider);
+
     final ReportType currentSelectedType = ref.watch(selectedReportTypeProvider);
+
     final List<bool> isSelected = [
       currentSelectedType == ReportType.monthly,
       currentSelectedType == ReportType.yearly,
     ];
+
+    final asyncReports = ref.watch(reportsProvider((rtId: rtData!.id, reportType: currentSelectedType)));
 
     final double chipPaddingVertical = 8.h;
     final double chipPaddingHorizontal = 16.w;
     final double chipFontSize = 14.sp;
     final double chipBorderRadius = 10.r;
 
-    final List<ReportData> monthlyReports = [
-      ReportData.monthly(
-        id: 'rt01_rw05_2025-04',
-        entityId: 'rt01_rw05',
-        monthlyIncome: 5200000.0,
-        monthlyExpenses: 3100000.0,
-        netMonthlyResult: 2100000.0,
-        periodYearMonth: '2025-04',
-        lastUpdated: DateTime(2025, 4, 30),
-        incomingTransactionCount:  30,
-        outgoingTransactionCount: 10,
-      ),
-      ReportData.monthly(
-        id: 'rt01_rw05_2025-05',
-        entityId: 'rt01_rw05',
-        monthlyIncome: 5350000.0,
-        monthlyExpenses: 3300000.0,
-        netMonthlyResult: 2050000.0,
-        periodYearMonth: '2025-05',
-        lastUpdated: DateTime(2025, 6, 4),
-        incomingTransactionCount:  30,
-        outgoingTransactionCount: 10,
-      ),
-      ReportData.monthly(
-        id: 'rt01_rw05_2025-06',
-        entityId: 'rt01_rw05',
-        monthlyIncome: 5500000.0,
-        monthlyExpenses: 3200000.0,
-        netMonthlyResult: 2300000.0,
-        periodYearMonth: '2025-06',
-        lastUpdated: DateTime.now(),
-        incomingTransactionCount:  30,
-        outgoingTransactionCount: 10,
-      ),
-    ];
+    Widget emptyReports() {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Belum Ada Laporan Tersedia', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center,),
+          Text('Laporan keuangan akan otomatis dibuat di sini setelah ada transaksi pemasukan atau pengeluaran pertama yang tercatat',
+              style: GoogleFonts.roboto(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.normal,
+                color: Color(0xFF74696D),
+              ),
+              textAlign: TextAlign.center)
+        ],
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Laporan Keuangan', style: Theme.of(context).textTheme.titleMedium),
         centerTitle: true,
       ),
-      body: Container(
-          margin: EdgeInsets.all(15.h),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Pilih Tipe Laporan: ', style: Theme.of(context).textTheme.titleLarge),
-                SizedBox(height: 15.h,),
-                ToggleButtons(
-                  isSelected: isSelected,
-                  onPressed: (int index) {
-                    final newSelectedType = index == 0 ? ReportType.monthly : ReportType.yearly;
-                    ref.read(selectedReportTypeProvider.notifier).state = newSelectedType;
-                  },
-                  borderRadius: BorderRadius.circular(chipBorderRadius),
-                  selectedColor: Colors.white,
-                  color: AppColors.primary400,
-                  fillColor: AppColors.primary400,
-                  splashColor: AppColors.primary400.withOpacity(0.12),
-                  highlightColor: AppColors.primary400.withOpacity(0.1),
-                  borderColor: AppColors.primary400,
-                  selectedBorderColor: AppColors.primary400,
-                  borderWidth: 1.5,
-                  constraints: BoxConstraints(
-                    minHeight: 36.h,
-                    minWidth: 100.w,
-                  ),
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
-                      child: Text(
-                        'Bulanan',
-                        style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
-                      child: Text(
-                        'Tahunan',
-                        style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    if (currentSelectedType == ReportType.monthly)...[
-                      for (var report in monthlyReports)
-                        ReportItemCard(reportData: report)
-                    ]
-                    else...[
+      body: asyncReports.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        data: (reports) {
+          if (reports.isEmpty) {
+            return emptyReports();
+          }
+          return ListView.builder(
+              itemCount: reports.length,
+              itemBuilder: (context, index) {
+                return Container(
+                    margin: EdgeInsets.all(15.h),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Pilih Tipe Laporan: ', style: Theme.of(context).textTheme.titleLarge),
+                          SizedBox(height: 15.h),
+                          ToggleButtons(
+                            isSelected: isSelected,
+                            onPressed: (int index) {
+                              final newSelectedType = index == 0 ? ReportType.monthly : ReportType.yearly;
+                              ref.read(selectedReportTypeProvider.notifier).state = newSelectedType;
+                            },
+                            borderRadius: BorderRadius.circular(chipBorderRadius),
+                            selectedColor: Colors.white,
+                            color: AppColors.primary400,
+                            fillColor: AppColors.primary400,
+                            splashColor: AppColors.primary400.withOpacity(0.12),
+                            highlightColor: AppColors.primary400.withOpacity(0.1),
+                            borderColor: AppColors.primary400,
+                            selectedBorderColor: AppColors.primary400,
+                            borderWidth: 1.5,
+                            constraints: BoxConstraints(
+                              minHeight: 36.h,
+                              minWidth: 100.w,
+                            ),
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
+                                child: Text(
+                                  'Bulanan',
+                                  style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: chipPaddingHorizontal, vertical: chipPaddingVertical),
+                                child: Text(
+                                  'Tahunan',
+                                  style: GoogleFonts.roboto(fontSize: chipFontSize, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              if (currentSelectedType == ReportType.monthly)...[
+                                for (var report in reports)
+                                  ReportItemCard(reportData: report)
+                              ]
+                              else...[
 
-                    ]
-                  ],
-                )
-              ],
-            ),
-          )
-      ),
+                              ]
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+                );
+              }
+          );
+        }
+      )
     );
   }
 

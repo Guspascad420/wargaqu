@@ -1,18 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/components/income_expense_chart.dart';
 import 'package:wargaqu/model/report/report.dart';
+import 'package:wargaqu/model/transaction/transaction_data.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class FinancialReportDetailsScreen extends StatelessWidget {
+import '../../../components/transaction_tab_view.dart';
+
+class FinancialReportDetailsScreen extends ConsumerWidget {
   const FinancialReportDetailsScreen({super.key, required this.reportData});
 
   final ReportData reportData;
 
+  Widget _transactionItemCard(BuildContext context, String title, int amount, TransactionType type) {
+    return Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        margin: EdgeInsets.only(bottom: 10.h),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300, width: 1.w),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Row(
+          children: [
+            Container(
+                width: 30.w,
+                height: 30.h,
+                decoration: BoxDecoration(
+                  color: type == TransactionType.income ? AppColors.primary400 : AppColors.secondary100,
+                  shape: BoxShape.circle,
+                )
+            ),
+            SizedBox(width: 10.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                SizedBox(height: 3.h),
+                Text('$amount', style: GoogleFonts.roboto(fontSize: 15.sp))
+              ],
+            )
+          ],
+        )
+    );
+  }
+
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rtData = ref.watch(rtDataProvider);
+    final asyncTransactions = ref.watch(transactionsProvider(rtData!.id));
+
     final Widget widget = switch (reportData) {
 
       MonthlyReport(
@@ -43,6 +85,33 @@ class FinancialReportDetailsScreen extends StatelessWidget {
                   Text('Detail Laporan', style: Theme.of(context).textTheme.titleLarge),
                   Text('Berikut adalah detail laporan keuangan',
                     style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
+                  SizedBox(height: 10.h),
+                  asyncTransactions.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) {
+                      print(err);
+                      print(stack);
+                      return Center(child: Text('Error: $err'));
+                    },
+                    data: (transactions) {
+                      return Expanded(
+                        child: ListView.builder(
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = transactions[index];
+                              return switch(transaction) {
+                                IncomeTransaction() => _transactionItemCard(context, transaction.description,
+                                    transaction.amount, TransactionType.income),
+                                ExpenseTransaction() => _transactionItemCard(context, transaction.description,
+                                    transaction.amount, TransactionType.expense),
+                                TransactionData() => throw UnimplementedError(),
+                              };
+                            }
+                        )
+                      );
+                    }
+                  )
+
                 ],
               ),
             )

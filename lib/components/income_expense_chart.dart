@@ -10,8 +10,8 @@ import 'package:wargaqu/theme/app_colors.dart';
 final touchedIndexProvider = StateProvider<int>((ref) => -1);
 
 class IncomeExpenseDonutChart extends ConsumerWidget {
-  final double totalIncome;
-  final double totalExpenses;
+  final int totalIncome;
+  final int totalExpenses;
 
   const IncomeExpenseDonutChart({
     super.key,
@@ -21,7 +21,7 @@ class IncomeExpenseDonutChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final double totalValue = totalIncome + totalExpenses;
+    final int totalValue = totalIncome + totalExpenses;
     final double incomePercentage = totalValue > 0 ? (totalIncome / totalValue) * 100 : 0;
     final double expensePercentage = totalValue > 0 ? (totalExpenses / totalValue) * 100 : 0;
 
@@ -46,7 +46,7 @@ class IncomeExpenseDonutChart extends ConsumerWidget {
       return [
         PieChartSectionData(
           color: incomeColor,
-          value: totalIncome,
+          value: totalIncome.toDouble(),
           title: '',
           radius: touchedIndex == 0 ? 60.0.r : 50.0.r, // Efek membesar saat disentuh
           titleStyle: GoogleFonts.roboto(
@@ -59,7 +59,7 @@ class IncomeExpenseDonutChart extends ConsumerWidget {
         ),
         PieChartSectionData(
           color: expenseColor,
-          value: totalExpenses,
+          value: totalExpenses.toDouble(),
           title: '',
           radius: touchedIndex == 1 ? 60.0.r : 50.0.r,
           titleStyle: GoogleFonts.roboto(
