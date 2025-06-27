@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/pages/RW/unique_code/unique_code_management_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 
 class RwProfileScreen extends ConsumerWidget {

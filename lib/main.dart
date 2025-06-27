@@ -5,7 +5,7 @@ import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 import 'package:wargaqu/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -80,7 +80,7 @@ class RoleBasedRedirect extends ConsumerWidget {
         switch (userProfile['role']) {
           case 'citizen':
             return const CitizenMainScreen();
-          case 'rt_official':
+          case 'ketua_rt':
           case 'bendahara_rt':
             return const RtMainScreen();
           case 'rw_official':

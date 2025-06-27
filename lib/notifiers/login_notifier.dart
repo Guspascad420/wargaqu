@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/providers.dart';
 
 class LoginNotifier extends AsyncNotifier<void> {
   @override

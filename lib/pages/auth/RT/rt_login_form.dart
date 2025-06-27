@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
 import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/auth/RT/rt_registration_form.dart';
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/providers.dart';
 
 class RtLoginForm extends ConsumerStatefulWidget {
   const RtLoginForm({super.key});

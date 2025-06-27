@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_screenutil
 import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/auth/RT/rt_login_form.dart';
-import 'package:wargaqu/providers.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 class RtRegistrationForm extends ConsumerStatefulWidget {
