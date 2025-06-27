@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/pages/auth/RW/rw_login_form.dart';
 import 'package:wargaqu/pages/auth/RT/rt_login_form.dart';
@@ -15,9 +16,9 @@ class LoginChoiceScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('images/wargaqu.png', scale: 2.5,),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text('Anda Ingin Masuk Sebagai', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
