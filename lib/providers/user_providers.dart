@@ -2,7 +2,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wargaqu/model/RW/rw_data.dart';
 import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/services/user_service.dart';
 
@@ -42,6 +41,11 @@ final userDataProvider = FutureProvider.autoDispose<UserModel?>((ref) {
   );
 });
 
+final userIdProvider = Provider<String?>((ref) {
+  final asyncUserData = ref.watch(userDataProvider);
+  return asyncUserData.value?.id;
+});
+
 final currentNameProvider = Provider<String?>((ref) {
   final asyncUserData = ref.watch(userDataProvider);
   return asyncUserData.value?.fullName;
@@ -50,4 +54,9 @@ final currentNameProvider = Provider<String?>((ref) {
 final currentRwIdProvider = Provider<String?>((ref) {
   final asyncUserData = ref.watch(userDataProvider);
   return asyncUserData.value?.rwId;
+});
+
+final currentRtIdProvider = Provider<String?>((ref) {
+  final asyncUserData = ref.watch(userDataProvider);
+  return asyncUserData.value?.rtId;
 });
