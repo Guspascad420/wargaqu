@@ -5,7 +5,7 @@ part 'bank_account.g.dart';
 @freezed
 abstract class BankAccount with _$BankAccount {
   const factory BankAccount({
-    required String id,
+    String? id,
     required String bankName,
     required String accountNumber,
     required String accountHolderName,

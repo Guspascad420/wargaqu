@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$BankAccount {
-  String get id;
+  String? get id;
   String get bankName;
   String get accountNumber;
   String get accountHolderName;
@@ -65,7 +65,7 @@ abstract mixin class $BankAccountCopyWith<$Res> {
       _$BankAccountCopyWithImpl;
   @useResult
   $Res call(
-      {String id,
+      {String? id,
       String bankName,
       String accountNumber,
       String accountHolderName,
@@ -84,17 +84,17 @@ class _$BankAccountCopyWithImpl<$Res> implements $BankAccountCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? bankName = null,
     Object? accountNumber = null,
     Object? accountHolderName = null,
     Object? logoAsset = freezed,
   }) {
     return _then(_self.copyWith(
-      id: null == id
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       bankName: null == bankName
           ? _self.bankName
           : bankName // ignore: cast_nullable_to_non_nullable
@@ -119,7 +119,7 @@ class _$BankAccountCopyWithImpl<$Res> implements $BankAccountCopyWith<$Res> {
 @JsonSerializable()
 class _BankAccount implements BankAccount {
   const _BankAccount(
-      {required this.id,
+      {this.id,
       required this.bankName,
       required this.accountNumber,
       required this.accountHolderName,
@@ -128,7 +128,7 @@ class _BankAccount implements BankAccount {
       _$BankAccountFromJson(json);
 
   @override
-  final String id;
+  final String? id;
   @override
   final String bankName;
   @override
@@ -189,7 +189,7 @@ abstract mixin class _$BankAccountCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
+      {String? id,
       String bankName,
       String accountNumber,
       String accountHolderName,
@@ -208,17 +208,17 @@ class __$BankAccountCopyWithImpl<$Res> implements _$BankAccountCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? bankName = null,
     Object? accountNumber = null,
     Object? accountHolderName = null,
     Object? logoAsset = freezed,
   }) {
     return _then(_BankAccount(
-      id: null == id
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       bankName: null == bankName
           ? _self.bankName
           : bankName // ignore: cast_nullable_to_non_nullable
