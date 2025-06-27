@@ -257,3 +257,8 @@ final transactionsProvider = StreamProvider.autoDispose.family<List<TransactionD
   final rtService = ref.watch(rtServiceProvider);
   return rtService.fetchTransactions(rtId);
 });
+
+final pendingCitizensProvider = StreamProvider.autoDispose.family<List<UserModel>, String>((ref, rtId) {
+  final rtService = ref.watch(rtServiceProvider);
+  return rtService.fetchPendingCitizens(rtId);
+});

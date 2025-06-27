@@ -26,7 +26,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
 
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
+  final TextEditingController _address = TextEditingController();
   final TextEditingController _noTeleponController = TextEditingController();
   final TextEditingController _uniqueCodeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -36,7 +36,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
   void dispose() {
     _fullNameController.dispose();
     _nikController.dispose();
-    _alamatController.dispose();
+    _address.dispose();
     _noTeleponController.dispose();
     _uniqueCodeController.dispose();
     _emailController.dispose();
@@ -128,7 +128,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
 
                           TextFormField(
                             key: const Key('addressField'),
-                            controller: _alamatController,
+                            controller: _address,
                             decoration: InputDecoration(
                               labelText: 'Alamat',
                               prefixIcon: Icon(Icons.home, size: 24.r),
@@ -254,7 +254,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
                                     fullName: _fullNameController.text,
                                     nik: _nikController.text,
                                     phoneNumber: _noTeleponController.text,
-                                    address: _alamatController.text,
+                                    address: _address.text,
                                     rtUniqueCode: _uniqueCodeController.text,
                                   );
                                 }

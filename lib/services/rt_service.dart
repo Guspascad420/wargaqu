@@ -77,6 +77,24 @@ class RtService {
     }).toList();
   }
 
+  Stream<List<UserModel>> fetchPendingCitizens(String rtId) {
+    final querySnapshotStream = _firestore
+        .collection('users')
+        .where("rtId", isEqualTo: rtId)
+        .where("status", isEqualTo: "pending_approval")
+        .snapshots();
+    return querySnapshotStream.map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return UserModel.fromJson(data);
+      }).toList();
+    });
+  }
+
   Future<UserModel?> fetchRtChairman(String rtId) async {
     try {
       final snapshot = await _firestore

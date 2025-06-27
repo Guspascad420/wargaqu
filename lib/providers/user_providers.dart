@@ -46,6 +46,11 @@ final userIdProvider = Provider<String?>((ref) {
   return asyncUserData.value?.id;
 });
 
+final roleProvider = Provider<String?>((ref) {
+  final asyncUserData = ref.watch(userDataProvider);
+  return asyncUserData.value?.role;
+});
+
 final currentNameProvider = Provider<String?>((ref) {
   final asyncUserData = ref.watch(userDataProvider);
   return asyncUserData.value?.fullName;
