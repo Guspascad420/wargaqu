@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:wargaqu/model/RT/rt_data.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
+import 'package:wargaqu/providers/user_providers.dart';
 
-class RtFinancialReportScreen extends StatelessWidget {
-  const RtFinancialReportScreen({super.key, required this.rtDataList});
-
-  final List<RtData> rtDataList;
+class RtFinancialReportScreen extends ConsumerWidget {
+  const RtFinancialReportScreen({super.key});
 
   Widget rtItemCard(BuildContext context, String rtName) {
     return Container(
@@ -31,7 +30,10 @@ class RtFinancialReportScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rwId = ref.watch(currentRwIdProvider);
+    final asyncRtList = ref.watch(rtListStreamProvider(rwId!));
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -61,15 +63,26 @@ class RtFinancialReportScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 15.h),
-              ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final rtData = rtDataList[index];
-                    return rtItemCard(context, rtData.rtName);
-                  },
-                  separatorBuilder: (context, index) => SizedBox(height: 12.h),
-                  itemCount: rtDataList.length
+              asyncRtList.when(
+                error: (err, stack) {
+                  print(stack);
+                  return Center(child: Text('Error: $err'));
+                },
+                loading: () {
+                  return CircularProgressIndicator();
+                },
+                data: (rtList) {
+                  return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final rtData = rtList[index];
+                        return rtItemCard(context, rtData.rtName);
+                      },
+                      separatorBuilder: (context, index) => SizedBox(height: 12.h),
+                      itemCount: rtList.length
+                  );
+                }
               )
             ]
         )
