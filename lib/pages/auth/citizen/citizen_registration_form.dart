@@ -1,18 +1,19 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_screenutil
 import 'package:wargaqu/pages/auth/citizen/citizen_login_form.dart';
+import 'package:wargaqu/pages/citizen/waiting_approval/waiting_for_approval_screen.dart';
 import 'package:wargaqu/providers/providers.dart';
-import 'package:wargaqu/services/auth_service.dart';
 import 'package:wargaqu/services/user_service.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-final userDbServiceProvider = Provider<UserDbService>((ref) {
-  return UserDbService(FirebaseFirestore.instance);
-});
+import '../../../model/RT/rt_data.dart';
+import '../../../providers/rt_providers.dart';
+import '../../../providers/rw_providers.dart';
 
 class CitizenRegistrationForm extends ConsumerStatefulWidget {
   const CitizenRegistrationForm({super.key});
@@ -24,20 +25,32 @@ class CitizenRegistrationForm extends ConsumerStatefulWidget {
 class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
+  final _focusNode = FocusNode();
+  bool _isListVisible = false;
+  String _selectedRwId = '';
+  String _selectedRtId = '';
 
   final RegExp _emailRegExp = RegExp(
     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
   );
   final RegExp _phoneRegExp = RegExp(r"^0[0-9]{9,12}$");
 
+  final List<String> residencyStatusOptions = [
+    'Warga Tetap',
+    'Warga Kontrak / Kost',
+    'Warga Tidak Tetap',
+    'Pemilik Properti (Tidak Menetap)',
+  ];
+
   final TextEditingController _namaLengkapController = TextEditingController();
+  final TextEditingController _rwSearchController = TextEditingController();
+  final TextEditingController _rtController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _noKkController = TextEditingController();
   final TextEditingController _noTeleponController = TextEditingController();
-  final TextEditingController _pekerjaanController = TextEditingController();
-  final TextEditingController _statusKependudukanController = TextEditingController();
-  final TextEditingController _kodeRtController = TextEditingController();
+  final TextEditingController _occupationController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -46,30 +59,59 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
   void dispose() {
     _namaLengkapController.dispose();
     _nikController.dispose();
-    _alamatController.dispose();
+    _addressController.dispose();
     _noKkController.dispose();
     _noTeleponController.dispose();
-    _pekerjaanController.dispose();
+    _occupationController.dispose();
     _fullNameController.dispose();
-    _statusKependudukanController.dispose();
-    _kodeRtController.dispose();
+    _statusController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _rwSearchController.dispose();
+    _rtController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {
+        _isListVisible = _focusNode.hasFocus;
+      });
+    });
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<void>>(registrationNotifierProvider, (prev, next) {
-      if (next.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
-      }
-      if (!next.isLoading && !next.hasError && prev is AsyncLoading) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registrasi RW berhasil!')));
+      if (prev is AsyncLoading && !next.isLoading) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
+        }
+      } else {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const WaitingForApprovalScreen())
+        );
       }
     });
 
+    final filteredRwList = ref.watch(filteredRwsProvider);
+    final allRwsAsync = ref.watch(allRwsProvider);
     final regState = ref.watch(registrationNotifierProvider);
+
+    double containerHeight = 0;
+    if (_isListVisible && _rwSearchController.text.isNotEmpty) {
+      if (filteredRwList.isNotEmpty) {
+        const double itemHeight = 60.0;
+        const double maxHeight = 216.0;
+        containerHeight = min(filteredRwList.length * itemHeight, maxHeight);
+      } else {
+        containerHeight = 60.0;
+      }
+    }
 
     return Scaffold(
         appBar: AppBar(
@@ -99,8 +141,10 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                       child: Column(
                         children: <Widget>[
                           TextFormField(
-                            controller: _namaLengkapController,
+                            controller: _fullNameController,
                             decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               labelText: 'Nama Lengkap',
                               prefixIcon: Icon(Icons.person, size: 24.r),
                             ),
@@ -118,6 +162,8 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             controller: _nikController,
                             decoration: InputDecoration(
                               labelText: 'NIK',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.credit_card, size: 24.r),
                             ),
                             keyboardType: TextInputType.number,
@@ -137,9 +183,102 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                           SizedBox(height: 16.h),
 
                           TextFormField(
-                            controller: _alamatController,
+                            controller: _rwSearchController,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              labelText: 'Ketik nama perumahan atau RW...',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: const BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            onChanged: (query) {
+                              ref.read(rwSearchQueryProvider.notifier).state = query;
+                            },
+                          ),
+
+                          if (_isListVisible)
+                            allRwsAsync.when(
+                              loading: () => const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Memuat daftar RW...'),
+                              ),
+                              error: (e, s) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Error: $e', style: const TextStyle(color: Colors.red)),
+                              ),
+                              data: (_) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                height: containerHeight,
+                                margin: const EdgeInsets.only(top: 8.0),
+                                child: Material(
+                                  elevation: 4,
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: filteredRwList.isEmpty && _rwSearchController.text.isNotEmpty
+                                      ? const Center(child: Text("RW tidak ditemukan."))
+                                      : ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: filteredRwList.length,
+                                          itemBuilder: (context, index) {
+                                            final rw = filteredRwList[index];
+                                            return ListTile(
+                                              title: Text(rw.rwName),
+                                              onTap: () {
+                                                _rwSearchController.text = rw.rwName;
+                                                _selectedRwId = rw.id;
+                                                _focusNode.unfocus();
+                                                ref.read(rwSearchQueryProvider.notifier).state = '';
+                                              },
+                                            );
+                                          },
+                                        ),
+                                ),
+                              ),
+                            ),
+                          SizedBox(height: 16.h,),
+
+                          if (_rwSearchController.text.isNotEmpty)...[
+                            ref.watch(rtListProvider(_selectedRwId)).when(
+                              loading: () => const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Memuat daftar RT...'),
+                              ),
+                              error: (e, s) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Error: $e', style: const TextStyle(color: Colors.red)),
+                              ),
+                              data: (rtList) {
+                                final List<DropdownMenuEntry<RtData>> rtEntries = rtList.map((rt) {
+                                  return DropdownMenuEntry(value: rt, label: rt.rtName);
+                                }).toList();
+
+                                return DropdownMenu<RtData>(
+                                  expandedInsets: EdgeInsets.zero,
+                                  controller: _rtController,
+                                  label: Text('Pilih RT...', style: GoogleFonts.roboto(fontWeight: FontWeight.w500)),
+                                  dropdownMenuEntries: rtEntries,
+                                  onSelected: (RtData? rt) {
+                                    if (rt != null) {
+                                      setState(() {
+                                        _selectedRtId = rt.id;
+                                      });
+                                    }
+                                  },
+                                );
+                              }
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
+
+                          TextFormField(
+                            controller: _addressController,
                             decoration: InputDecoration(
                               labelText: 'Alamat',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.home, size: 24.r),
                             ),
                             keyboardType: TextInputType.streetAddress,
@@ -157,6 +296,8 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             controller: _noKkController,
                             decoration: InputDecoration(
                               labelText: 'Nomor Kartu Keluarga',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.group, size: 24.r),
                             ),
                             keyboardType: TextInputType.number,
@@ -179,6 +320,8 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             controller: _noTeleponController,
                             decoration: InputDecoration(
                               labelText: 'Nomor Telepon',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.phone, size: 24.r),
                             ),
                             keyboardType: TextInputType.phone,
@@ -195,9 +338,11 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                           SizedBox(height: 16.h),
 
                           TextFormField(
-                            controller: _pekerjaanController,
+                            controller: _occupationController,
                             decoration: InputDecoration(
                                 labelText: 'Pekerjaan Saat Ini',
+                                filled: true,
+                                fillColor: Theme.of(context).colorScheme.surface,
                                 prefixIcon: Icon(Icons.work, size: 24.r)
                             ),
                             keyboardType: TextInputType.text,
@@ -210,52 +355,24 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                           ),
                           SizedBox(height: 16.h),
 
-                          TextFormField(
-                            controller: _statusKependudukanController,
-                            decoration: InputDecoration(
-                              labelText: 'Status Kependudukan',
-                              prefixIcon: Icon(Icons.account_balance, size: 24.r),
-                            ),
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Status Kependudukan wajib diisi.';
+                          DropdownMenu<String>(
+                            controller: _statusController,
+                            expandedInsets: EdgeInsets.zero,
+                            label: Text('Status Kependudukan', style: GoogleFonts.roboto(fontWeight: FontWeight.w500)),
+                            dropdownMenuEntries:
+                            residencyStatusOptions.map<DropdownMenuEntry<String>>((String value) {
+                              return DropdownMenuEntry<String>(
+                                value: value,
+                                label: value,
+                              );
+                            }).toList(),
+                            // Fungsi yang dijalankan saat salah satu item dipilih
+                            onSelected: (String? status) {
+                              if (status != null) {
+                                print('Status yang dipilih: $status');
                               }
-                              return null;
                             },
-                          ),
-                          SizedBox(height: 16.h),
-
-                          TextFormField(
-                            controller: _kodeRtController,
-                            decoration: InputDecoration(
-                              labelText: 'Kode Unik RT',
-                              prefixIcon: Icon(Icons.qr_code_scanner, size: 24.r),
-                            ),
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Kode Unik RT wajib diisi.';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 16.h),
-
-                          TextFormField(
-                            controller: _fullNameController,
-                            decoration: InputDecoration(
-                              labelText: 'Nama Lengkap',
-                              prefixIcon: Icon(Icons.person, size: 24.r),
-                            ),
-                            keyboardType: TextInputType.text,
-                            maxLines: 3,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Nama Lengkap harus diisi';
-                              }
-                              return null;
-                            },
+                            leadingIcon: Icon(Icons.person_pin_circle_outlined, size: 24.r),
                           ),
                           SizedBox(height: 16.h),
 
@@ -263,6 +380,8 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             controller: _emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.email, size: 24.r),
                             ),
                             keyboardType: TextInputType.emailAddress,
@@ -283,6 +402,8 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
                               labelText: 'Kata Sandi',
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
                               prefixIcon: Icon(Icons.lock, size: 24.r),
                               helperText: 'Minimal 6 karakter.',
                               suffixIcon: IconButton(
@@ -312,7 +433,7 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary200,
+                                backgroundColor: AppColors.primary400,
                                 padding: EdgeInsets.symmetric(vertical: 16.h), // Padding vertikal dengan .h
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.r), // Radius dengan .r
@@ -320,7 +441,19 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
                               ),
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
-
+                                  ref.read(registrationNotifierProvider.notifier).registerCitizen(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                    fullName: _fullNameController.text,
+                                    nik: _nikController.text,
+                                    phoneNumber: _noTeleponController.text,
+                                    address: _addressController.text,
+                                    kkNumber: _noKkController.text,
+                                    currentOccupation: _occupationController.text,
+                                    residencyStatus: _statusController.text,
+                                    rwId: _selectedRwId,
+                                    rtId: _selectedRtId
+                                  );
                                 }
                               },
                               child: regState.isLoading

@@ -17,9 +17,11 @@ abstract class UserModel with _$UserModel {
     String? currentOccupation,
     String? residencyStatus,
     String? rtId,
+    String? kkNumber,
     @Default('citizen') String role,
     String? profilePictureUrl,
     @Default({}) Map<String, String> billsStatus,
+    @Default('ACTIVE') String status,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     DateTime? joinedTimestamp,
   }) = _UserModel;
@@ -29,4 +31,4 @@ abstract class UserModel with _$UserModel {
 }
 
 DateTime _timestampFromJson(Timestamp timestamp) => timestamp.toDate();
-Timestamp _timestampToJson(DateTime date) => Timestamp.fromDate(date);
+Timestamp _timestampToJson(DateTime? date) => Timestamp.fromDate(date!);

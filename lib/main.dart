@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
+import 'package:wargaqu/pages/citizen/waiting_approval/waiting_for_approval_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
@@ -76,20 +77,31 @@ class RoleBasedRedirect extends ConsumerWidget {
 
     return userProfileState.when(
       data: (snapshot) {
-        final userProfile = snapshot.data() as Map<String, dynamic>;
-
-        switch (userProfile['role']) {
-          case 'citizen':
-            return const CitizenMainScreen();
-          case 'ketua_rt':
-          case 'bendahara_rt':
-            return const RtMainScreen();
-          case 'rw_official':
-          case 'bendahara_rw':
-            return const RwMainScreen();
-          default:
-            return const LoginChoiceScreen();
+        if (snapshot == null || !snapshot.exists || snapshot.data() == null) {
+          return const LoginChoiceScreen(); // Atau halaman error
         }
+
+        final userProfile = snapshot.data() as Map<String, dynamic>;
+        final String status = userProfile['status'] ?? 'pending_approval';
+        final String role = userProfile['role'] ?? '';
+
+        if (status == 'pending_approval') {
+          return const WaitingForApprovalScreen();
+        }
+
+        if (status == 'ACTIVE') {
+          if (role.contains('citizen')) {
+            return const CitizenMainScreen();
+          }
+          if (role.contains('rt')) {
+            return const RtMainScreen();
+          }
+          if (role.contains('rw')) {
+            return const RwMainScreen();
+          }
+        }
+
+        return const LoginChoiceScreen();
       },
       loading: () => const Scaffold(),
       error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))

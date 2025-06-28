@@ -8,8 +8,8 @@ import 'package:wargaqu/providers/user_providers.dart';
 
 class RegistrationNotifier extends AsyncNotifier<void> {
   @override
-  Future<void> build() async {
-    return;
+  void build() {
+
   }
 
   Future<void> registerRtOfficial({
@@ -48,6 +48,7 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         rtId: result.rtId,
         rwId: result.rwId,
         address: address,
+        joinedTimestamp: DateTime.now()
       );
       final batch = ref.read(firestoreProvider).batch();
 
@@ -92,6 +93,7 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         phoneNumber: phoneNumber,
         rwId: rwId,
         address: address,
+        joinedTimestamp: DateTime.now()
       );
       final batch = ref.read(firestoreProvider).batch();
 
@@ -103,17 +105,18 @@ class RegistrationNotifier extends AsyncNotifier<void> {
     });
   }
 
-  Future<void> registerUser({
+  Future<void> registerCitizen({
     required String email,
     required String password,
     required String nik,
     required String fullName,
-    String? phoneNumber,
     required String address,
+    required String rwId,
+    required String rtId,
+    String? kkNumber,
+    String? phoneNumber,
     String? currentOccupation,
     String? residencyStatus,
-    required String rwId,
-    required String rtId
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -137,10 +140,13 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         address: address,
         currentOccupation: currentOccupation,
         residencyStatus: residencyStatus,
+        kkNumber: kkNumber,
         rwId: rwId,
+        status: 'pending_approval',
+        joinedTimestamp: DateTime.now()
       );
 
-      final userDbService = ref.read(userDbServiceProvider);
+      final userDbService = ref.read(userServiceProvider);
       final batch = ref.read(firestoreProvider).batch();
       await userDbService.createUserProfile(newUser, batch);
       await batch.commit();

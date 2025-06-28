@@ -52,12 +52,12 @@ class CitizenVerificationScreen extends ConsumerWidget {
                 )
               : ListView.separated(
                   itemBuilder: (BuildContext context, int index) {
-                    final applicant = mockPendingCitizens[index];
+                    final applicant = pendingCitizens[index];
                     return CitizenVerificationCard(applicant: applicant, onApprove: () {},
                         onViewDetail: () {}, rtName: 'RT 003 La Masia');
                   },
                   separatorBuilder: (BuildContext context, int index) => SizedBox(height: 16.h),
-                  itemCount: mockPendingCitizens.length
+                  itemCount: pendingCitizens.length
               );
         }
       ),

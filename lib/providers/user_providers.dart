@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/services/user_service.dart';
@@ -10,7 +11,7 @@ final authStateProvider = StreamProvider<User?>((ref) {
 });
 
 final userServiceProvider = Provider<UserDbService>((ref) {
-  return UserDbService(FirebaseFirestore.instance);
+  return UserDbService(FirebaseFirestore.instance, FirebaseMessaging.instance);
 });
 
 final userDocStreamProvider = StreamProvider.autoDispose<DocumentSnapshot<Map<String, dynamic>>>((ref) {
@@ -32,7 +33,8 @@ final userDataProvider = FutureProvider.autoDispose<UserModel?>((ref) {
         return null;
       }
       final dataWithId = doc.data()!..['id'] = doc.id;
-      return UserModel.fromJson(dataWithId);
+      final userModel = UserModel.fromJson(dataWithId);
+      return userModel;
     },
     loading: () => null,
     error: (e, s) {
@@ -54,6 +56,11 @@ final roleProvider = Provider<String?>((ref) {
 final currentNameProvider = Provider<String?>((ref) {
   final asyncUserData = ref.watch(userDataProvider);
   return asyncUserData.value?.fullName;
+});
+
+final addressProvider = Provider<String?>((ref) {
+  final asyncUserData = ref.watch(userDataProvider);
+  return asyncUserData.value?.address;
 });
 
 final currentRwIdProvider = Provider<String?>((ref) {
