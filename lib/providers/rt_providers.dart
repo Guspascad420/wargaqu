@@ -214,6 +214,29 @@ final rtListStreamProvider = StreamProvider.autoDispose.family<List<RtData>, Str
   return rtService.fetchRtsByRwIdStream(rwId);
 });
 
+final rtListProvider = FutureProvider.autoDispose.family<List<RtData>, String>((ref, rwId) {
+  final rtService = ref.watch(rtServiceProvider);
+  return rtService.fetchRtsByRwId(rwId);
+});
+
+final filteredRtsProvider = Provider.autoDispose.family<List<RtData>, String>((ref, rwId) {
+  final searchQuery = ref.watch(rwSearchQueryProvider).toLowerCase();
+  final allRtsAsync = ref.watch(rtListProvider(rwId));
+
+  final allRts = switch (allRtsAsync) {
+    AsyncData(:final value) => value,
+    _ => <RtData>[],
+  };
+
+  if (searchQuery.isEmpty) {
+    return [];
+  }
+
+  return allRts.where((rt) {
+    return rt.rtName.toLowerCase().contains(searchQuery);
+  }).toList();
+});
+
 final rtChairmanProvider = FutureProvider.family<UserModel?, String>((ref, rtId) {
   final rtService = ref.watch(rtServiceProvider);
   return rtService.fetchRtChairman(rtId);

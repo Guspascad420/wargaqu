@@ -81,7 +81,7 @@ class RtService {
     final querySnapshotStream = _firestore
         .collection('users')
         .where("rtId", isEqualTo: rtId)
-        .where("status", isEqualTo: "pending_approval")
+        .where("status", isEqualTo: "pending_confirmation")
         .snapshots();
     return querySnapshotStream.map((snapshot) {
       if (snapshot.docs.isEmpty) {
@@ -177,6 +177,20 @@ class RtService {
     } catch (e) {
       print('Error pas ngambil rekening bank: $e');
       throw Exception('Gagal memuat data rekening bank.');
+    }
+  }
+
+  Future<List<RtData>> fetchRtsByRwId(String rwId) async {
+    try {
+      final snapshot = await _firestore.collection('rts').where('rwId', isEqualTo: rwId).get();
+      if (snapshot.docs.isEmpty) return [];
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return RtData.fromJson(data);
+      }).toList();
+    } catch (e) {
+      throw Exception("Gagal memuat daftar RT.");
     }
   }
 

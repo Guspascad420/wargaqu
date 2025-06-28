@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:wargaqu/model/RW/rw_data.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
@@ -56,4 +57,29 @@ final loggedInRwDataProvider = Provider.autoDispose<RwData?>((ref) {
   }
 
   return ref.watch(rwDataProvider(rwId));
+});
+
+final allRwsProvider = FutureProvider.autoDispose<List<RwData>>((ref) {
+  final rwService = ref.watch(rwServiceProvider);
+  return rwService.fetchAllRws();
+});
+
+final rwSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+
+final filteredRwsProvider = Provider.autoDispose<List<RwData>>((ref) {
+  final searchQuery = ref.watch(rwSearchQueryProvider).toLowerCase();
+  final allRwsAsync = ref.watch(allRwsProvider);
+
+  final allRws = switch (allRwsAsync) {
+    AsyncData(:final value) => value,
+    _ => <RwData>[],
+  };
+
+  if (searchQuery.isEmpty) {
+    return [];
+  }
+
+  return allRws.where((rw) {
+    return rw.rwName.toLowerCase().contains(searchQuery);
+  }).toList();
 });

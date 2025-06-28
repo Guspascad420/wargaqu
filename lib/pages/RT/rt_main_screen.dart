@@ -16,6 +16,8 @@ class RtMainScreen extends ConsumerWidget {
     final rtData = ref.watch(rtDataProvider);
     final currentName = ref.watch(currentNameProvider);
 
+    final asyncUserData = ref.watch(userDataProvider);
+
     String? appBarTitleLogic(int selectedIndex, BuildContext context) {
       switch (selectedIndex) {
         case 0:

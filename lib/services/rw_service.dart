@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wargaqu/model/RW/rw_data.dart';
 
 class RwService {
   final FirebaseFirestore _firestore;
@@ -34,5 +35,20 @@ class RwService {
         .collection('rws')
         .doc(rwId)
         .snapshots();
+  }
+
+  Future<List<RwData>> fetchAllRws() async {
+    try {
+      final snapshot = await _firestore.collection('rws').get();
+      if (snapshot.docs.isEmpty) return [];
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return RwData.fromJson(data);
+      }).toList();
+    } catch (e) {
+      print("Error fetching all RWs: $e");
+      throw Exception("Gagal memuat daftar RW.");
+    }
   }
 }
