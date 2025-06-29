@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
-import 'package:wargaqu/model/auth/auth_state.dart';
+import 'package:wargaqu/main.dart';
 import 'package:wargaqu/pages/auth/citizen/citizen_registration_form.dart';
-import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
+
+import '../../../providers/providers.dart';
 
 class CitizenLoginForm extends ConsumerStatefulWidget {
   const CitizenLoginForm({super.key});
@@ -17,7 +18,6 @@ class _CitizenLoginFormState extends ConsumerState<CitizenLoginForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -27,6 +27,21 @@ class _CitizenLoginFormState extends ConsumerState<CitizenLoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (prev, next) {
+      if (prev is AsyncLoading && !next.isLoading) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${next.error}')),
+          );
+        } else if (next is AsyncData) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const RoleBasedRedirect()),
+                (route) => false,
+          );
+        }
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -39,10 +54,12 @@ class _CitizenLoginFormState extends ConsumerState<CitizenLoginForm> {
             passwordController: _passwordController,
             subtitle: 'Halo Warga! Masuk ke akun Anda untuk dapat menggunakan layanan kami',
             onLoginPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => CitizenMainScreen()),
-                    (Route<dynamic> route) => false,
-              );
+              if (_formKey.currentState!.validate()) {
+                ref.read(authNotifierProvider.notifier).loginUser(
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                );
+              }
             },
             onForgotPasswordPressed: () {},
             onRegistrationOptionPressed: () {

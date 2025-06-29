@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
-class LoginNotifier extends AsyncNotifier<void> {
+class AuthNotifier extends AsyncNotifier<void> {
   @override
-  Future<void> build() async {
+  void build() {
     return;
   }
 
@@ -25,11 +26,19 @@ class LoginNotifier extends AsyncNotifier<void> {
         throw Exception('Gagal login');
       }
 
-      userService.saveAndGetFcmToken(firebaseUser.uid);
-      state = const AsyncData(null);
+      await userService.saveAndGetFcmToken(firebaseUser.uid);
 
+      state = const AsyncData(null);
     } catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
     }
+  }
+
+  Future<void> signOut(String userId) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      ref.read(userServiceProvider).deleteFcmToken(userId);
+      ref.read(authServiceProvider).signOut();
+    });
   }
 }

@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/reusable_home_screen.dart';
 import 'package:wargaqu/pages/citizen/bills/incidental_bills_screen.dart';
 import 'package:wargaqu/pages/citizen/bills/regular_bills_screen.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
-class CitizenHomeScreen extends StatefulWidget {
+class CitizenHomeScreen extends ConsumerStatefulWidget {
   const CitizenHomeScreen({super.key});
 
   @override
-  State<CitizenHomeScreen> createState() => _CitizenHomeScreenState();
+  ConsumerState<CitizenHomeScreen> createState() => _CitizenHomeScreenState();
 }
 
-class _CitizenHomeScreenState extends State<CitizenHomeScreen> {
+class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final rtData = ref.watch(rtDataProvider); // This will re-render when rtDataProvider changes
+
     return ReusableHomeScreen(
-        subtitle: 'Anda sudah terhubung dengan {Name_RT}',
+        subtitle: 'Anda sudah terhubung dengan ${rtData?.rtName}',
         servicesWidgets: [
           GestureDetector(
               onTap: () {

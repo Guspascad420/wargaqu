@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_s
 import 'package:wargaqu/pages/auth/citizen/citizen_login_form.dart';
 import 'package:wargaqu/pages/citizen/waiting_approval/waiting_for_approval_screen.dart';
 import 'package:wargaqu/providers/providers.dart';
-import 'package:wargaqu/services/user_service.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 import '../../../model/RT/rt_data.dart';
