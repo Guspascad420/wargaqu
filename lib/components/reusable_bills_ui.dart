@@ -83,9 +83,9 @@ class ReusableBillsUI extends StatelessWidget {
           ),
           body: TabBarView(
               children: [
-                BillsTab(bill: bill, billType: billType, title: billsTabTitle,
+                BillsTab(billType: billType, title: billsTabTitle,
                     subtitle: billsTabSubtitle),
-                HistoryTab(bill: bill, title: historyTabTitle,
+                HistoryTab(billType: billType, title: historyTabTitle,
                     subtitle: historyTabSubtitle, showPaymentDetailDialog: _showPaymentDetailDialog)
               ]
           ),

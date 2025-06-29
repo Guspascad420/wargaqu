@@ -31,26 +31,24 @@ class BillService {
     }
   }
 
-  Stream<List<Bill>> fetchActiveBills(BillType billType) {
+  Future<List<Bill>> fetchActiveBills(BillType billType) async {
     try {
-      final querySnapshotStream = _firestore
+      final snapshot = await _firestore
           .collection('bills')
           .where('billType', isEqualTo: billType.displayName)
           .where('status', isEqualTo: 'ACTIVE')
           .limit(5)
-          .snapshots();
+          .get();
 
-      return querySnapshotStream.map((snapshot) {
-        if (snapshot.docs.isEmpty) {
-          return [];
-        }
-        return snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          return Bill.fromJson(data);
-        }).toList();
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Bill.fromJson(data);
+      }).toList();
 
-      });
     } on FirebaseException catch (e) {
       print('Firebase Error fetching payment history: ${e.message}');
       throw Exception('Gagal memuat riwayat pembayaran: ${e.code}');

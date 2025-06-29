@@ -13,7 +13,7 @@ abstract class Bill with _$Bill {
     required String billName,
     @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
     required BillType billType,
-    required double amount,
+    required int amount,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     required DateTime dueDate,
   }) = _Bill;

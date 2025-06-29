@@ -8,7 +8,7 @@ class BillItemCard extends StatelessWidget {
   final BillType? billType;
   final String title;
   final DateTime dueDate;
-  final double amount;
+  final int amount;
   final String? status;
   final void Function(BuildContext)? showPaymentDetailDialog;
   final void Function() onItemTapped;
@@ -62,7 +62,7 @@ class BillItemCard extends StatelessWidget {
       decimalDigits: 0,
     );
 
-    final dateFormatter = DateFormat('d MMMM yyyy',);
+    final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
 
     return InkWell(
         onTap: () {
