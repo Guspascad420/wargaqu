@@ -87,7 +87,7 @@ class DashboardScreen extends ConsumerWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const FinancialReportScreen()),
+                    MaterialPageRoute(builder: (context) => FinancialReportScreen(rtId: rtData.id)),
                   );
                 },
               ),

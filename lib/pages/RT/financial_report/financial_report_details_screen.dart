@@ -12,8 +12,9 @@ import 'package:wargaqu/theme/app_colors.dart';
 import '../../../components/transaction_tab_view.dart';
 
 class FinancialReportDetailsScreen extends ConsumerWidget {
-  const FinancialReportDetailsScreen({super.key, required this.reportData});
+  const FinancialReportDetailsScreen({super.key, required this.reportData, required this.rtId});
 
+  final String rtId;
   final ReportData reportData;
 
   Widget _transactionItemCard(BuildContext context, String title, int amount,
@@ -50,11 +51,9 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rtData = ref.watch(rtDataProvider);
-    final asyncTransactions = ref.watch(transactionsProvider(rtData!.id));
+    final asyncTransactions = ref.watch(transactionsProvider(rtId));
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     final Widget widget = switch (reportData) {
@@ -73,48 +72,50 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
               title: Text('Laporan ${DateFormat('MMMM yyyy', 'id_ID').format(DateTime.tryParse("$periodYearMonth-01") ?? DateTime.now())}'
                   , style: Theme.of(context).textTheme.titleMedium),
               ),
-            body: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 15.h,),
-                  IncomeExpenseDonutChart(
-                    totalIncome: monthlyIncome,
-                    totalExpenses: monthlyExpenses,
-                  ),
-                  SizedBox(height: 10.h),
-                  Text('Detail Laporan', style: Theme.of(context).textTheme.titleLarge),
-                  Text('Berikut adalah detail laporan keuangan',
-                    style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
-                  SizedBox(height: 10.h),
-                  asyncTransactions.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, stack) {
-                      print(err);
-                      print(stack);
-                      return Center(child: Text('Error: $err'));
-                    },
-                    data: (transactions) {
-                      return Expanded(
-                        child: ListView.builder(
-                            itemCount: transactions.length,
-                            itemBuilder: (context, index) {
-                              final transaction = transactions[index];
-                              return switch(transaction) {
-                                IncomeTransaction() => _transactionItemCard(context, transaction.description,
-                                    transaction.amount, TransactionType.income, currencyFormatter),
-                                ExpenseTransaction() => _transactionItemCard(context, transaction.description,
-                                    transaction.amount, TransactionType.expense,currencyFormatter),
-                                TransactionData() => throw UnimplementedError(),
-                              };
-                            }
-                        )
-                      );
-                    }
-                  )
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 15.h,),
+                    IncomeExpenseDonutChart(
+                      totalIncome: monthlyIncome,
+                      totalExpenses: monthlyExpenses,
+                    ),
+                    SizedBox(height: 10.h),
+                    Text('Detail Laporan', style: Theme.of(context).textTheme.titleLarge),
+                    Text('Berikut adalah detail laporan keuangan',
+                      style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
+                    SizedBox(height: 10.h),
+                    asyncTransactions.when(
+                        loading: () => const Center(child: CircularProgressIndicator()),
+                        error: (err, stack) {
+                          print(err);
+                          print(stack);
+                          return Center(child: Text('Error: $err'));
+                        },
+                        data: (transactions) {
+                          return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: transactions.length,
+                              itemBuilder: (context, index) {
+                                final transaction = transactions[index];
+                                return switch(transaction) {
+                                  IncomeTransaction() => _transactionItemCard(context, transaction.description,
+                                      transaction.amount, TransactionType.income, currencyFormatter),
+                                  ExpenseTransaction() => _transactionItemCard(context, transaction.description,
+                                      transaction.amount, TransactionType.expense,currencyFormatter),
+                                  TransactionData() => throw UnimplementedError(),
+                                };
+                              }
+                          );
+                        }
+                    )
 
-                ],
+                  ],
+                ),
               ),
             )
           ),
