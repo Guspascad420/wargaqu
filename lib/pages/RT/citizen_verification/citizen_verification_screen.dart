@@ -53,8 +53,26 @@ class CitizenVerificationScreen extends ConsumerWidget {
               : ListView.separated(
                   itemBuilder: (BuildContext context, int index) {
                     final applicant = pendingCitizens[index];
-                    return CitizenVerificationCard(applicant: applicant, onApprove: () {},
-                        onViewDetail: () {}, rtName: 'RT 003 La Masia');
+                    return CitizenVerificationCard(applicant: applicant,
+                        onApprove: () {
+                          ref.read(citizenVerificationNotifierProvider.notifier).executeUpdateCitizenStatus(
+                              userId: applicant.id, isApproved: true, rtId: rtData.id
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Berhasil mendaftarkan warga")),
+                          );
+                        },
+                        onViewDetail: () {},
+                        onReject: (reason) async {
+                          await ref.read(citizenVerificationNotifierProvider.notifier).executeUpdateCitizenStatus(
+                              userId: applicant.id, isApproved: false, rejectionReason: reason
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Berhasil menolak pendaftaran")),
+                          );
+                        },
+                        rtName: rtData.rtName
+                    );
                   },
                   separatorBuilder: (BuildContext context, int index) => SizedBox(height: 16.h),
                   itemCount: pendingCitizens.length

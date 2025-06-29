@@ -13,18 +13,20 @@ class CitizenVerificationCard extends StatefulWidget {
   final String rtName;
   final VoidCallback onApprove;
   final VoidCallback onViewDetail;
+  final Future<void> Function(String reason) onReject;
 
   const CitizenVerificationCard({super.key, required this.applicant,
-    required this.onApprove, required this.onViewDetail, required this.rtName});
+    required this.onApprove, required this.onViewDetail, required this.rtName, required this.onReject});
 
   @override
   State<CitizenVerificationCard> createState() => _CitizenVerificationCardState();
 }
 
 class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
-  final _dateFormatter = DateFormat('d MMMM yyyy, HH:mm');
+  final _dateFormatter = DateFormat('d MMMM yyyy, HH:mm', 'id_ID');
   final TextEditingController _reasonController = TextEditingController();
   bool _isBeingRejected = false;
+  bool _isRejectedLoading = false;
 
   Future<bool> _showCitizenApprovalDialog(
       BuildContext context, {
@@ -40,7 +42,7 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
           ),
           title: Row(
             children: [
-              Icon(Icons.how_to_reg_rounded, color: Theme.of(context).primaryColor),
+              Icon(Icons.how_to_reg_rounded, color: Theme.of(context).colorScheme.onSurface, size: 24.sp),
               const SizedBox(width: 10),
               const Text('Konfirmasi Persetujuan'),
             ],
@@ -74,7 +76,7 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
+                backgroundColor: AppColors.positive,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.w),
@@ -90,9 +92,21 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
       },
     );
 
-    // Jika user menutup dialog tanpa menekan tombol (misal, klik di luar),
-    // result akan null. Kita anggap itu sebagai 'false'.
     return result ?? false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,7 +119,6 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: InkWell(
-        onTap: widget.onViewDetail,
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
           padding: EdgeInsets.all(16.w),
@@ -120,7 +133,7 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
                     backgroundColor: Theme.of(context).colorScheme.onSurface,
                     child: Icon(
                       Icons.person_add_alt_1_outlined,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.surface,
                       size: 24.sp,
                     ),
                   ),
@@ -194,6 +207,10 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
                     )),
                     onPressed: () async {
                       final bool shouldApprove = await _showCitizenApprovalDialog(context, applicant: widget.applicant);
+
+                      if (shouldApprove) {
+                        widget.onApprove();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade600,
@@ -209,7 +226,7 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
               if (_isBeingRejected)...[
                 SizedBox(height: 15.h),
                 TextField(
-                  key: const Key('addressField'),
+                  key: const Key('reasonField'),
                   controller: _reasonController,
                   decoration: InputDecoration(
                       labelText: 'Berikan alasan penolakan...',
@@ -231,14 +248,33 @@ class _CitizenVerificationCardState extends State<CitizenVerificationCard> {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
-                    onPressed: _reasonController.text.isEmpty ? null : () {
-
+                    onPressed: _reasonController.text.isEmpty ? null : () async {
+                      setState(() {
+                        _isRejectedLoading = true;
+                      });
+                      try {
+                        await widget.onReject(_reasonController.text);
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Gagal menolak: $e")),
+                          );
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isRejectedLoading = false;
+                          });
+                        }
+                      }
                     },
-                    child: Text(
-                      'Kirim',
-                      style: GoogleFonts.roboto(fontSize: 15.sp,
-                          color: Colors.white, fontWeight: FontWeight.w500),
-                    ),
+                    child: _isRejectedLoading
+                      ? CircularProgressIndicator(color: Colors.white,)
+                      : Text(
+                          'Kirim',
+                          style: GoogleFonts.roboto(fontSize: 15.sp,
+                              color: Colors.white, fontWeight: FontWeight.w500),
+                        )
                   ),
                 )
               ]
