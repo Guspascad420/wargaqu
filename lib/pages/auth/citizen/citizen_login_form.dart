@@ -35,7 +35,7 @@ class _CitizenLoginFormState extends ConsumerState<CitizenLoginForm> {
           );
         } else if (next is AsyncData) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const RoleBasedRedirect()),
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
                 (route) => false,
           );
         }

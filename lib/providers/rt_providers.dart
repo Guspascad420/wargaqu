@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
 import 'package:wargaqu/model/RT/rt_officials.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
+import 'package:wargaqu/model/citizen/citizen_with_status.dart';
 import 'package:wargaqu/model/generate_code/generate_code_state.dart';
 import 'package:wargaqu/model/transaction/transaction_data.dart';
 import 'package:wargaqu/model/unique_code/unique_code.dart';
 import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/notifiers/add_new_bank_account_notifier.dart';
+import 'package:wargaqu/notifiers/citizen_verification_notifier.dart';
 import 'package:wargaqu/notifiers/delete_code_notifier.dart';
 import 'package:wargaqu/notifiers/generate_code_notifier.dart';
 import 'package:wargaqu/notifiers/add_new_rt_notifier.dart';
@@ -21,19 +23,17 @@ import 'package:wargaqu/services/rw_service.dart';
 import '../model/bill/bill.dart';
 import '../model/bill/bill_type.dart';
 
-final firestoreProvider = Provider((ref) => FirebaseFirestore.instance);
-
-final rwServiceProvider = Provider((ref) => RwService(ref.watch(firestoreProvider)));
+final rwServiceProvider = Provider((ref) => RwService(FirebaseFirestore.instance));
 
 final billTypeProvider = StateProvider<BillType>((ref) => BillType.regular);
 final mockAvailableBillsProvider = Provider<List<Bill>>((ref) {
   return [
     Bill(id: '1', billName: 'Iuran Januari 2025', billType: BillType.regular, rtId: '008',
-        amount: 50.0, dueDate: DateTime.now().add(const Duration(days: 10))),
+        amount: 50, dueDate: DateTime.now().add(const Duration(days: 10))),
     Bill(id: '2', billName: 'Iuran Februari 2025', billType: BillType.regular, rtId: '008',
-        amount: 75.0, dueDate: DateTime.now().add(const Duration(days: 5))),
+        amount: 75, dueDate: DateTime.now().add(const Duration(days: 5))),
     Bill(id: '3', billName: 'Iuran perbaikan portal', billType: BillType.incidental, rtId: '008',
-        amount: 30.0, dueDate: DateTime.now().add(const Duration(days: 15))),
+        amount: 30, dueDate: DateTime.now().add(const Duration(days: 15))),
   ];
 });
 final selectedBillProvider = StateProvider<Bill?>((ref) => null);
@@ -44,92 +44,15 @@ final mockBankAccountsProvider = Provider<List<BankAccount>>((ref) {
         id: 'bca1',
         bankName: 'BCA',
         accountNumber: '**** **** **** 1234',
-        accountHolderName: 'Pengurus RT 05 RW 02',
+        accountHolder: 'Pengurus RT 05 RW 02',
         logoAsset: 'images/bca.png'
     ),
     BankAccount(
         id: 'bri1',
         bankName: 'BRI',
         accountNumber: '**** **** **** 9012',
-        accountHolderName: 'Bendahara RT 05',
+        accountHolder: 'Bendahara RT 05',
         logoAsset: 'images/bri.png'
-    ),
-  ];
-});
-
-final rtDataListProvider = Provider<List<RtData>>((ref) {
-  return [
-    const RtData(
-      id: 'rt01_rw05',
-      rwId: 'rw_05_griya_asri',
-      rtNumber: 001,
-      rtName: 'RT 001 Mawar',
-      registrationUniqueCode: 'RT01MWRXYZ',
-      uniqueCodeStatus: 'USED',
-      secretariatAddress: 'Jl. Mawar No. 1, Griya Asri',
-      population: 52,
-      currentBalance: 15850000,
-      previousMonthClosingBalance: 13550000,
-      bankAccounts: [
-        BankAccount(
-          id: 'bca_rt01',
-          bankName: 'BCA',
-          accountNumber: '1112223330',
-          accountHolderName: 'KAS RT 001 MAWAR RW 05',
-        ),
-      ],
-      isActive: true,
-    ),
-
-    // Data untuk RT 002
-    const RtData(
-      id: 'rt02_rw05',
-      rwId: 'rw_05_griya_asri',
-      rtNumber: 002,
-      rtName: 'RT 002 Melati',
-      registrationUniqueCode: 'RT02MLTABC',
-      uniqueCodeStatus: 'AVAILABLE',
-      secretariatAddress: 'Jl. Melati No. 1, Griya Asri',
-      population: 48,
-      currentBalance: 12300000,
-      previousMonthClosingBalance: 11800000,
-      bankAccounts: [
-        BankAccount(
-          id: 'mandiri_rt02',
-          bankName: 'Bank Mandiri',
-          accountNumber: '2223334440',
-          accountHolderName: 'KAS RT 002 MELATI RW 05',
-        ),
-      ],
-      isActive: true,
-    ),
-
-    // Data untuk RT 003
-    const RtData(
-      id: 'rt03_rw05',
-      rwId: 'rw_05_griya_asri',
-      rtNumber: 003,
-      rtName: 'RT 003 Anggrek',
-      registrationUniqueCode: 'RT03AGKDEF',
-      uniqueCodeStatus: 'AVAILABLE',
-      population: 60,
-      currentBalance: 20500000,
-      previousMonthClosingBalance: 20500000, // Contoh jika saldo belum berubah
-      // bankAccounts dibiarkan kosong, akan menggunakan default list kosong
-      isActive: true,
-    ),
-
-    // Data untuk RT 004 (Contoh tidak aktif)
-    const RtData(
-      id: 'rt04_rw05',
-      rwId: 'rw_05_griya_asri',
-      rtNumber: 004,
-      rtName: 'RT 004 Kamboja',
-      registrationUniqueCode: 'RT04KMBGHI',
-      uniqueCodeStatus: 'EXPIRED',
-      population: 0,
-      currentBalance: 0,
-      isActive: false, // Contoh RT yang tidak aktif
     ),
   ];
 });
@@ -137,7 +60,7 @@ final rtDataListProvider = Provider<List<RtData>>((ref) {
 final selectedRtProvider = StateProvider<RtData?>((ref) => null);
 
 final rtServiceProvider = Provider<RtService>((ref) {
-  return RtService(ref.watch(firestoreProvider));
+  return RtService(FirebaseFirestore.instance);
 });
 
 final generateCodeNotifierProvider = NotifierProvider<GenerateCodeNotifier, GenerateCodeState>(() {
@@ -148,12 +71,16 @@ final deleteCodeNotifierProvider = AsyncNotifierProvider.autoDispose<DeleteCodeN
   return DeleteCodeNotifier();
 });
 
-final addNewRtNotifierProvider = AsyncNotifierProvider<AddNewRtNotifier, void>(() {
+final addNewRtNotifierProvider = AsyncNotifierProvider.autoDispose<AddNewRtNotifier, void>(() {
   return AddNewRtNotifier();
 });
 
-final addNewBankAccountNotifierProvider = AsyncNotifierProvider<AddNewBankAccountNotifier, void>(() {
+final addNewBankAccountNotifierProvider = AsyncNotifierProvider.autoDispose<AddNewBankAccountNotifier, void>(() {
   return AddNewBankAccountNotifier();
+});
+
+final citizenVerificationNotifierProvider = AsyncNotifierProvider.autoDispose<CitizenVerificationNotifier, void>(() {
+  return CitizenVerificationNotifier();
 });
 
 final rtDataProvider = Provider.autoDispose<RtData?>((ref) {
@@ -180,19 +107,23 @@ final rtSummaryProvider = Provider<AsyncValue<String>>((ref) {
     return const AsyncValue.loading();
   }
   final population = rtData.population ?? 0;
-  final rwData = ref.watch(rwDataProvider(rtData.rwId));
+  final rwData = ref.watch(rwDataProvider);
 
   return AsyncValue.data('${rtData.rtName} memiliki $population warga yang terhubung dan sudah terhubung pada ${rwData?.rwName}');
 });
 
 final rtDocStreamProvider = StreamProvider.autoDispose<DocumentSnapshot>((ref) {
   final asyncUserDoc = ref.watch(userDocStreamProvider);
+  debugPrint("rtDocStreamProvider called");
 
   return asyncUserDoc.when(
     data: (userDoc) {
       if (!userDoc.exists || userDoc.data() == null) {
+        debugPrint("rtDocStreamProvider: userDoc does not exist");
         return const Stream.empty();
       }
+
+      debugPrint("rtDocStreamProvider: userDoc exists");
 
       final userData = userDoc.data() as Map<String, dynamic>;
       final rtId = userData['rtId'] as String?;
@@ -284,4 +215,10 @@ final transactionsProvider = StreamProvider.autoDispose.family<List<TransactionD
 final pendingCitizensProvider = StreamProvider.autoDispose.family<List<UserModel>, String>((ref, rtId) {
   final rtService = ref.watch(rtServiceProvider);
   return rtService.fetchPendingCitizens(rtId);
+});
+
+final citizensWithStatusProvider = StreamProvider.autoDispose.family<List<CitizenWithStatus>,
+    ({String rtId, String billType})>((ref, args) {
+  final rtService = ref.watch(rtServiceProvider);
+  return rtService.fetchCitizensWithPaymentStatus(args.rtId, args.billType);
 });

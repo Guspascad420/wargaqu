@@ -1,3 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,7 +12,7 @@ import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
 import 'package:wargaqu/pages/citizen/waiting_approval/waiting_for_approval_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
 import 'package:wargaqu/providers/providers.dart';
-import 'package:wargaqu/providers/user_providers.dart';
+import 'package:wargaqu/providers/user_providers.dart' hide authStateProvider;
 import 'package:wargaqu/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -19,6 +24,19 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initializeDateFormatting('id_ID', null);
+
+  if (kDebugMode) {
+    try {
+      final String ipLaptop = "192.168.18.42";
+      debugPrint("Menyambungkan ke Firebase Emulators...");
+      await FirebaseAuth.instance.useAuthEmulator(ipLaptop, 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator(ipLaptop, 8080);
+      await FirebaseStorage.instance.useStorageEmulator(ipLaptop, 9199);
+      debugPrint("Berhasil tersambung ke Emulators.");
+    } catch (e) {
+      debugPrint("Gagal menyambung ke Emulators: $e");
+    }
+  }
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -57,10 +75,10 @@ class AuthWrapper extends ConsumerWidget {
         if (user == null) {
           return const LoginChoiceScreen();
         } else {
-          return RoleBasedRedirect(userId: user.uid);
+          return RoleBasedRedirect();
         }
       },
-      loading: () => const Scaffold(),
+      loading: () => Scaffold(),
       // Kalo ada error
       error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))
     );
@@ -68,8 +86,7 @@ class AuthWrapper extends ConsumerWidget {
 }
 
 class RoleBasedRedirect extends ConsumerWidget {
-  final String userId;
-  const RoleBasedRedirect({super.key, required this.userId});
+  const RoleBasedRedirect({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,15 +94,15 @@ class RoleBasedRedirect extends ConsumerWidget {
 
     return userProfileState.when(
       data: (snapshot) {
-        if (snapshot == null || !snapshot.exists || snapshot.data() == null) {
-          return const LoginChoiceScreen(); // Atau halaman error
+        if (!snapshot.exists || snapshot.data() == null) {
+          return const LoginChoiceScreen();
         }
-
         final userProfile = snapshot.data() as Map<String, dynamic>;
-        final String status = userProfile['status'] ?? 'pending_approval';
+        final String status = userProfile['status'] ?? 'pending_confirmation';
         final String role = userProfile['role'] ?? '';
+        debugPrint("Full name: ${userProfile['fullName']}");
 
-        if (status == 'pending_approval') {
+        if (status == 'pending_confirmation') {
           return const WaitingForApprovalScreen();
         }
 
@@ -103,7 +120,16 @@ class RoleBasedRedirect extends ConsumerWidget {
 
         return const LoginChoiceScreen();
       },
-      loading: () => const Scaffold(),
+      loading: () {
+        return Scaffold(
+          body: Column(
+            children: [
+              Center(child: CircularProgressIndicator()),
+              Text('Loading...'),
+            ],
+          ),
+        );
+      },
       error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))
     );
   }

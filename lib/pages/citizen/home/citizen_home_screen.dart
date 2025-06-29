@@ -18,7 +18,7 @@ class CitizenHomeScreen extends ConsumerStatefulWidget {
 class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final rtData = ref.watch(rtDataProvider); // This will re-render when rtDataProvider changes
+    final rtData = ref.watch(rtDataProvider);
 
     return ReusableHomeScreen(
         subtitle: 'Anda sudah terhubung dengan ${rtData?.rtName}',

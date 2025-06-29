@@ -255,7 +255,7 @@ class _RwRegistrationFormState extends ConsumerState<RwRegistrationForm> {
                                 }
                               },
                               child: regState.isLoading
-                                  ? CircularProgressIndicator()
+                                  ? CircularProgressIndicator(color: Colors.white,)
                                   : Text(
                                       'Daftar',
                                       style: GoogleFonts.roboto(fontSize: 18.sp,

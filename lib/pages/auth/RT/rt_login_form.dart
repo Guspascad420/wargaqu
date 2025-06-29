@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
+import 'package:wargaqu/main.dart';
 import 'package:wargaqu/pages/RT/rt_main_screen.dart';
 import 'package:wargaqu/pages/auth/RT/rt_registration_form.dart';
 import 'package:wargaqu/providers/providers.dart';
@@ -25,10 +26,9 @@ class _RtLoginFormState extends ConsumerState<RtLoginForm> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<void>>(loginNotifierProvider, (prev, next) {
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (prev, next) {
       if (!_didSubmit) return;
 
       if (prev is AsyncLoading && !next.isLoading) {
@@ -37,8 +37,9 @@ class _RtLoginFormState extends ConsumerState<RtLoginForm> {
             SnackBar(content: Text('Error: ${next.error}')),
           );
         } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const RtMainScreen()),
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+            (route) => false,
           );
           setState(() {
             _didSubmit = false;
@@ -63,7 +64,7 @@ class _RtLoginFormState extends ConsumerState<RtLoginForm> {
                   setState(() {
                     _didSubmit = true;
                   });
-                  ref.read(loginNotifierProvider.notifier).loginUser(
+                  ref.read(authNotifierProvider.notifier).loginUser(
                     email: _emailController.text,
                     password: _passwordController.text,
                   );

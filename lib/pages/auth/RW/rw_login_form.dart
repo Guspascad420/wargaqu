@@ -5,6 +5,8 @@ import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/auth/RW/rw_registration_form.dart';
 import 'package:wargaqu/providers/providers.dart';
 
+import '../../../main.dart';
+
 class RwLoginForm extends ConsumerStatefulWidget {
   const RwLoginForm({super.key});
 
@@ -27,21 +29,17 @@ class _RwLoginFormState extends ConsumerState<RwLoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<void>>(loginNotifierProvider, (prev, next) {
-      if (!_didSubmit) return;
-
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (prev, next) {
       if (prev is AsyncLoading && !next.isLoading) {
         if (next.hasError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${next.error}')),
           );
         } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const RwMainScreen()),
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const RoleBasedRedirect()),
+                (route) => false,
           );
-          setState(() {
-            _didSubmit = false;
-          });
         }
       }
     });
@@ -60,10 +58,7 @@ class _RwLoginFormState extends ConsumerState<RwLoginForm> {
                 subtitle: 'Halo RW! Masuk ke akun Anda untuk dapat menggunakan layanan kami',
                 onLoginPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    setState(() {
-                      _didSubmit = true;
-                    });
-                    ref.read(loginNotifierProvider.notifier).loginUser(
+                    ref.read(authNotifierProvider.notifier).loginUser(
                         email: _emailController.text,
                         password: _passwordController.text,
                     );

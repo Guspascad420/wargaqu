@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
@@ -8,6 +9,7 @@ import 'package:wargaqu/model/report/report.dart';
 import 'package:wargaqu/model/unique_code/unique_code.dart';
 import 'package:wargaqu/model/user/user.dart';
 
+import '../model/citizen/citizen_with_status.dart';
 import '../model/income/income.dart';
 import '../model/transaction/transaction_data.dart';
 
@@ -75,6 +77,32 @@ class RtService {
       final data = doc.data();
       return UserModel.fromJson(data);
     }).toList();
+  }
+
+  Stream<List<CitizenWithStatus>> fetchCitizensWithPaymentStatus(String rtId, String selectedBillPeriod) {
+    try {
+      final querySnapshotStream = _firestore
+          .collection('bills')
+          .where('rtId', isEqualTo: rtId)
+          .where('role', isEqualTo: "warga")
+          .snapshots();
+
+      return querySnapshotStream.map((snapshot) {
+        if (snapshot.docs.isEmpty) {
+          return [];
+        }
+
+        return snapshot.docs.map((doc) {
+          final user = UserModel.fromJson(doc.data());
+
+          final status = user.billsStatus[selectedBillPeriod] ?? 'belum_bayar';
+
+          return CitizenWithStatus(user: user, paymentStatus: status);
+        }).toList();
+      });
+    } catch (e) {
+      throw Exception('Gagal memuat data pengguna.');
+    }
   }
 
   Stream<List<UserModel>> fetchPendingCitizens(String rtId) {
@@ -279,6 +307,7 @@ class RtService {
         transaction.set(newExpenseDocRef, {
           ...newExpense.toJson(),
           'createdAt': FieldValue.serverTimestamp(),
+          'runtimeType': 'expense'
         });
 
         transaction.update(rtDocRef, {
@@ -295,6 +324,7 @@ class RtService {
             'monthlyExpenses': newExpense.amount,
             'netMonthlyResult': -newExpense.amount,
             'outgoingTransactionCount': 1,
+            'runtimeType': 'monthly'
           });
         }
         else {
@@ -336,6 +366,7 @@ class RtService {
         transaction.set(newIncomeDocRef, {
           ...newIncome.toJson(),
           'createdAt': FieldValue.serverTimestamp(),
+          'runtimeType': 'income'
         });
 
         transaction.update(rtDocRef, {
@@ -354,6 +385,7 @@ class RtService {
             'incomingTransactionCount': 1,
             'outgoingTransactionCount': 0,
             'lastUpdated': FieldValue.serverTimestamp(),
+            'runtimeType': 'monthly'
           });
         } else {
           final currentData = reportDoc.data()!;
@@ -413,10 +445,10 @@ class RtService {
     required String rtId,
     required String bankName,
     required String accountNumber,
-    required String accountHolderName,
+    required String accountHolder,
   }) async {
     try {
-      final bankAccount = BankAccount(bankName: bankName, accountNumber: accountNumber, accountHolderName: accountHolderName);
+      final bankAccount = BankAccount(bankName: bankName, accountNumber: accountNumber, accountHolder: accountHolder);
       await _firestore.collection('rts').doc(rtId).update({'bankAccounts': FieldValue.arrayUnion([bankAccount.toJson()])});
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
@@ -438,11 +470,37 @@ class RtService {
         'rwId': rwId,
         'address': address,
         'currentBalance': 0,
-        'registrationUniqueCode': '',
         'bankAccounts': []
       });
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan tidak terduga.');
+    }
+  }
+
+  Future<void> updateCitizenStatus({
+    required String userId,
+    required bool isApproved,
+    String? rejectionReason,
+    String? rtId
+  }) async {
+    try {
+      if (isApproved && rtId != null) {
+        await _firestore.runTransaction((transaction) async {
+          final userRef = _firestore.collection('users').doc(userId);
+          transaction.update(userRef, {'status': 'ACTIVE'});
+
+          final rtRef = _firestore.collection('rts').doc(rtId);
+          transaction.update(rtRef, {'population': FieldValue.increment(1)});
+        });
+        debugPrint('User status dan populasi RT berhasil diupdate secara transaksional! 🎉');
+      } else {
+        await _firestore.collection('users').doc(userId).update({'status': 'rejected',
+          "rejectionReason": rejectionReason, "rejectedAt": DateTime.now()});
+      }
+    } on FirebaseException catch (e) {
+      throw Exception('Gagal memperbarui status: ${e.code}');
     } catch (e) {
       throw Exception('Terjadi kesalahan tidak terduga.');
     }

@@ -8,12 +8,15 @@ import 'package:wargaqu/pages/RW/profile/rw_profile_screen.dart';
 import 'package:wargaqu/pages/RW/rt_financial_report/rt_financial_report_screen.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
+import '../../providers/rw_providers.dart';
+
 class RwMainScreen extends ConsumerWidget {
   const RwMainScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final username = ref.watch(currentNameProvider);
+    final rwData = ref.watch(rwDataProvider);
 
     final dataRwGriyaAsri = RwData(
       id: 'rw05_griya_asri_sejahtera', // ID unik buat dokumen di Firestore
@@ -36,7 +39,7 @@ class RwMainScreen extends ConsumerWidget {
         case 1:
           return 'Laporan Keuangan';
         case 2:
-          return '{nama rw}';
+          return '${rwData?.rwName}';
         default:
           return 'WargaQu';
       }

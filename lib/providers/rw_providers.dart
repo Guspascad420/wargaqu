@@ -1,22 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:wargaqu/model/RW/rw_data.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
-final rwDocStreamProvider = StreamProvider.autoDispose
-    .family<DocumentSnapshot<Map<String, dynamic>>, String>((ref, rwId) {
+final rwDocStreamProvider = StreamProvider.autoDispose<DocumentSnapshot>((ref) {
+  final asyncUserDoc = ref.watch(userDocStreamProvider);
 
-  final rwService = ref.watch(rwServiceProvider);
+  return asyncUserDoc.when(
+    data: (userDoc) {
+      if (!userDoc.exists || userDoc.data() == null) {
+        return const Stream.empty();
+      }
 
-  return rwService.fetchRwDocStream(rwId);
+      final userData = userDoc.data() as Map<String, dynamic>;
+      final rwId = userData['rwId'] as String?;
+
+      if (rwId != null) {
+        final rwService = ref.read(rwServiceProvider);
+        return rwService.fetchRwDocStream(rwId);
+      } else {
+        return const Stream.empty();
+      }
+    },
+    loading: () => const Stream.empty(),
+    error: (err, stack) => Stream.error(err, stack),
+  );
+
 });
 
 final rwSummaryProvider = Provider<AsyncValue<String>>((ref) {
-  final rwData = ref.watch(loggedInRwDataProvider);
+  final rwData = ref.watch(rwDataProvider);
   if (rwData == null) {
-    return const AsyncValue.loading(); // Atau AsyncError
+    debugPrint('aaahhh');
+    return const AsyncValue.loading();
   }
 
   final asyncRtList = ref.watch(rtListStreamProvider(rwData.id));
@@ -31,15 +50,15 @@ final rwSummaryProvider = Provider<AsyncValue<String>>((ref) {
   );
 });
 
-final rwDataProvider = Provider.autoDispose.family<RwData?, String>((ref, rwId) {
-  final asyncRwDoc = ref.watch(rwDocStreamProvider(rwId));
+final rwDataProvider = Provider.autoDispose<RwData?>((ref) {
+  final asyncRwDoc = ref.watch(rwDocStreamProvider);
 
   return asyncRwDoc.when(
     data: (doc) {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      final dataWithId = doc.data()!..['id'] = doc.id;
+      final dataWithId = doc.data()! as Map<String, dynamic>..['id'] = doc.id;
       return RwData.fromJson(dataWithId);
     },
     loading: () => null,
@@ -47,16 +66,6 @@ final rwDataProvider = Provider.autoDispose.family<RwData?, String>((ref, rwId) 
       return null;
     },
   );
-});
-
-final loggedInRwDataProvider = Provider.autoDispose<RwData?>((ref) {
-  final rwId = ref.watch(currentRwIdProvider);
-
-  if (rwId == null) {
-    return null;
-  }
-
-  return ref.watch(rwDataProvider(rwId));
 });
 
 final allRwsProvider = FutureProvider.autoDispose<List<RwData>>((ref) {

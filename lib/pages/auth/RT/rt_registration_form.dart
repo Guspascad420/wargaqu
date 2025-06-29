@@ -85,7 +85,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
                     SizedBox(height: 30.h),
                     Text('Daftar Akun', style: Theme.of(context).textTheme.titleLarge),
                     SizedBox(height: 10.h),
-                    Text('Halo RT! Daftarkan akun dengan data RT Anda',
+                    Text('Halo RT! Daftarkan akun dengan data pribadi anda',
                         style: Theme.of(context).textTheme.bodyLarge),
                     SizedBox(height: 20.h),
                     Form(

@@ -2,27 +2,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:wargaqu/model/user/user.dart';
+import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/services/user_service.dart';
 
-final authStateProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
-});
 
 final userServiceProvider = Provider<UserDbService>((ref) {
   return UserDbService(FirebaseFirestore.instance, FirebaseMessaging.instance);
 });
 
-final userDocStreamProvider = StreamProvider.autoDispose<DocumentSnapshot<Map<String, dynamic>>>((ref) {
-  final db = ref.watch(userServiceProvider);
-  final user = ref.watch(authStateProvider).asData?.value;
+final userDocStreamProvider = StreamProvider<DocumentSnapshot<Map<String, dynamic>>>((ref) {
+  final authState = ref.watch(authStateChangesProvider);
 
-  if (user != null) {
-    return db.getUserDocStream(user.uid);
-  }
-
-  return const Stream.empty();
+  debugPrint("userDocStreamProvider called");
+  return authState.when(
+    data: (user) {
+      if (user != null) {
+        debugPrint("userDocStreamProvider: user is here, id: ${user.uid}");
+        final userService = ref.read(userServiceProvider);
+        return userService.getUserDocStream(user.uid);
+      }
+      debugPrint("userDocStreamProvider: user is null");
+      return Stream.empty();
+    },
+    loading: () {
+      debugPrint("userDocStreamProvider: loading...");
+      return Stream.empty();
+    },
+    error: (err, stack) {
+      debugPrint(err.toString());
+      debugPrint(stack.toString());
+      return Stream.empty();
+    },
+  );
 });
 
 final userDataProvider = FutureProvider.autoDispose<UserModel?>((ref) {
@@ -44,7 +59,7 @@ final userDataProvider = FutureProvider.autoDispose<UserModel?>((ref) {
 });
 
 final userIdProvider = Provider<String?>((ref) {
-  final asyncUserData = ref.watch(userDataProvider);
+  final asyncUserData = ref.read(userDataProvider);
   return asyncUserData.value?.id;
 });
 

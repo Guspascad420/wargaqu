@@ -29,11 +29,30 @@ class UserDbService {
       return;
     }
 
-    final userJson = user.toJson();
+    Map<String, dynamic> userJson = user.toJson();
     userJson['fcmTokens'] = [fcmToken];
 
     debugPrint('FCM Token didapat: $fcmToken');
     batch.set(userRef, user.toJson());
+  }
+
+  Future<void> deleteFcmToken(String userId) async {
+    try {
+      final String? fcmToken = await _messaging.getToken();
+
+      if (fcmToken == null) {
+        debugPrint('Gagal mendapatkan FCM token.');
+        return;
+      }
+      await _firestore.collection('users').doc(userId).update({
+        'fcmTokens': FieldValue.arrayRemove([fcmToken]),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception('Gagal menghapus token: ${e.code}');
+    }
+    catch (e) {
+      debugPrint('Terjadi error saat menghapus FCM token: $e');
+    }
   }
 
   Future<void> saveAndGetFcmToken(String userId) async {
@@ -69,38 +88,20 @@ class UserDbService {
     }
   }
 
+  Future<UserModel> fetchUserDoc(String uid) async {
+    final snapshot = await _firestore.collection('users').doc(uid).get();
+
+    if (snapshot.data() == null) {
+      throw Exception('Data tidak ditemukan');
+    }
+
+    return UserModel.fromJson(snapshot.data()!);
+  }
+
   Stream<DocumentSnapshot<Map<String, dynamic>>> getUserDocStream(String uid) {
     return _firestore
         .collection('users')
         .doc(uid)
         .snapshots();
-  }
-
-  Future<List<CitizenWithStatus>> fetchCitizensWithPaymentStatus({
-    required String rtId,
-    required String selectedBillPeriod
-  }) async
-  {
-    try {
-      final snapshot = await _firestore
-          .collection('bills')
-          .where('rtId', isEqualTo: rtId)
-          .where('role', isEqualTo: "warga")
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        return [];
-      }
-
-      return snapshot.docs.map((doc) {
-        final user = UserModel.fromJson(doc.data());
-
-        final status = user.billsStatus[selectedBillPeriod] ?? 'belum_bayar';
-
-        return CitizenWithStatus(user: user, paymentStatus: status);
-      }).toList();
-    } catch (e) {
-      throw Exception('Gagal memuat data pengguna.');
-    }
   }
 }

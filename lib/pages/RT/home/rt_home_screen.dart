@@ -20,6 +20,7 @@ class RtHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _RtHomeScreenState extends ConsumerState<RtHomeScreen> {
+
   @override
   Widget build(BuildContext context) {
     final asyncRtSummary = ref.watch(rtSummaryProvider);
