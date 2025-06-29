@@ -40,7 +40,7 @@ abstract class TransactionData with _$TransactionData {
     switch (this) {
       case final IncomeTransaction incomeData:
         date = incomeData.incomeDate!;
-        break; // break is needed in switch statements
+        break;
       case final ExpenseTransaction expenseData:
         date = expenseData.expenseDate!;
         break;

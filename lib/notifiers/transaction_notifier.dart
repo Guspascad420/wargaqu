@@ -26,7 +26,7 @@ class TransactionNotifier extends AsyncNotifier<void> {
       createdAt: DateTime.now()
     );
     try {
-      final rtService = ref.watch(rtServiceProvider);
+      final rtService = ref.read(rtServiceProvider);
       await rtService.addExpense(rtId: rtId, newExpense: newExpense);
       state = const AsyncData(null);
     } catch (e) {
@@ -43,9 +43,9 @@ class TransactionNotifier extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     final newIncome = Income(amount: amount, inputtedByUserId: inputtedByUserId,
-        description: description);
+        description: description, incomeDate: incomeDate);
     try {
-      final rtService = ref.watch(rtServiceProvider);
+      final rtService = ref.read(rtServiceProvider);
       await rtService.addIncome(rtId: rtId, newIncome: newIncome);
       state = const AsyncData(null);
     } catch (e) {
