@@ -8,7 +8,7 @@ abstract class BankAccount with _$BankAccount {
     String? id,
     required String bankName,
     required String accountNumber,
-    required String accountHolderName,
+    required String accountHolder,
     String? logoAsset
   }) = _BankAccount;
 

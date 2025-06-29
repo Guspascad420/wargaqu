@@ -12,14 +12,14 @@ class AddNewBankAccountNotifier extends AsyncNotifier<void> {
     required String rtId,
     required String bankName,
     required String accountNumber,
-    required String accountHolderName,
+    required String accountHolder,
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final rtService = ref.read(rtServiceProvider);
       await rtService.addBankAccount(
         rtId: rtId, bankName: bankName, accountNumber: accountNumber,
-          accountHolderName: accountHolderName
+          accountHolder: accountHolder
       );
     });
   }
