@@ -172,7 +172,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                                   ),
                                   SizedBox(height: 2.h),
                                   Text(
-                                    'a/n ${widget.selectedBankAccount.accountHolderName}',
+                                    'a/n ${widget.selectedBankAccount.accountHolder}',
                                     style: GoogleFonts.roboto(fontSize: 13.sp, color: Colors.grey.shade700),
                                   ),
                                 ],

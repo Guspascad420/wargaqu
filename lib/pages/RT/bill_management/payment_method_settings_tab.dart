@@ -75,7 +75,7 @@ class PaymentMethodSettingsTab extends StatelessWidget {
                                   ),
                                   SizedBox(height: 2.h),
                                   Text(
-                                    'a/n ${account.accountHolderName}',
+                                    'a/n ${account.accountHolder}',
                                     style: GoogleFonts.roboto(fontSize: 13.sp, color: Colors.grey.shade700),
                                   ),
                                 ],

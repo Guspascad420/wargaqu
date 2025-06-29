@@ -11,7 +11,7 @@ Timestamp _dateTimeToJson(DateTime date) => Timestamp.fromDate(date);
 @freezed
 abstract class Payment with _$Payment {
   const factory Payment({
-    required String id,
+    String? id,
     required String billName,
     @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
     required BillType billType,
