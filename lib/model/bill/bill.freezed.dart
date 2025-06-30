@@ -20,7 +20,7 @@ mixin _$Bill {
   String get billName;
   @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
   BillType get billType;
-  double get amount;
+  int get amount;
   @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
   DateTime get dueDate;
 
@@ -71,7 +71,7 @@ abstract mixin class $BillCopyWith<$Res> {
       String billName,
       @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       BillType billType,
-      double amount,
+      int amount,
       @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
       DateTime dueDate});
 }
@@ -115,7 +115,7 @@ class _$BillCopyWithImpl<$Res> implements $BillCopyWith<$Res> {
       amount: null == amount
           ? _self.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       dueDate: null == dueDate
           ? _self.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
@@ -148,7 +148,7 @@ class _Bill implements Bill {
   @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
   final BillType billType;
   @override
-  final double amount;
+  final int amount;
   @override
   @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
   final DateTime dueDate;
@@ -206,7 +206,7 @@ abstract mixin class _$BillCopyWith<$Res> implements $BillCopyWith<$Res> {
       String billName,
       @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
       BillType billType,
-      double amount,
+      int amount,
       @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
       DateTime dueDate});
 }
@@ -250,7 +250,7 @@ class __$BillCopyWithImpl<$Res> implements _$BillCopyWith<$Res> {
       amount: null == amount
           ? _self.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       dueDate: null == dueDate
           ? _self.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable

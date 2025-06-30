@@ -18,6 +18,7 @@ class NewBankAccountForm extends ConsumerStatefulWidget {
 class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedBank;
+  bool _unselectedBankError = false;
   bool _didSubmit = false;
 
   final _accountNumberController = TextEditingController();
@@ -119,7 +120,6 @@ class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
                     label: bank,
                   );
                 }).toList(),
-
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: Theme.of(context).colorScheme.surface,
@@ -135,6 +135,11 @@ class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
                   elevation: WidgetStateProperty.all<double>(3.0),
                 ),
               ),
+              _unselectedBankError
+                  ? Text('Pilih bank terlebih dahulu', style: GoogleFonts.roboto(
+                      color: Colors.red,
+                    ))
+                  : SizedBox.shrink(),
               SizedBox(height: 16.h),
               _buildTextField(
                 key: const Key('accountNumberField'),
@@ -150,15 +155,15 @@ class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
               _buildTextField(
                 key: const Key('accountHolderField'),
                 context: context,
-                controller: _accountNumberController,
+                controller: _accountHolderController,
                 label: 'Atas Nama',
-                icon: Icons.tag_rounded,
-                keyboardType: TextInputType.number,
+                icon: Icons.person_2_outlined,
+                keyboardType: TextInputType.text,
                 validator: (value) =>
                 value!.isEmpty ? 'Nama pemilik rekening tidak boleh kosong' : null,
               ),
-              Spacer(),
-              SizedBox(
+              Container(
+                margin: EdgeInsets.only(top: 25.h),
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   key: const Key('submitButton'),
@@ -181,22 +186,28 @@ class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
                     elevation: 2,
                   ),
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
+                    if (_formKey.currentState!.validate() && _selectedBank != null) {
                       setState(() {
                         _didSubmit = true;
+                        _unselectedBankError = false;
                       });
+
                       ref.read(addNewBankAccountNotifierProvider.notifier).executeAddNewBankAccount(
                           rtId: rtData!.id,
                           bankName: _selectedBank!,
                           accountNumber: _accountNumberController.text,
-                          accountHolderName: _accountHolderController.text
+                          accountHolder: _accountHolderController.text
                       );
+                    } else if (_selectedBank == null) {
+                      setState(() {
+                        _unselectedBankError = true;
+                      });
                     }
                   },
                 ),
               )
             ],
-          ),
+          )
         )
       ),
     );

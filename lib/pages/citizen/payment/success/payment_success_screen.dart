@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:wargaqu/main.dart';
 import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
@@ -40,7 +41,7 @@ class PaymentSuccessScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => CitizenMainScreen()),
+                    MaterialPageRoute(builder: (context) => AuthWrapper()),
                         (Route<dynamic> route) => false,
                   );
                 },
@@ -85,11 +86,11 @@ class PaymentSuccessScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildSummaryRow('Total Pembayaran:', currencyFormatter.format(amount)),
+          _buildSummaryRow('Total Pembayaran: ', currencyFormatter.format(amount)),
           const Divider(height: 20),
-          _buildSummaryRow('Tujuan Transfer:', destinationBank),
+          _buildSummaryRow('Tujuan Transfer: ', destinationBank),
           const Divider(height: 20),
-          _buildSummaryRow('Waktu Transaksi:', dateFormatter.format(transactionDate)),
+          _buildSummaryRow('Waktu Transaksi: ', dateFormatter.format(transactionDate)),
         ],
       ),
     );
@@ -106,13 +107,15 @@ class PaymentSuccessScreen extends StatelessWidget {
             fontSize: 14.sp,
           ),
         ),
-        Text(
-          value,
-          maxLines: 2,
-          style: GoogleFonts.roboto(
-            color: Colors.black87,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 2,
+            style: GoogleFonts.roboto(
+              color: Colors.black87,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

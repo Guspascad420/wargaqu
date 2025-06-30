@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wargaqu/model/user/user.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 class CitizenProfileScreen extends ConsumerWidget {
-  const CitizenProfileScreen({super.key});
+  final UserModel user;
 
-  Widget profileHeaderCard(String name, String residencyStatus, String address) {
+  const CitizenProfileScreen({super.key, required this.user});
+
+  Widget profileHeaderCard(String name, String? residencyStatus, String address) {
     return Card(
       margin: EdgeInsets.only(left: 15.w),
       elevation: 2.0,
@@ -31,22 +34,24 @@ class CitizenProfileScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w500
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-              margin: EdgeInsets.only(top: 10.h),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              child: Text(
-                residencyStatus,
-                style: GoogleFonts.poppins(
-                  color: Colors.green.shade800,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15.sp, // Ukuran font dibuat pas untuk sebuah badge
+            if (residencyStatus != null)...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                margin: EdgeInsets.only(top: 10.h),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-              ),
-            )
+                child: Text(
+                  residencyStatus,
+                  style: GoogleFonts.poppins(
+                    color: Colors.green.shade800,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15.sp, // Ukuran font dibuat pas untuk sebuah badge
+                  ),
+                ),
+              )
+            ]
           ],
         )
       )
@@ -87,7 +92,7 @@ class CitizenProfileScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          profileHeaderCard('Nyoman Ayu Carmenita', 'Warga Tetap', 'Blok C-12, Perumahan Griya Asri'),
+          profileHeaderCard(user.fullName, user.residencyStatus, user.address),
           SizedBox(height: 15.h),
           Container(
             margin: EdgeInsets.only(left: 15),
@@ -119,11 +124,17 @@ class CitizenProfileScreen extends ConsumerWidget {
             )
           ),
           SizedBox(height: 10.h),
-          _buildDataRow(context, 'NIK', '3171234567890001'),
+          if (user.nik != null)...[
+            _buildDataRow(context, 'NIK', user.nik!),
+          ],
           Divider(color: Colors.grey,),
-          _buildDataRow(context, 'No. Telepon', '0812-3456-7890'),
-          Divider(color: Colors.grey,),
-          _buildDataRow(context, 'Pekerjaan', 'Pramugari'),
+          if (user.phoneNumber != null)...[
+            _buildDataRow(context, 'No. Telepon', user.phoneNumber!),
+          ],
+          Divider(color: Colors.grey),
+          if (user.currentOccupation != null)...[
+            _buildDataRow(context, 'Pekerjaan', user.currentOccupation!),
+          ],
           Container(
               margin: EdgeInsets.only(left: 15.w, top: 25.h),
               child: Text(
