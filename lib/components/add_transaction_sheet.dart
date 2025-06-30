@@ -7,7 +7,7 @@ import 'package:wargaqu/components/transaction_tab_view.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
 import 'package:wargaqu/providers/providers.dart';
 
-import '../pages/citizen/bank_account/bank_account_selection_screen.dart';
+import '../pages/citizen/bank_account/payment_method_selection_screen.dart';
 import '../providers/rt_providers.dart';
 import '../providers/user_providers.dart';
 import '../theme/app_colors.dart';
@@ -23,6 +23,7 @@ class AddTransactionSheet extends ConsumerStatefulWidget {
 class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
   bool _isEditingTitle = false;
   String _transactionTitle = '';
+  String _selectedAccountId = 'Kas Tunai RT';
   bool _didSubmit = false;
   final _titleEditController = TextEditingController();
   final _amountController = TextEditingController();
@@ -100,7 +101,6 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
   }
 
   Widget _buildMainForm(BuildContext context, String expectedSign) {
-    final selectedAccountId = ref.watch(selectedAccountIdProvider);
     final bankAccounts = ref.watch(rtDataProvider)?.bankAccounts;
     final dateFormatter = DateFormat('dd/MM/yy, HH:mm');
     final selectedType = ref.watch(transactionTypeProvider);
@@ -158,13 +158,13 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
             Icons.account_balance_wallet_outlined,
             'Rekening',
             DropdownButton<String>(
-              value: selectedAccountId,
+              value: _selectedAccountId,
               hint: Text('Pilih...', style: GoogleFonts.roboto(fontSize: 15.sp)),
               underline: const SizedBox.shrink(),
               icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface),
               items: menuItems,
               onChanged: (String? newValue) {
-                ref.read(selectedAccountIdProvider.notifier).state = newValue;
+                _selectedAccountId = newValue!;
               },
             ),
           ),
