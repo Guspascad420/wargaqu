@@ -10,7 +10,7 @@ import 'package:wargaqu/pages/RT/bill_management/bill_management_tab.dart';
 import 'package:wargaqu/pages/RT/bill_management/new_bank_account_form/new_bank_account_form.dart';
 import 'package:wargaqu/pages/RT/bill_management/payment_method_settings_tab.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/bill_selector.dart';
-import 'package:wargaqu/pages/citizen/bank_account/bank_account_selection_screen.dart';
+import 'package:wargaqu/pages/citizen/bank_account/payment_method_selection_screen.dart';
 
 import '../../../providers/rt_providers.dart';
 

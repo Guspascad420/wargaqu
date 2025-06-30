@@ -68,7 +68,7 @@ class BillItemCard extends StatelessWidget {
         onTap: () {
           if (status == null && billType != null) {
             onItemTapped();
-          } else {
+          } else if (showPaymentDetailDialog != null) {
             showPaymentDetailDialog!(context);
           }
         },
