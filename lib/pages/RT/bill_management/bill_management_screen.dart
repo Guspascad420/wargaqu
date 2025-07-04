@@ -3,14 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
-import 'package:wargaqu/model/bill/bill.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/pages/RT/bill_management/add_bills_screen.dart';
 import 'package:wargaqu/pages/RT/bill_management/bill_management_tab.dart';
 import 'package:wargaqu/pages/RT/bill_management/new_bank_account_form/new_bank_account_form.dart';
 import 'package:wargaqu/pages/RT/bill_management/payment_method_settings_tab.dart';
-import 'package:wargaqu/pages/RT/citizen_activity/bill_selector.dart';
-import 'package:wargaqu/pages/citizen/bank_account/payment_method_selection_screen.dart';
 
 import '../../../providers/rt_providers.dart';
 

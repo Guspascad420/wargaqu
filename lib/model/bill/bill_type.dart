@@ -1,6 +1,6 @@
 enum BillType {
-  regular('Regular'),
-  incidental('Incidental');
+  regular('regular'),
+  incidental('incidental');
 
   const BillType(this.displayName);
   final String displayName;

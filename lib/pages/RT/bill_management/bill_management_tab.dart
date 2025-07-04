@@ -17,7 +17,7 @@ class BillManagementTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncAvailableBills = ref.watch(billsProvider(billType));
+    final asyncAvailableBills = ref.watch(billsProvider((rtId: ref.watch(rtDataProvider)!.id, billType: billType)));
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
@@ -47,7 +47,7 @@ class BillManagementTab extends ConsumerWidget {
                   title: bills[index].billName, dueDate: bills[index].dueDate,
                   amount: bills[index].amount, onItemTapped: () {
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => BillDetailsScreen(bill: bills[index]))
+                        MaterialPageRoute(builder: (context) => BillDetailsScreen(billId: bills[index].id))
                     );
                   });
             },

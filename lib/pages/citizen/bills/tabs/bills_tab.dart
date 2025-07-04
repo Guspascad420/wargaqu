@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/components/bill_item_card.dart';
-import 'package:wargaqu/model/bill/bill.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
-import 'package:wargaqu/pages/citizen/bank_account/bank_account_selection_screen.dart';
+import 'package:wargaqu/pages/citizen/bank_account/payment_method_selection_screen.dart';
 import 'package:wargaqu/providers/providers.dart';
+import 'package:wargaqu/providers/rt_providers.dart';
 
 class BillsTab extends ConsumerWidget {
   const BillsTab({super.key, required this.billType,
@@ -18,7 +18,8 @@ class BillsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncBills = ref.watch(billsProvider(billType));
+    final rtData = ref.watch(rtDataProvider);
+    final asyncBills = ref.watch(unpaidBillsProvider((rtId: rtData!.id, billType: billType)));
 
     return asyncBills.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -60,7 +61,17 @@ class BillsTab extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final bill = bills[index];
                     return BillItemCard(title: bill.billName,
-                        dueDate: DateTime.utc(2024, 11, 9), amount: 20000, onItemTapped: () {});
+                        billType: billType,
+                        dueDate: DateTime.utc(2024, 11, 9), amount: 20000,
+                        onItemTapped: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) =>
+                                PaymentMethodSelectionScreen(
+                                  bill: bill,
+                                  billType: billType
+                                ))
+                          );
+                        });
                   },
                 )
               ],

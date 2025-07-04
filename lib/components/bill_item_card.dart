@@ -10,7 +10,8 @@ class BillItemCard extends StatelessWidget {
   final DateTime dueDate;
   final int amount;
   final String? status;
-  final void Function(BuildContext)? showPaymentDetailDialog;
+  final String? paymentMethod;
+  final void Function(BuildContext, String, int, String, String)? showPaymentDetailDialog;
   final void Function() onItemTapped;
 
   const BillItemCard({
@@ -22,17 +23,18 @@ class BillItemCard extends StatelessWidget {
     this.status,
     this.showPaymentDetailDialog,
     required this.onItemTapped,
+    this.paymentMethod,
   });
 
   Color _getStatusFontColor(String? status) {
     switch (status?.toLowerCase()) {
-      case 'Lunas':
+      case 'lunas':
         return Colors.green.shade800;
-      case 'Belum bayar':
+      case 'belum_bayar':
         return Colors.orange.shade800;
-      case 'Menunggu konfirmasi':
+      case 'perlu_konfirmasi':
         return Colors.blue.shade800;
-      case 'Ditolak':
+      case 'ditolak':
         return Colors.red.shade800;
       default:
         return Colors.grey.shade800;
@@ -54,6 +56,21 @@ class BillItemCard extends StatelessWidget {
     }
   }
 
+  String _getStatusText(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'lunas':
+        return 'Lunas';
+      case 'belum_bayar':
+        return 'Belum bayar';
+      case 'perlu_konfirmasi':
+        return 'Menunggu konfirmasi';
+      case 'ditolak':
+        return 'Ditolak';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(
@@ -69,7 +86,7 @@ class BillItemCard extends StatelessWidget {
           if (status == null && billType != null) {
             onItemTapped();
           } else if (showPaymentDetailDialog != null) {
-            showPaymentDetailDialog!(context);
+            showPaymentDetailDialog!(context, title, amount, paymentMethod!, status!);
           }
         },
         child: Container(
@@ -103,7 +120,7 @@ class BillItemCard extends StatelessWidget {
                       if (status != null && status!.isNotEmpty) ...[
                         SizedBox(height: 2.h),
                         Text(
-                          'Status: $status',
+                          'Status: ${_getStatusText(status)}',
                           style: GoogleFonts.roboto(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
