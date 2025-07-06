@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:wargaqu/model/payment/payment_confirmation_details/payment_confirmation_details.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
@@ -13,13 +13,14 @@ final citizenListProvider = FutureProvider.autoDispose.family<List<CitizenWithSt
   final rtService = ref.watch(rtServiceProvider);
   final List<UserModel> allCitizens = await rtService.fetchAllCitizens(rtId);
 
-  debugPrint("All citizens: ${allCitizens.length}");
-
   return allCitizens.map((user) {
     String statusForThisBill = 'none';
+    final Map<String, dynamic> billsStatus = user.billsStatus[selectedBill?.id] as Map<String, dynamic>? ?? {};
 
-    if (selectedBill != null) {
-      statusForThisBill = user.billsStatus[selectedBill.id] ?? 'belum_bayar';
+    if (selectedBill != null && billsStatus.isNotEmpty) {
+      statusForThisBill = user.billsStatus[selectedBill.id]['status'];
+    } else {
+      statusForThisBill = 'belum_bayar';
     }
 
     return CitizenWithStatus(
@@ -29,21 +30,27 @@ final citizenListProvider = FutureProvider.autoDispose.family<List<CitizenWithSt
   }).toList();
 });
 
+final citizenSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+
 final filteredCitizenListProvider = Provider.family<AsyncValue<List<CitizenWithStatus>>, String>((ref, rtId) {
-  final filter = ref.watch(filterStatusProvider);
+  final statusFilter = ref.watch(filterStatusProvider);
   final asyncFullList = ref.watch(citizenListProvider(rtId));
+  final searchQuery = ref.watch(citizenSearchQueryProvider).toLowerCase();
 
   return asyncFullList.whenData((fullList) {
-    switch (filter) {
-      case 'lunas':
-        return fullList.where((citizen) => citizen.paymentStatus == 'lunas').toList();
-      case 'belum_bayar':
-        return fullList.where((citizen) => citizen.paymentStatus == 'belum_bayar').toList();
-      case 'perlu_konfirmasi':
-        return fullList.where((citizen) => citizen.paymentStatus == 'perlu_konfirmasi').toList();
-      case 'semua':
-      default:
-        return fullList;
+    List<CitizenWithStatus> statusFilteredList;
+    if (statusFilter != 'semua') {
+      statusFilteredList = fullList.where((citizen) => citizen.paymentStatus == statusFilter).toList();
+    } else {
+      statusFilteredList = fullList;
+    }
+
+    if (searchQuery.isEmpty) {
+      return statusFilteredList;
+    } else {
+      return statusFilteredList.where((citizen) {
+        return citizen.user.fullName.toLowerCase().contains(searchQuery);
+      }).toList();
     }
   });
 });
