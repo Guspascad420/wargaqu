@@ -7,12 +7,25 @@ import 'package:wargaqu/pages/login_choice.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 
+import '../../../main.dart';
+import '../../../providers/user_providers.dart';
+
 class RwProfileScreen extends ConsumerWidget {
   const RwProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authService = ref.watch(authServiceProvider);
+    final userId = ref.watch(userIdProvider);
+
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (previous, next) {
+      if (previous is AsyncLoading && !next.isLoading) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal keluar: ${next.error}')),
+          );
+        }
+      }
+    });
 
     return Container(
         margin: EdgeInsets.all(15.h),
@@ -156,10 +169,7 @@ class RwProfileScreen extends ConsumerWidget {
                   elevation: 2,
                 ),
                 onPressed: () {
-                  authService.signOut();
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const LoginChoiceScreen())
-                  );
+                  ref.read(authNotifierProvider.notifier).signOut(userId!);
                 },
               ),
             ),

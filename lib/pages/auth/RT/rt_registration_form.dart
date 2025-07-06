@@ -55,12 +55,12 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
         );
 
       } else if (next is AsyncData<void>) {
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const RtMainScreen())
-        );
         setState(() {
           _didSubmit = false;
         });
+        if (context.mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     });
     final regState = ref.watch(registrationNotifierProvider);
@@ -116,7 +116,7 @@ class _RtRegistrationFormState extends ConsumerState<RtRegistrationForm> {
                               labelText: 'NIK',
                               prefixIcon: Icon(Icons.credit_card, size: 24.r),
                             ),
-                            keyboardType: TextInputType.name,
+                            keyboardType: TextInputType.number,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'NIK wajib diisi';

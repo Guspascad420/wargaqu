@@ -34,10 +34,9 @@ class _CitizenLoginFormState extends ConsumerState<CitizenLoginForm> {
             SnackBar(content: Text('Error: ${next.error}')),
           );
         } else if (next is AsyncData) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                (route) => false,
-          );
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
         }
       }
     });

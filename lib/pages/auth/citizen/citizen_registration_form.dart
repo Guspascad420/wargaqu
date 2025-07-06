@@ -90,9 +90,9 @@ class _CitizenRegistrationFormState extends ConsumerState<CitizenRegistrationFor
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
         }
       } else {
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const WaitingForApprovalScreen())
-        );
+        if (context.mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     });
 

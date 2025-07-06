@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,7 @@ import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
 import 'package:wargaqu/pages/citizen/waiting_approval/waiting_for_approval_screen.dart';
 import 'package:wargaqu/pages/login_choice.dart';
 import 'package:wargaqu/providers/providers.dart';
-import 'package:wargaqu/providers/user_providers.dart' hide authStateProvider;
+import 'package:wargaqu/providers/user_providers.dart';
 import 'package:wargaqu/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -68,19 +67,37 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateChangesProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return authState.when(
-      data: (user) {
-        if (user == null) {
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Scaffold(
+        body: Center(child: Text('Terjadi Error: $err')),
+      ),
+      data: (userModel) {
+        if (userModel == null) {
           return const LoginChoiceScreen();
-        } else {
-          return RoleBasedRedirect();
         }
+
+        if (userModel.status == 'pending_confirmation') {
+          return const WaitingForApprovalScreen();
+        }
+
+        if (userModel.status == 'ACTIVE') {
+          if (userModel.role.contains('citizen')) {
+            return const CitizenMainScreen();
+          }
+          if (userModel.role.contains('rt')) {
+            return const RtMainScreen();
+          }
+          if (userModel.role.contains('rw')) {
+            return const RwMainScreen();
+          }
+        }
+        return const LoginChoiceScreen();
       },
-      loading: () => Scaffold(),
-      // Kalo ada error
-      error: (err, stack) => Scaffold(body: Center(child: Text('Terjadi Error:\n$err', textAlign: TextAlign.center)))
     );
   }
 }
