@@ -3,26 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wargaqu/providers/providers.dart';
+import 'package:wargaqu/providers/user_providers.dart';
 
-import '../../login_choice.dart';
+import '../../../providers/rt_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final logoutState = ref.watch(logoutNotifierProvider);
+    final logoutState = ref.watch(authNotifierProvider);
+    final userId = ref.watch(userIdProvider);
 
-    ref.listen<AsyncValue<void>>(logoutNotifierProvider, (previous, next) {
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && !next.isLoading) {
         if (next.hasError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Gagal keluar: ${next.error}')),
-          );
-        } else {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginChoiceScreen()),
-                (Route<dynamic> route) => false,
           );
         }
       }
@@ -39,7 +36,7 @@ class ProfileScreen extends ConsumerWidget {
             onTap: () {
 
             },
-            borderRadius: BorderRadius.circular(12.0), // Biar efek ripple-nya juga rounded
+            borderRadius: BorderRadius.circular(12.0),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
@@ -106,7 +103,11 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: logoutState.isLoading
                 ? null
                 : () {
-                    ref.read(logoutNotifierProvider.notifier).signOut();
+                    ref.invalidate(authStateChangesProvider);
+                    ref.invalidate(rtDataProvider);
+                    ref.invalidate(rtDocStreamProvider);
+                    ref.invalidate(userDocStreamProvider);
+                    ref.read(authNotifierProvider.notifier).signOut(userId!);
                   },
             ),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 
-class AddNewRtNotifier extends AsyncNotifier<void> {
+class RtCreationNotifier extends AsyncNotifier<void> {
   @override
   Future<void> build() async {
     return;

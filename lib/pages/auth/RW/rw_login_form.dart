@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/components/reusable_login_ui.dart';
-import 'package:wargaqu/pages/RW/rw_main_screen.dart';
 import 'package:wargaqu/pages/auth/RW/rw_registration_form.dart';
 import 'package:wargaqu/providers/providers.dart';
-
-import '../../../main.dart';
 
 class RwLoginForm extends ConsumerStatefulWidget {
   const RwLoginForm({super.key});
@@ -34,11 +31,6 @@ class _RwLoginFormState extends ConsumerState<RwLoginForm> {
         if (next.hasError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${next.error}')),
-          );
-        } else {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const RoleBasedRedirect()),
-                (route) => false,
           );
         }
       }

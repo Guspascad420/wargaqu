@@ -36,16 +36,15 @@ class _RtLoginFormState extends ConsumerState<RtLoginForm> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${next.error}')),
           );
-        } else {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const AuthWrapper()),
-            (route) => false,
-          );
+        } else if (!next.isLoading && !next.hasError) {
+            if (Navigator.canPop(context)) {
+              Navigator.of(context).pop();
+            }
+          }
           setState(() {
             _didSubmit = false;
           });
         }
-      }
     });
 
     return Scaffold(

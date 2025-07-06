@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wargaqu/model/user/user.dart';
-import 'package:wargaqu/pages/auth/citizen/citizen_registration_form.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
@@ -50,13 +50,15 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         address: address,
         joinedTimestamp: DateTime.now()
       );
-      final batch = ref.read(firestoreProvider).batch();
+      final batch = FirebaseFirestore.instance.batch();
 
       await userService.createUserProfile(newUser, batch);
 
       await rtService.claimRtCode(result.rtId, result.role, fullName, rtUniqueCode, batch);
 
       await batch.commit();
+
+      ref.invalidate(authNotifierProvider);
     });
   }
 
@@ -95,13 +97,15 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         address: address,
         joinedTimestamp: DateTime.now()
       );
-      final batch = ref.read(firestoreProvider).batch();
+      final batch = FirebaseFirestore.instance.batch();
 
       await userService.createUserProfile(newUser, batch);
 
       await rwService.claimRwCode(rwId, fullName, batch);
 
       await batch.commit();
+
+      ref.invalidate(authNotifierProvider);
     });
   }
 
@@ -142,15 +146,16 @@ class RegistrationNotifier extends AsyncNotifier<void> {
         residencyStatus: residencyStatus,
         kkNumber: kkNumber,
         rwId: rwId,
-        status: 'pending_approval',
+        status: 'pending_confirmation',
         joinedTimestamp: DateTime.now()
       );
 
       final userDbService = ref.read(userServiceProvider);
-      final batch = ref.read(firestoreProvider).batch();
+      final batch = FirebaseFirestore.instance.batch();
       await userDbService.createUserProfile(newUser, batch);
       await batch.commit();
 
+      ref.invalidate(authNotifierProvider);
       debugPrint('Registrasi berhasil untuk: $email');
     });
   }

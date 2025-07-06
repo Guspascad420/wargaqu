@@ -63,6 +63,7 @@ class _RtHomeScreenState extends ConsumerState<RtHomeScreen> {
                     )
                 )
             ),
+
             GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(

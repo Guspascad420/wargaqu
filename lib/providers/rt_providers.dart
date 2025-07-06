@@ -14,7 +14,7 @@ import 'package:wargaqu/notifiers/add_new_bank_account_notifier.dart';
 import 'package:wargaqu/notifiers/citizen_verification_notifier.dart';
 import 'package:wargaqu/notifiers/delete_code_notifier.dart';
 import 'package:wargaqu/notifiers/generate_code_notifier.dart';
-import 'package:wargaqu/notifiers/add_new_rt_notifier.dart';
+import 'package:wargaqu/notifiers/rt_creation_notifier.dart';
 import 'package:wargaqu/providers/rw_providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 import 'package:wargaqu/services/rt_service.dart';
@@ -71,8 +71,8 @@ final deleteCodeNotifierProvider = AsyncNotifierProvider.autoDispose<DeleteCodeN
   return DeleteCodeNotifier();
 });
 
-final addNewRtNotifierProvider = AsyncNotifierProvider.autoDispose<AddNewRtNotifier, void>(() {
-  return AddNewRtNotifier();
+final rtCreationNotifierProvider = AsyncNotifierProvider.autoDispose<RtCreationNotifier, void>(() {
+  return RtCreationNotifier();
 });
 
 final addNewBankAccountNotifierProvider = AsyncNotifierProvider.autoDispose<AddNewBankAccountNotifier, void>(() {
@@ -215,10 +215,4 @@ final transactionsProvider = StreamProvider.autoDispose.family<List<TransactionD
 final pendingCitizensProvider = StreamProvider.autoDispose.family<List<UserModel>, String>((ref, rtId) {
   final rtService = ref.watch(rtServiceProvider);
   return rtService.fetchPendingCitizens(rtId);
-});
-
-final citizensWithStatusProvider = StreamProvider.autoDispose.family<List<CitizenWithStatus>,
-    ({String rtId, String billType})>((ref, args) {
-  final rtService = ref.watch(rtServiceProvider);
-  return rtService.fetchCitizensWithPaymentStatus(args.rtId, args.billType);
 });

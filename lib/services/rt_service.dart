@@ -8,6 +8,7 @@ import 'package:wargaqu/model/expense/expense.dart';
 import 'package:wargaqu/model/report/report.dart';
 import 'package:wargaqu/model/unique_code/unique_code.dart';
 import 'package:wargaqu/model/user/user.dart';
+import 'package:wargaqu/utils/generate_random_id.dart';
 
 import '../model/citizen/citizen_with_status.dart';
 import '../model/income/income.dart';
@@ -79,27 +80,25 @@ class RtService {
     }).toList();
   }
 
-  Stream<List<CitizenWithStatus>> fetchCitizensWithPaymentStatus(String rtId, String selectedBillPeriod) {
+  Future<List<UserModel>> fetchAllCitizens(String rtId) async {
     try {
-      final querySnapshotStream = _firestore
-          .collection('bills')
+      final snapshot = await _firestore
+          .collection('users')
           .where('rtId', isEqualTo: rtId)
-          .where('role', isEqualTo: "warga")
-          .snapshots();
+          .where('role', isEqualTo: "citizen")
+          .where('status', isEqualTo: 'ACTIVE')
+          .get();
 
-      return querySnapshotStream.map((snapshot) {
-        if (snapshot.docs.isEmpty) {
-          return [];
-        }
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
 
-        return snapshot.docs.map((doc) {
-          final user = UserModel.fromJson(doc.data());
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return UserModel.fromJson(data);
+      }).toList();
 
-          final status = user.billsStatus[selectedBillPeriod] ?? 'belum_bayar';
-
-          return CitizenWithStatus(user: user, paymentStatus: status);
-        }).toList();
-      });
     } catch (e) {
       throw Exception('Gagal memuat data pengguna.');
     }
@@ -409,7 +408,7 @@ class RtService {
     }
   }
 
-  Future<void> addNewCode({
+  Future<void> generateAndSaveCode({
     required String rtId,
     required UniqueCode newCode,
   }) async {
@@ -448,7 +447,10 @@ class RtService {
     required String accountHolder,
   }) async {
     try {
-      final bankAccount = BankAccount(bankName: bankName, accountNumber: accountNumber, accountHolder: accountHolder);
+      final bankAccount = BankAccount(id: generateSimpleRandomId(),
+          bankName: bankName,
+          accountNumber: accountNumber,
+          accountHolder: accountHolder);
       await _firestore.collection('rts').doc(rtId).update({'bankAccounts': FieldValue.arrayUnion([bankAccount.toJson()])});
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan data pengeluaran: ${e.code}');
