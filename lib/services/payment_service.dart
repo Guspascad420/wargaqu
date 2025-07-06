@@ -56,6 +56,7 @@ class PaymentService {
     required int amountPaid,
     required String paymentMethod,
     required File proofImageFile,
+    String? citizenNote
   }) async
   {
     try {
@@ -86,6 +87,7 @@ class PaymentService {
         paymentProofUrl: downloadUrl,
         status: 'perlu_konfirmasi',
         paymentTimestamp: DateTime.now(),
+        citizenNote: citizenNote
       );
       batch.set(newPaymentRef, paymentData.toJson());
 
@@ -297,6 +299,7 @@ class PaymentService {
 
       final statusDetail = {
         'status': 'ditolak',
+        'paymentId': paymentId,
         'rejectionReason': rejectionReason,
       };
       batch.update(userDocRef, {

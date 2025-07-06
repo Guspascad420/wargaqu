@@ -19,6 +19,7 @@ class PaymentNotifier extends AsyncNotifier<void> {
     required int amountPaid,
     required String paymentMethod,
     required File proofImageFile,
+    String? citizenNote
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -31,6 +32,7 @@ class PaymentNotifier extends AsyncNotifier<void> {
         amountPaid: amountPaid,
         paymentMethod: paymentMethod,
         proofImageFile: proofImageFile,
+        citizenNote: citizenNote
       );
     });
   }

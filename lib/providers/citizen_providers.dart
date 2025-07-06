@@ -73,5 +73,6 @@ final paymentDetailsProvider = FutureProvider.autoDispose.family<PaymentConfirma
     billName: paymentData['billName'] ?? 'Iuran',
     amount: paymentData['amountPaid'] ?? 0,
     proofOfPaymentImageUrl: paymentData['paymentProofUrl'] ?? '',
+    citizenNote: paymentData['citizenNote']
   );
 });

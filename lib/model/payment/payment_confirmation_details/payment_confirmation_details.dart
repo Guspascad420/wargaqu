@@ -11,6 +11,7 @@ abstract class PaymentConfirmationDetails with _$PaymentConfirmationDetails {
     required String billName,
     required int amount,
     required String proofOfPaymentImageUrl,
+    String? citizenNote
   }) = _PaymentConfirmationDetails;
 
   factory PaymentConfirmationDetails.fromJson(Map<String, dynamic> json) =>

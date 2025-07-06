@@ -29,6 +29,7 @@ class PaymentScreen extends ConsumerStatefulWidget {
 
 class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   final ImagePicker _picker = ImagePicker();
+  final _citizenNoteController = TextEditingController();
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -210,151 +211,179 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             ],
           ),
         ),
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  label: paymentState.isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                    'Konfirmasi Bukti Pembayaran',
+                    style: GoogleFonts.roboto(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary400,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.w),
+                    ),
+                    elevation: 2,
+                  ),
+                  onPressed: imageFile == null ? null : () {
+                    ref.read(paymentNotifierProvider.notifier).executeMakePayment(
+                        userId: userId!, billId: widget.bill.id,
+                        billType: widget.bill.billType, billName: widget.bill.billName,
+                        amountPaid: widget.bill.amount,
+                        paymentMethod: "Bank transfer", proofImageFile: imageFile,
+                        citizenNote: _citizenNoteController.text
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 15.h),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    side: BorderSide(color: AppColors.primary90, width: 1.5.w), // Lebar border dengan .w
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7.r),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Ganti Metode Pembayaran',
+                    textAlign: TextAlign.center, // Menambahkan text align center
+                    style: GoogleFonts.roboto(
+                      fontSize: 15.sp, // Ukuran font disesuaikan
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary90,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         body: Padding(
             padding: EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _bankAccountContainer(bankAccount),
-                SizedBox(height: 20.h),
-                Text('Unggah Bukti Pembayaran', style: Theme.of(context).textTheme.titleLarge),
-                Text('Mohon untuk mencantumkan bukti pembayaran', style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
-                SizedBox(height: 10.h),
-                GestureDetector(
-                  onTap: () => _showImageSourceDialog(context, imageFile),
-                  child: DottedBorder(
-                    options: RoundedRectDottedBorderOptions(
-                      color: Theme.of(context).colorScheme.onSurface, // Warna border putus-putus
-                      strokeWidth: 1.5, // Ketebalan border
-                      dashPattern: const [6, 5],
-                      radius: Radius.circular(12.r), // Radius untuk RRect
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      height: imageFile != null && fileName != null ? 80.h : 180.h,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.grey.shade100
-                            : Colors.black,
-                              borderRadius: BorderRadius.circular(11.r),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _bankAccountContainer(bankAccount),
+                  SizedBox(height: 20.h),
+                  Text('Unggah Bukti Pembayaran', style: Theme.of(context).textTheme.titleLarge),
+                  Text('Mohon untuk mencantumkan bukti pembayaran', style: Theme.of(context).textTheme.bodyLarge, maxLines: 2,),
+                  SizedBox(height: 10.h),
+                  GestureDetector(
+                    onTap: () => _showImageSourceDialog(context, imageFile),
+                    child: DottedBorder(
+                      options: RoundedRectDottedBorderOptions(
+                        color: Theme.of(context).colorScheme.onSurface, // Warna border putus-putus
+                        strokeWidth: 1.5, // Ketebalan border
+                        dashPattern: const [6, 5],
+                        radius: Radius.circular(12.r), // Radius untuk RRect
+                        padding: EdgeInsets.zero,
                       ),
-                      child: imageFile != null && fileName != null
-                          ? Padding( // Padding untuk konten di dalam
-                              padding: EdgeInsets.all(12.w),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image_rounded, // Ikon gambar
-                                    size: 40.sp,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  SizedBox(width: 12.w),
-                                  Expanded(
-                                    child: Text(
-                                      fileName, // Tampilkan nama file
-                                      style: GoogleFonts.roboto(
-                                        fontSize: 14.sp,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                    ),
-                                  ),
-                                ],
+                      child: Container(
+                        width: double.infinity,
+                        height: imageFile != null && fileName != null ? 80.h : 180.h,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.light
+                              ? Colors.grey.shade100
+                              : Colors.black,
+                          borderRadius: BorderRadius.circular(11.r),
+                        ),
+                        child: imageFile != null && fileName != null
+                            ? Padding( // Padding untuk konten di dalam
+                          padding: EdgeInsets.all(12.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_rounded, // Ikon gambar
+                                size: 40.sp,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.cloud_upload_outlined,
-                                  size: 50.sp,
-                                  color: Colors.grey.shade500,
-                                ),
-                                SizedBox(height: 8.h),
-                                Text(
-                                  'Ketuk untuk memilih gambar',
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Text(
+                                  fileName, // Tampilkan nama file
                                   style: GoogleFonts.roboto(
                                     fontSize: 14.sp,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500,
                                   ),
+                                  textAlign: TextAlign.left,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  '(JPG, PNG, maks. 5MB)',
-                                  style: GoogleFonts.roboto(
-                                    fontSize: 11.sp,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    label: paymentState.isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                          'Konfirmasi Bukti Pembayaran',
-                          style: GoogleFonts.roboto(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                              ),
+                            ],
                           ),
+                        )
+                            : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.cloud_upload_outlined,
+                              size: 50.sp,
+                              color: Colors.grey.shade500,
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              'Ketuk untuk memilih gambar',
+                              style: GoogleFonts.roboto(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              '(JPG, PNG, maks. 5MB)',
+                              style: GoogleFonts.roboto(
+                                fontSize: 11.sp,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
                         ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary400,
-                      padding: EdgeInsets.symmetric(vertical: 14.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.w),
-                      ),
-                      elevation: 2,
-                    ),
-                    onPressed: imageFile == null ? null : () {
-                      ref.read(paymentNotifierProvider.notifier).executeMakePayment(
-                          userId: userId!, billId: widget.bill.id,
-                          billType: widget.bill.billType, billName: widget.bill.billName,
-                          amountPaid: widget.bill.amount,
-                          paymentMethod: "Bank transfer", proofImageFile: imageFile,
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: 15.h),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 14.h),
-                      side: BorderSide(color: AppColors.primary90, width: 1.5.w), // Lebar border dengan .w
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(7.r),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'Ganti Metode Pembayaran',
-                      textAlign: TextAlign.center, // Menambahkan text align center
-                      style: GoogleFonts.roboto(
-                        fontSize: 15.sp, // Ukuran font disesuaikan
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primary90,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 15.h),
+                  TextField(
+                    textInputAction: TextInputAction.done,
+                    controller: _citizenNoteController,
+                    decoration: InputDecoration(
+                        hintText: 'Catatan (Opsional)',
+                        filled: true,
+                        hintStyle: GoogleFonts.roboto(
+                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w500
+                        ),
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300)
+                        )
+                    ),
+                  ),
+                ],
+              ),
             )
         )
     );

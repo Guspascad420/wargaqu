@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/bill_selector.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/citizen_status_graph.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/persistent_header_delegate.dart';
@@ -191,6 +192,116 @@ class CitizenActivityScreen extends ConsumerWidget {
     return result ?? false;
   }
 
+  Future<bool> _showReactivateDialog(BuildContext context, String name, String bill, int amount) async {
+    final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 24.sp),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Text('Konfirmasi Pengaktifan Ulang', style: GoogleFonts.roboto(fontSize: 17.sp,
+                      fontWeight: FontWeight.w600))
+              )
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Anda yakin ingin mengaktifkan pembayaran ini dan menandai sebagai LUNAS?',
+                style: GoogleFonts.roboto(fontSize: 13.sp),
+              ),
+              SizedBox(height: 8.h),
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Nama',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          name,
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Iuran',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          bill,
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Nominal',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          currencyFormatter.format(amount),
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Batal', style: GoogleFonts.roboto(fontWeight: FontWeight.w500, color: AppColors.negative)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.positive,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.w),
+                  )
+              ),
+              child: Text('Ya, Tandai Lunas', style: GoogleFonts.roboto(fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   List<Widget> _buildMenuItems(WidgetRef ref, BuildContext context, CitizenWithStatus citizen,
       String selectedBillId, String billName, int amount) {
     List<Widget> menuItems = [];
@@ -215,7 +326,16 @@ class CitizenActivityScreen extends ConsumerWidget {
       menuItems.add(
         MenuItemButton(
           onPressed: () {
+            String? phoneNumber = citizen.user.phoneNumber;
+            if (phoneNumber == null) {
+              return;
+            }
 
+            if (!phoneNumber.startsWith('0')) {
+              phoneNumber = '62${phoneNumber.substring(1)}';
+            }
+            final url = 'https://wa.me/$phoneNumber';
+            launchUrl(Uri.parse(url));
           },
           leadingIcon: const Icon(Icons.chat_bubble_outline_rounded),
           child: const Text('Ingatkan via WA'),
@@ -237,6 +357,26 @@ class CitizenActivityScreen extends ConsumerWidget {
           },
           leadingIcon: const Icon(Icons.check_circle_outline_rounded),
           child: const Text('Konfirmasi Pembayaran'),
+        ),
+      );
+    }
+
+    if (citizen.paymentStatus == 'ditolak') {
+      menuItems.add(
+        MenuItemButton(
+          onPressed: () async {
+            final bool shouldConfirm = await _showReactivateDialog(context, citizen.user.fullName, billName, amount);
+            if (shouldConfirm) {
+              await ref.read(paymentConfirmationNotifierProvider.notifier)
+                  .executeConfirmPayment(
+                  userId: citizen.user.id, billId: selectedBillId, billName: billName,
+                  amountPaid: amount, rtId: citizen.user.rtId!,
+                  paymentId: citizen.user.billsStatus[selectedBillId]['paymentId']!
+              );
+            }
+          },
+          leadingIcon: const Icon(Icons.check_circle_outline_rounded),
+          child: const Text('Aktifkan ulang pembayaran'),
         ),
       );
     }

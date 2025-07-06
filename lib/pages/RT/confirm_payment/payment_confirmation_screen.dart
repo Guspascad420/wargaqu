@@ -10,6 +10,7 @@ import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/rt_providers.dart';
 
 import '../../../model/confirmation/confirmation_state.dart';
+import '../../../theme/app_colors.dart';
 
 class PaymentConfirmationScreen extends ConsumerStatefulWidget {
   final UserModel user;
@@ -36,6 +37,7 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
     required String address,
     required String billName,
     required int amount,
+    String? citizenNote
   }) {
     final currencyFormatter =
     NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
@@ -90,6 +92,19 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
                   fontWeight: FontWeight.bold,
                   color: Colors.green.shade700),
             ),
+            SizedBox(height: 12.h),
+            if (citizenNote != null)...[
+              Text(
+                'Catatan: ',
+                style: GoogleFonts.roboto(
+                    fontSize: 14.sp, color: Colors.grey.shade600),
+              ),
+              Text(
+                citizenNote,
+                style:
+                GoogleFonts.roboto(fontSize: 16.sp, fontWeight: FontWeight.w500),
+              )
+            ]
           ],
         ),
       ),
@@ -155,13 +170,14 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tambahkan Catatan (Opsional)',
+          'Tambahkan Catatan',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         SizedBox(height: 8.h),
         TextField(
+          textInputAction: TextInputAction.done,
           controller: _rtNoteController,
           maxLines: 2,
           decoration: InputDecoration(
@@ -182,6 +198,62 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
     );
   }
 
+  Future<bool> _showRejectionDialog(BuildContext context) async {
+    final bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 24.sp),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Text('Konfirmasi Penolakan', style: GoogleFonts.roboto(fontSize: 17.sp,
+                      fontWeight: FontWeight.w600))
+              )
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Anda yakin ingin menolak pembayaran ini?',
+                style: GoogleFonts.roboto(fontSize: 13.sp),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Batal', style: GoogleFonts.roboto(fontWeight: FontWeight.w500, color: Colors.grey)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.negative,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.w),
+                  )
+              ),
+              child: Text('Ya, Tolak', style: GoogleFonts.roboto(fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncPaymentDetails = ref.watch(paymentDetailsProvider((user: widget.user, paymentId: widget.paymentId)));
@@ -196,7 +268,7 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
       if (next.errorMessage != null && prev?.errorMessage != next.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Alamak: ${next.errorMessage}'),
+            content: Text('${next.errorMessage}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -238,7 +310,8 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
                     residentName: paymentDetail.name,
                     address: paymentDetail.address,
                     billName: paymentDetail.billName,
-                    amount: paymentDetail.amount
+                    amount: paymentDetail.amount,
+                    citizenNote: paymentDetail.citizenNote == '' ? null : paymentDetail.citizenNote
                 ),
                 SizedBox(height: 24.h),
                 _buildProofOfPaymentSection(
@@ -263,12 +336,15 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
                     label: isRejecting
                         ? const SizedBox.shrink()
                         : Text('TOLAK', style: GoogleFonts.roboto()),
-                    onPressed: () {
-                      final rtNote = _rtNoteController.text;
-                      ref.read(paymentConfirmationNotifierProvider.notifier).executeRejectPayment(
-                          userId: widget.user.id, billId: selectedBill!.id,
-                          paymentId: widget.paymentId, rejectionReason: rtNote
-                      );
+                    onPressed: () async {
+                      final bool shouldReject = await _showRejectionDialog(context);
+                      if (shouldReject) {
+                        final rtNote = _rtNoteController.text;
+                        ref.read(paymentConfirmationNotifierProvider.notifier).executeRejectPayment(
+                            userId: widget.user.id, billId: selectedBill!.id,
+                            paymentId: widget.paymentId, rejectionReason: rtNote
+                        );
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 14.h),

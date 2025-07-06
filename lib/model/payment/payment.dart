@@ -26,7 +26,8 @@ abstract class Payment with _$Payment {
     required String paymentMethod,
     required String status,
     required String paymentProofUrl,
-    String? rtNote
+    String? rtNote,
+    String? citizenNote
   }) = _Payment;
 
   factory Payment.fromJson(Map<String, dynamic> json) =>
