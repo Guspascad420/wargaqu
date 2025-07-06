@@ -67,7 +67,7 @@ void main() {
       await tester.enterText(rwUniqueCodeField, 'RW05MAKMUR2025');
       await tester.tap(submitButton);
 
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       expect(find.byType(RwMainScreen), findsOneWidget);
       expect(find.byType(RwRegistrationForm), findsNothing);

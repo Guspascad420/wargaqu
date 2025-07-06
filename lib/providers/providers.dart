@@ -177,7 +177,7 @@ final billsProvider = StreamProvider.autoDispose.family<List<Bill>, ({String rtI
 
 final allBillsProvider = Provider.autoDispose.family<AsyncValue<List<Bill>>, String>((ref, rtId) {
   final regularBills = ref.watch(billsProvider((rtId: rtId, billType: BillType.regular)));
-  final incidentalBills = ref.watch(billsProvider((rtId: rtId, billType: BillType.regular)));
+  final incidentalBills = ref.watch(billsProvider((rtId: rtId, billType: BillType.incidental)));
 
   return switch ((regularBills, incidentalBills)) {
     (AsyncData(value: final reg), AsyncData(value: final inc)) =>

@@ -31,7 +31,7 @@ class FinancialReportScreen extends ConsumerWidget {
       currentSelectedType == ReportType.yearly,
     ];
 
-    final asyncReports = ref.watch(reportsProvider((rtId: rtId, reportType: currentSelectedType)));
+    final asyncReports = ref.watch(reportListProvider((rtId: rtId, reportType: currentSelectedType)));
 
     final double chipPaddingVertical = 8.h;
     final double chipPaddingHorizontal = 16.w;

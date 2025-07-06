@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wargaqu/providers/providers.dart';
 
+import '../../../providers/citizen_providers.dart';
+
 class SearchAndFilterSection extends ConsumerWidget {
   const SearchAndFilterSection({super.key});
 
@@ -25,11 +27,13 @@ class SearchAndFilterSection extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 1. Search Bar
           Container(
             margin: EdgeInsets.symmetric(horizontal: 15.w),
             height: 40.h,
             child: TextField(
+              onChanged: (query) {
+                ref.read(citizenSearchQueryProvider.notifier).state = query;
+              },
               decoration: InputDecoration(
                 hintText: 'Cari nama warga...',
                 prefixIcon: const Icon(Icons.search),
@@ -39,7 +43,7 @@ class SearchAndFilterSection extends ConsumerWidget {
                   borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
           ),
@@ -52,20 +56,24 @@ class SearchAndFilterSection extends ConsumerWidget {
               children: [
                 SizedBox(width: 15.w),
                 ChoiceChip(label: const Text('Semua'), onSelected: (b) {
-                  ref.read(filterStatusProvider.notifier).state = 'Semua';
-                }, selected: selectedStatus == 'Semua'),
+                  ref.read(filterStatusProvider.notifier).state = 'semua';
+                }, selected: selectedStatus == 'semua'),
                 SizedBox(width: 8.w),
                 ChoiceChip(label: const Text('Lunas'), onSelected: (b) {
-                  ref.read(filterStatusProvider.notifier).state = 'Lunas';
-                }, selected: selectedStatus == 'Lunas'),
+                  ref.read(filterStatusProvider.notifier).state = 'lunas';
+                }, selected: selectedStatus == 'lunas'),
                 SizedBox(width: 8.w),
                 ChoiceChip(label: const Text('Belum Bayar'), onSelected: (b) {
-                  ref.read(filterStatusProvider.notifier).state = 'Belum Bayar';
-                }, selected: selectedStatus == 'Belum Bayar'),
+                  ref.read(filterStatusProvider.notifier).state = 'belum_bayar';
+                }, selected: selectedStatus == 'belum_bayar'),
                 SizedBox(width: 8.w),
                 ChoiceChip(label: const Text('Perlu Konfirmasi'), onSelected: (b) {
-                  ref.read(filterStatusProvider.notifier).state = 'Perlu Konfirmasi';
-                }, selected: selectedStatus == 'Perlu Konfirmasi'),
+                  ref.read(filterStatusProvider.notifier).state = 'perlu_konfirmasi';
+                }, selected: selectedStatus == 'perlu_konfirmasi'),
+                SizedBox(width: 8.w),
+                ChoiceChip(label: const Text('Ditolak'), onSelected: (b) {
+                  ref.read(filterStatusProvider.notifier).state = 'ditolak';
+                }, selected: selectedStatus == 'ditolak'),
                 SizedBox(width: 15.w),
               ],
             ),

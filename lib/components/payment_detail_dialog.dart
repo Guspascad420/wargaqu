@@ -6,26 +6,46 @@ import 'package:wargaqu/model/bill/bill.dart';
 import 'package:wargaqu/model/payment/payment.dart';
 
 class PaymentDetailDialogContent extends StatelessWidget {
-  final Payment data;
+  final String billName;
+  final int amountPaid;
+  final String paymentMethod;
+  final String status;
 
-  const PaymentDetailDialogContent({super.key, required this.data});
+  const PaymentDetailDialogContent({super.key, required this.billName,
+    required this.amountPaid, required this.paymentMethod, required this.status});
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
+  Color _getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
       case 'lunas':
-        return Colors.green.shade700;
-      case 'belum dibayar':
-        return Colors.orange.shade700;
-      case 'menunggu konfirmasi':
-        return Colors.blue.shade600;
+        return Colors.green.shade100;
+      case 'belum_bayar':
+        return Colors.orange.shade100;
+      case 'perlu_konfirmasi':
+        return Colors.blue.shade100;
       case 'ditolak':
-        return Colors.red.shade700;
+        return Colors.red.shade100;
       default:
-        return Colors.grey.shade800;
+        return Colors.grey.shade100;
     }
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {Color? valueColor, FontWeight? valueWeight}) {
+  String _getStatusText(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'lunas':
+        return 'Lunas';
+      case 'belum_bayar':
+        return 'Belum bayar';
+      case 'perlu_konfirmasi':
+        return 'Menunggu konfirmasi';
+      case 'ditolak':
+        return 'Ditolak';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildDetailRow(BuildContext context, String label, String value,
+      {Color? valueColor, FontWeight? valueWeight}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
@@ -102,22 +122,21 @@ class PaymentDetailDialogContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle(context, 'Detail Iuran'),
-          _buildDetailRow(context, 'Nama Iuran', data.billName, valueWeight: FontWeight.w500),
-          // _buildDetailRow(context, 'Dibuat oleh', data.createdBy),
-          _buildDetailRow(context, 'Nominal', currencyFormatter.format(data.amountPaid), valueWeight: FontWeight.w500),
+          _buildDetailRow(context, 'Nama Iuran', billName, valueWeight: FontWeight.w500),
+          // _buildDetailRow(context, 'Dibuat oleh', createdBy),
+          _buildDetailRow(context, 'Nominal', currencyFormatter.format(amountPaid), valueWeight: FontWeight.w500),
 
           SizedBox(height: 10.h),
 
           _buildSectionTitle(context, 'Detail Pembayaran'),
-          // _buildDetailRow(context, 'Batas Bayar', '${dateFormatter.format(data.dueDate)} WIB'),
-          _buildDetailRow(context, 'Media Bayar', data.paymentMethod),
+          _buildDetailRow(context, 'Media Bayar', paymentMethod),
           _buildDetailRow(context,
             'Status',
-            data.status,
-            valueColor: _getStatusColor(data.status),
+            _getStatusText(status),
+            valueColor: _getStatusColor(status),
             valueWeight: FontWeight.bold,
           ),
-          if (data.status == 'Menunggu konfirmasi')...[
+          if (status == 'perlu_konfirmasi')...[
             _buildPaymentProofRow(context),
           ],
           SizedBox(height: 24.h),

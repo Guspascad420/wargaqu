@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:wargaqu/model/citizen/citizen_with_status.dart';
 import 'package:wargaqu/model/user/user.dart';
 
-class UserDbService {
+class UserService {
   final FirebaseFirestore _firestore;
   final FirebaseMessaging _messaging;
 
-  UserDbService(this._firestore, this._messaging);
+  UserService(this._firestore, this._messaging);
 
   Future<void> createUserProfile(UserModel user, WriteBatch batch) async {
     final userRef = _firestore.collection('users').doc(user.id);
@@ -103,5 +103,22 @@ class UserDbService {
         .collection('users')
         .doc(uid)
         .snapshots();
+  }
+
+  Future<UserModel?> getUserDoc(String uid) {
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .get()
+        .then((snapshot) {
+      if (snapshot.data() == null) {
+        return null;
+      }
+      return UserModel.fromJson(snapshot.data()!);
+    });
+  }
+
+  Future<DocumentSnapshot> fetchPaymentDoc(String userId, String paymentId) {
+    return _firestore.collection('users').doc(userId).collection('payments').doc(paymentId).get();
   }
 }

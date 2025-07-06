@@ -23,31 +23,6 @@ class ReusableBillsUI extends StatelessWidget {
   final String historyTabTitle;
   final String historyTabSubtitle;
 
-  void _showPaymentDetailDialog(BuildContext context) {
-    final Payment payment = Payment(
-        id: 'IKJ-2025-07-001',
-        billName: 'Iuran Juli 2025',
-        billType: BillType.regular,
-        amountPaid: 20000,
-        dueDate: DateTime(2025, 7, 10, 23, 59),
-      billPeriod: '', paymentTimestamp: DateTime.now(),
-      paymentMethod: '', status: '', paymentProofUrl: '', // Tanggal 10 Juli 2025, jam 23:59
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          elevation: 2,
-          child: PaymentDetailDialogContent(data: payment),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     const double tabBarHeight = kTextTabBarHeight;
@@ -86,7 +61,7 @@ class ReusableBillsUI extends StatelessWidget {
                 BillsTab(billType: billType, title: billsTabTitle,
                     subtitle: billsTabSubtitle),
                 HistoryTab(billType: billType, title: historyTabTitle,
-                    subtitle: historyTabSubtitle, showPaymentDetailDialog: _showPaymentDetailDialog)
+                    subtitle: historyTabSubtitle)
               ]
           ),
         )

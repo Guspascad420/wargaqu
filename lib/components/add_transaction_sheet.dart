@@ -7,7 +7,6 @@ import 'package:wargaqu/components/transaction_tab_view.dart';
 import 'package:wargaqu/model/bank_account/bank_account.dart';
 import 'package:wargaqu/providers/providers.dart';
 
-import '../pages/citizen/bank_account/payment_method_selection_screen.dart';
 import '../providers/rt_providers.dart';
 import '../providers/user_providers.dart';
 import '../theme/app_colors.dart';
@@ -108,6 +107,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
     List<DropdownMenuItem<String>> menuItems = [
       DropdownMenuItem<String>(
         value: "Kas Tunai RT",
+        alignment: AlignmentDirectional.centerEnd,
         child: Text("Kas Tunai RT", style: GoogleFonts.roboto(fontSize: 15.sp,
             fontWeight: FontWeight.w500)),
       )
@@ -116,6 +116,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
       List<DropdownMenuItem<String>> bankAccountMenuItems = bankAccounts.map((BankAccount account) {
         return DropdownMenuItem<String>(
           value: account.id,
+          alignment: AlignmentDirectional.centerEnd,
           child: Text(account.bankName, style: GoogleFonts.roboto(fontSize: 15.sp, fontWeight: FontWeight.w500)),
         );
       }).toList();
@@ -163,6 +164,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
               underline: const SizedBox.shrink(),
               icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface),
               items: menuItems,
+              alignment: AlignmentDirectional.centerEnd,
               onChanged: (String? newValue) {
                 _selectedAccountId = newValue!;
               },

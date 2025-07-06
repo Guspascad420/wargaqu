@@ -8,6 +8,9 @@ part 'payment.g.dart';
 DateTime _dateTimeFromJson(Timestamp timestamp) => timestamp.toDate();
 Timestamp _dateTimeToJson(DateTime date) => Timestamp.fromDate(date);
 
+DateTime? _rtTimestampFromJson(Timestamp? timestamp) => timestamp?.toDate();
+Timestamp? _rtTimestampToJson(DateTime? date) => date == null ? null : Timestamp.fromDate(date);
+
 @freezed
 abstract class Payment with _$Payment {
   const factory Payment({
@@ -15,15 +18,14 @@ abstract class Payment with _$Payment {
     required String billName,
     @JsonKey(fromJson: _billTypeFromJson, toJson: _billTypeToJson)
     required BillType billType,
-    required double amountPaid,
-    required String billPeriod,
+    required int amountPaid,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
     required DateTime paymentTimestamp,
+    @JsonKey(fromJson: _rtTimestampFromJson, toJson: _rtTimestampToJson)
     DateTime? rtConfirmationTimestamp,
     required String paymentMethod,
     required String status,
     required String paymentProofUrl,
-    required DateTime dueDate,
     String? rtNote
   }) = _Payment;
 

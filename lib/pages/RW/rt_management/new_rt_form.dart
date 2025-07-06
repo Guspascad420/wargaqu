@@ -64,9 +64,9 @@ class _NewRtFormState extends ConsumerState<NewRtForm> {
   @override
   Widget build(BuildContext context) {
     final rwId = ref.watch(currentRwIdProvider);
-    final formState = ref.watch(addNewRtNotifierProvider);
+    final formState = ref.watch(rtCreationNotifierProvider);
 
-    ref.listen<AsyncValue<void>>(addNewRtNotifierProvider, (prev, next) {
+    ref.listen<AsyncValue<void>>(rtCreationNotifierProvider, (prev, next) {
       if (!_didSubmit) return;
 
       if (next.hasError) {
@@ -158,7 +158,7 @@ class _NewRtFormState extends ConsumerState<NewRtForm> {
                         setState(() {
                           _didSubmit = true;
                         });
-                        ref.read(addNewRtNotifierProvider.notifier).executeAddNewRt(
+                        ref.read(rtCreationNotifierProvider.notifier).executeAddNewRt(
                             rtNumber: int.parse(_rtNumberController.text),
                             rtName: _rtNameController.text, rwId: rwId!,
                             address: _addressController.text

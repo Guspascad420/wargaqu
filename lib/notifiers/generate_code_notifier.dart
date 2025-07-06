@@ -24,7 +24,7 @@ class GenerateCodeNotifier extends Notifier<GenerateCodeState> {
         status: 'AVAILABLE',
       );
       
-      await rtService.addNewCode(rtId: rtId, newCode: newCodeObject);
+      await rtService.generateAndSaveCode(rtId: rtId, newCode: newCodeObject);
       state = GenerateCodeState.success(generatedCode: newGeneratedCode, role: roleName);
     } catch (e) {
       state = GenerateCodeState.error(e.toString());

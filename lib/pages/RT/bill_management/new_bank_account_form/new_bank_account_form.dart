@@ -148,8 +148,17 @@ class _NewBankAccountFormState extends ConsumerState<NewBankAccountForm> {
                 label: 'Nomor Rekening',
                 icon: Icons.tag_rounded,
                 keyboardType: TextInputType.number,
-                validator: (value) =>
-                value!.isEmpty ? 'Nomor Rekening tidak boleh kosong' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nomor rekening wajib diisi';
+                  }
+                  const int minLength = 10;
+                  const int maxLength = 16;
+                  if (value.length < minLength || value.length > maxLength) {
+                    return 'Nomor rekening harus antara $minLength sampai $maxLength digit';
+                  }
+                  return null;
+                }
               ),
               SizedBox(height: 16.h),
               _buildTextField(

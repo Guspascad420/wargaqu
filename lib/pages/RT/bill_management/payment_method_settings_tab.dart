@@ -50,11 +50,12 @@ class PaymentMethodSettingsTab extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(12.r),
-                      child: Padding( // Padding untuk konten di dalam InkWell
+                      child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                         child: Row(
                           children: [
-                            Image.asset(account.logoAsset!, width: 50.w),
+                            account.logoAsset == null ? Icon(Icons.account_balance_rounded, size: 35.r)
+                                : Image.asset(account.logoAsset!, width: 50.w),
                             SizedBox(width: 12.w),
                             Expanded(
                               child: Column(

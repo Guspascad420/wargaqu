@@ -20,7 +20,7 @@ abstract class UserModel with _$UserModel {
     String? kkNumber,
     @Default('citizen') String role,
     String? profilePictureUrl,
-    @Default({}) Map<String, String> billsStatus,
+    @Default({}) Map<String, dynamic> billsStatus,
     @Default('ACTIVE') String status,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     DateTime? joinedTimestamp,

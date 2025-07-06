@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:wargaqu/main.dart';
 import 'package:wargaqu/model/RT/rt_data.dart';
 import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/pages/RT/bill_management/add_bills_screen.dart';
@@ -35,11 +36,25 @@ void main() {
                 theme: lightTheme,
                 darkTheme: darkTheme,
                 themeMode: ThemeMode.system,
-                home: child);
+                home: child
+            );
           },
-          child: const RtRegistrationForm(),
+          child: const AuthWrapper(),
         ),
       ));
+
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      final Finder rtLoginButton = find.byKey(const Key('rtLoginButton'));
+      await tester.ensureVisible(rtLoginButton);
+      await tester.pumpAndSettle();
+      await tester.tap(rtLoginButton);
+      await tester.pumpAndSettle();
+
+      final Finder rtRegistrationButton = find.byKey(const Key('registrationOption'));
+      await tester.ensureVisible(rtRegistrationButton);
+      await tester.pumpAndSettle();
+      await tester.tap(rtRegistrationButton);
+      await tester.pumpAndSettle();
 
       final Finder fullNameField = find.byKey(const Key('fullNameField'));
       final Finder nikField = find.byKey(const Key('nikField'));
@@ -51,10 +66,10 @@ void main() {
       final Finder passwordField = find.byKey(const Key('passwordField'));
       final Finder submitButton = find.byKey(const Key('submitButton'));
 
-      await tester.enterText(fullNameField, 'Kylian Mbappe');
-      await tester.pumpAndSettle(); // Tunggu UI stabil setelah input
+      await tester.enterText(fullNameField, 'Mas Rusdi');
+      await tester.pumpAndSettle();
 
-      await tester.enterText(nikField, '292991111888');
+      await tester.enterText(nikField, '292991111858');
       await tester.pumpAndSettle();
 
       await tester.enterText(addressField, 'Jl. Raya Jakarta');
@@ -65,16 +80,17 @@ void main() {
       await tester
           .pumpAndSettle();
       await tester.enterText(
-          rtUniqueCodeField, 'KETUA-UMWRVTMGYDTU50JH9XYK-XCR5XC');
+          rtUniqueCodeField, 'BENDA-ILUDPG09M6QLJV98XUP9-KTSED8'
+      );
       await tester.pumpAndSettle();
       await tester.ensureVisible(emailField);
       await tester.pumpAndSettle();
-      await tester.enterText(emailField, 'kylianmbappe@gmail.com');
+      await tester.enterText(emailField, 'masrusdi@gmail.com');
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(passwordField);
       await tester.pumpAndSettle();
-      await tester.enterText(passwordField, 'mbappe123');
+      await tester.enterText(passwordField, 'masrusdi123');
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(submitButton);
@@ -84,6 +100,8 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       expect(find.byType(RtMainScreen), findsOneWidget);
+
+      await Future.delayed(const Duration(seconds: 50));
     });
   });
 

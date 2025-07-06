@@ -49,6 +49,7 @@ class LoginChoiceScreen extends StatelessWidget {
                   )
                 ),
                 GestureDetector(
+                  key: const Key('rtLoginButton'),
                   onTap: () {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => const RtLoginForm())

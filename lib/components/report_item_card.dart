@@ -7,8 +7,9 @@ import 'package:wargaqu/pages/RT/financial_report/financial_report_details_scree
 
 class ReportItemCard extends StatelessWidget {
   final ReportData reportData;
+  final String rtId;
 
-  const ReportItemCard({super.key, required this.reportData});
+  const ReportItemCard({super.key, required this.reportData, required this.rtId});
 
   String formatReportTitle(DateTime date) {
     return DateFormat('MMMM yyyy', 'id_ID').format(date);
@@ -23,7 +24,7 @@ class ReportItemCard extends StatelessWidget {
       ) => InkWell(
         onTap: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => FinancialReportDetailsScreen(reportData: reportData))
+              MaterialPageRoute(builder: (context) => FinancialReportDetailsScreen(rtId: rtId, reportData: reportData))
           );
         },
         child: Container(

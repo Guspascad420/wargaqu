@@ -10,8 +10,8 @@ import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/services/user_service.dart';
 
 
-final userServiceProvider = Provider<UserDbService>((ref) {
-  return UserDbService(FirebaseFirestore.instance, FirebaseMessaging.instance);
+final userServiceProvider = Provider<UserService>((ref) {
+  return UserService(FirebaseFirestore.instance, FirebaseMessaging.instance);
 });
 
 final userDocStreamProvider = StreamProvider<DocumentSnapshot<Map<String, dynamic>>>((ref) {
@@ -86,4 +86,9 @@ final currentRwIdProvider = Provider<String?>((ref) {
 final currentRtIdProvider = Provider<String?>((ref) {
   final asyncUserData = ref.watch(userDataProvider);
   return asyncUserData.value?.rtId;
+});
+
+final billsStatusProvider = Provider<Map<String, dynamic>?>((ref) {
+  final asyncUserData = ref.watch(userDataProvider);
+  return asyncUserData.value?.billsStatus;
 });

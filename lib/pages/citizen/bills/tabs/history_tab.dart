@@ -8,15 +8,34 @@ import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/providers/providers.dart';
 import 'package:wargaqu/providers/user_providers.dart';
 
+import '../../../../components/payment_detail_dialog.dart';
+import '../../../../model/payment/payment.dart';
+
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key, required this.billType, required this.title,
-    required this.subtitle, required this.showPaymentDetailDialog});
+    required this.subtitle});
 
   final BillType billType;
 
   final String title;
   final String subtitle;
-  final void Function(BuildContext) showPaymentDetailDialog;
+
+  void _showPaymentDetailDialog(BuildContext context, String billName,
+      int amountPaid, String paymentMethod, String status) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          elevation: 2,
+          child: PaymentDetailDialogContent(billName: billName, amountPaid:
+          amountPaid, paymentMethod: paymentMethod, status: status),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,9 +73,9 @@ class HistoryTab extends ConsumerWidget {
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return BillItemCard(title: payment.billName,
+                      return BillItemCard(title: payment.billName, paymentMethod: payment.paymentMethod,
                           dueDate: DateTime.utc(2024, 11, 9), amount: 20000, status: payment.status,
-                          showPaymentDetailDialog: showPaymentDetailDialog, onItemTapped: () {});
+                          showPaymentDetailDialog: _showPaymentDetailDialog, onItemTapped: () {});
                     },
                   )
                 ],
