@@ -16,6 +16,7 @@ abstract class Bill with _$Bill {
     required int amount,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     required DateTime dueDate,
+    String? description
   }) = _Bill;
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
