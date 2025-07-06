@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wargaqu/model/payment/payment_confirmation_details/payment_confirmation_details.dart';
+import 'package:intl/intl.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/bill_selector.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/citizen_status_graph.dart';
 import 'package:wargaqu/pages/RT/citizen_activity/persistent_header_delegate.dart';
@@ -10,6 +10,8 @@ import 'package:wargaqu/pages/RT/citizen_activity/profile/citizen_profile_screen
 import 'package:wargaqu/pages/RT/citizen_activity/search_and_filter_section.dart';
 import 'package:wargaqu/providers/citizen_providers.dart';
 import 'package:wargaqu/providers/providers.dart';
+import 'package:wargaqu/theme/app_colors.dart';
+import '../../../model/bill/bill.dart';
 import '../../../model/citizen/citizen_with_status.dart';
 import '../../../providers/rt_providers.dart';
 import '../confirm_payment/payment_confirmation_screen.dart';
@@ -51,6 +53,11 @@ class CitizenActivityScreen extends ConsumerWidget {
         textColor = Colors.red.shade800;
         label = 'BELUM BAYAR';
         break;
+      case 'ditolak':
+        backgroundColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        label = 'DITOLAK';
+        break;
       case 'perlu_konfirmasi':
         backgroundColor = Colors.blue.shade100;
         textColor = Colors.blue.shade800;
@@ -74,14 +81,132 @@ class CitizenActivityScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildMenuItems(BuildContext context, CitizenWithStatus citizen) {
+  Future<bool> _showConfirmCashPaymentDialog(BuildContext context, String name, String bill, int amount) async {
+    final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 24.sp),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text('Konfirmasi Pembayaran Tunai', style: GoogleFonts.roboto(fontSize: 17.sp,
+                    fontWeight: FontWeight.w600))
+              )
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Anda yakin ingin menandai pembayaran berikut sebagai LUNAS (via tunai)?',
+                style: GoogleFonts.roboto(fontSize: 13.sp),
+              ),
+              SizedBox(height: 8.h),
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Nama',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          name,
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Iuran',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          bill,
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Nominal',
+                          style: GoogleFonts.roboto(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          currencyFormatter.format(amount),
+                          style: GoogleFonts.roboto(fontSize: 13.sp),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Batal', style: GoogleFonts.roboto(fontWeight: FontWeight.w500, color: AppColors.negative)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.positive,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.w),
+                  )
+              ),
+              child: Text('Ya, Tandai Lunas', style: GoogleFonts.roboto(fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
+  List<Widget> _buildMenuItems(WidgetRef ref, BuildContext context, CitizenWithStatus citizen,
+      String selectedBillId, String billName, int amount) {
     List<Widget> menuItems = [];
 
     if (citizen.paymentStatus == 'belum_bayar') {
       menuItems.add(
         MenuItemButton(
-          onPressed: () {
-
+          onPressed: () async {
+            final bool shouldConfirm = await _showConfirmCashPaymentDialog(context, citizen.user.fullName, billName, amount);
+            if (shouldConfirm) {
+              await ref.read(paymentConfirmationNotifierProvider.notifier)
+                  .executeConfirmCashPayment(
+                  userId: citizen.user.id, billId: selectedBillId, billName: billName,
+                  amountPaid: amount, rtId: citizen.user.rtId!
+              );
+            }
           },
           leadingIcon: const Icon(Icons.payments_outlined),
           child: const Text('Tandai Bayar Tunai'),
@@ -106,7 +231,7 @@ class CitizenActivityScreen extends ConsumerWidget {
               MaterialPageRoute(
                 builder: (context) => PaymentConfirmationScreen(
                   user: citizen.user,
-                  paymentId: citizen.user.billsStatus['paymentId']!,
+                  paymentId: citizen.user.billsStatus[selectedBillId]['paymentId']!,
                 ),
             ));
           },
@@ -141,20 +266,21 @@ class CitizenActivityScreen extends ConsumerWidget {
         ),
       );
     }
-
     return menuItems;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rtData = ref.watch(rtDataProvider);
-    final asyncAllBills = ref.watch(allBillsProvider);
-    final asyncFilteredList = ref.watch(filteredCitizenListProvider(rtData!.id));
+    final asyncAllBills = ref.watch(allBillsProvider(rtData!.id));
+    final asyncFilteredList = ref.watch(filteredCitizenListProvider(rtData.id));
+    final Bill? selectedBill = ref.watch(selectedBillProvider);
 
-    ref.listenManual(allBillsProvider, (previous, next) {
+    ref.listenManual(allBillsProvider(rtData.id), (previous, next) {
       if (next.hasValue && next.value != null && next.value!.isNotEmpty) {
         if (ref.read(selectedBillProvider) == null) {
           ref.read(selectedBillProvider.notifier).state = next.value!.first;
+          ref.read(billTypeProvider.notifier).state = next.value!.first.billType;
           debugPrint('Set initial selected bill: ${next.value!.first}');
         }
       }
@@ -204,11 +330,14 @@ class CitizenActivityScreen extends ConsumerWidget {
                 child: CircularProgressIndicator(),
               ),
             ),
-            error: (error, stackTrace) => SliverFillRemaining(
-              child: Center(
-                child: Text('Error: $error'),
-              ),
-            ),
+            error: (error, stackTrace) {
+              debugPrint(stackTrace.toString());
+              return SliverFillRemaining(
+                child: Center(
+                  child: Text('Error: $error'),
+                ),
+              );
+            },
             data: (citizensWithStatus) {
               if (citizensWithStatus.isEmpty) {
                 return const SliverFillRemaining(
@@ -274,7 +403,8 @@ class CitizenActivityScreen extends ConsumerWidget {
                                   child: Icon(Icons.more_vert, color: Colors.grey.shade600),
                                 );
                               },
-                              menuChildren: _buildMenuItems(context, item),
+                              menuChildren: _buildMenuItems(ref, context, item, selectedBill!.id,
+                                  selectedBill.billName, selectedBill.amount),
                             )
                           ],
                         ),

@@ -4,9 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:wargaqu/main.dart';
 import 'package:wargaqu/pages/citizen/citizen_main_screen.dart';
+import 'package:wargaqu/theme/app_colors.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
-  final double amount;
+  final int amount;
   final String destinationBank;
   final DateTime transactionDate;
 
@@ -46,7 +47,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: AppColors.primary400,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
@@ -80,23 +81,23 @@ class PaymentSuccessScreen extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         children: [
-          _buildSummaryRow('Total Pembayaran: ', currencyFormatter.format(amount)),
+          _buildSummaryRow(context, 'Total Pembayaran: ', currencyFormatter.format(amount)),
           const Divider(height: 20),
-          _buildSummaryRow('Tujuan Transfer: ', destinationBank),
+          _buildSummaryRow(context, 'Tujuan Transfer: ', destinationBank),
           const Divider(height: 20),
-          _buildSummaryRow('Waktu Transaksi: ', dateFormatter.format(transactionDate)),
+          _buildSummaryRow(context, 'Waktu Transaksi: ', dateFormatter.format(transactionDate)),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryRow(String label, String value) {
+  Widget _buildSummaryRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -112,7 +113,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             value,
             maxLines: 2,
             style: GoogleFonts.roboto(
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
             ),

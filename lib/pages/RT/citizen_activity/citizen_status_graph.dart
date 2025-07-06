@@ -52,7 +52,7 @@ class CitizenStatusGraph extends ConsumerWidget {
               SizedBox(height: 5.h),
               legendItem(Colors.indigo, 'Perlu Konfirmasi'),
               SizedBox(height: 5.h),
-              legendItem(AppColors.negative, 'Belum bayar'),
+              legendItem(AppColors.negative, 'Belum bayar & ditolak'),
               SizedBox(height: 20.h),
             ]
         );

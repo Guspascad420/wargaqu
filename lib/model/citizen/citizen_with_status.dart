@@ -6,6 +6,6 @@ part 'citizen_with_status.freezed.dart';
 abstract class CitizenWithStatus with _$CitizenWithStatus {
   const factory CitizenWithStatus({
     required UserModel user,
-    required String paymentStatus, // "lunas", "belum_bayar", "perlu_konfirmasi"
+    required String paymentStatus,
   }) = _CitizenWithStatus;
 }
