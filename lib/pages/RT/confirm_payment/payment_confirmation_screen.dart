@@ -341,7 +341,7 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
                       if (shouldReject) {
                         final rtNote = _rtNoteController.text;
                         ref.read(paymentConfirmationNotifierProvider.notifier).executeRejectPayment(
-                            userId: widget.user.id, billId: selectedBill!.id,
+                            userId: widget.user.id!, billId: selectedBill!.id,
                             paymentId: widget.paymentId, rejectionReason: rtNote
                         );
                       }
@@ -368,7 +368,7 @@ class _PaymentConfirmationScreenState extends ConsumerState<PaymentConfirmationS
                     onPressed: () {
                       final rtNote = _rtNoteController.text;
                       ref.read(paymentConfirmationNotifierProvider.notifier).executeConfirmPayment(
-                          userId: widget.user.id, billId: selectedBill!.id, billName: paymentDetail.billName, paymentId: widget.paymentId,
+                          userId: widget.user.id!, billId: selectedBill!.id, billName: paymentDetail.billName, paymentId: widget.paymentId,
                           amountPaid: paymentDetail.amount, rtId: rtData!.id, rtNote: rtNote.isEmpty ? null : rtNote
                       );
                     },

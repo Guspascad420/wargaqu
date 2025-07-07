@@ -314,7 +314,7 @@ class CitizenActivityScreen extends ConsumerWidget {
             if (shouldConfirm) {
               await ref.read(paymentConfirmationNotifierProvider.notifier)
                   .executeConfirmCashPayment(
-                  userId: citizen.user.id, billId: selectedBillId, billName: billName,
+                  userId: citizen.user.id!, billId: selectedBillId, billName: billName,
                   amountPaid: amount, rtId: citizen.user.rtId!
               );
             }
@@ -369,7 +369,7 @@ class CitizenActivityScreen extends ConsumerWidget {
             if (shouldConfirm) {
               await ref.read(paymentConfirmationNotifierProvider.notifier)
                   .executeConfirmPayment(
-                  userId: citizen.user.id, billId: selectedBillId, billName: billName,
+                  userId: citizen.user.id!, billId: selectedBillId, billName: billName,
                   amountPaid: amount, rtId: citizen.user.rtId!,
                   paymentId: citizen.user.billsStatus[selectedBillId]['paymentId']!
               );

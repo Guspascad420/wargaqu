@@ -39,7 +39,6 @@ class RegistrationNotifier extends AsyncNotifier<void> {
       }
 
       final newUser = UserModel(
-        id: firebaseUser.uid,
         email: email,
         fullName: fullName,
         role: result.role,
@@ -88,7 +87,6 @@ class RegistrationNotifier extends AsyncNotifier<void> {
       }
 
       final newUser = UserModel(
-        id: firebaseUser.uid,
         email: email,
         fullName: fullName,
         role: 'rw_official',
@@ -135,7 +133,6 @@ class RegistrationNotifier extends AsyncNotifier<void> {
       }
 
       final newUser = UserModel(
-        id: firebaseUser.uid,
         email: email,
         nik: nik,
         rtId: rtId,

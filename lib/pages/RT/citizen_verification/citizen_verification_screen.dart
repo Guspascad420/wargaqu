@@ -56,7 +56,7 @@ class CitizenVerificationScreen extends ConsumerWidget {
                     return CitizenVerificationCard(applicant: applicant,
                         onApprove: () {
                           ref.read(citizenVerificationNotifierProvider.notifier).executeUpdateCitizenStatus(
-                              userId: applicant.id, isApproved: true, rtId: rtData.id
+                              userId: applicant.id!, isApproved: true, rtId: rtData.id
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Berhasil mendaftarkan warga")),
@@ -65,7 +65,7 @@ class CitizenVerificationScreen extends ConsumerWidget {
                         onViewDetail: () {},
                         onReject: (reason) async {
                           await ref.read(citizenVerificationNotifierProvider.notifier).executeUpdateCitizenStatus(
-                              userId: applicant.id, isApproved: false, rejectionReason: reason
+                              userId: applicant.id!, isApproved: false, rejectionReason: reason
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Berhasil menolak pendaftaran")),

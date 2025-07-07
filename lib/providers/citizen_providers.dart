@@ -59,7 +59,7 @@ final paymentDetailsProvider = FutureProvider.autoDispose.family<PaymentConfirma
     ({UserModel user, String paymentId})>((ref, args)  async {
   final service = ref.watch(userServiceProvider);
 
-  final paymentDoc = await service.fetchPaymentDoc(args.user.id, args.paymentId);
+  final paymentDoc = await service.fetchPaymentDoc(args.user.id!, args.paymentId);
 
   if (!paymentDoc.exists) {
     throw Exception('Data pembayaran tidak ditemukan!');
