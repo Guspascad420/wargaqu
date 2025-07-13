@@ -15,7 +15,7 @@ abstract class TransactionData with _$TransactionData {
     required String description,
     required int amount,
     String? recipientName,
-    required String inputtedByUserId,
+    String? inputtedByUserId,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
     DateTime? incomeDate,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)

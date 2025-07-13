@@ -38,13 +38,15 @@ class FinancialReportDetailsScreen extends ConsumerWidget {
                 )
             ),
             SizedBox(width: 10.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                SizedBox(height: 3.h),
-                Text(formatter.format(amount), style: GoogleFonts.roboto(fontSize: 15.sp))
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(height: 3.h),
+                  Text(formatter.format(amount), style: GoogleFonts.roboto(fontSize: 15.sp))
+                ],
+              ),
             )
           ],
         )
