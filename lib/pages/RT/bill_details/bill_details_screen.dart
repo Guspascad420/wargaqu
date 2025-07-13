@@ -8,6 +8,7 @@ import 'package:wargaqu/model/bill/bill_type.dart';
 import 'package:wargaqu/theme/app_colors.dart';
 
 import '../../../providers/providers.dart';
+import '../../../providers/user_providers.dart';
 import '../bill_management/edit_bill/edit_bills_screen.dart';
 
 class BillDetailsScreen extends ConsumerWidget {
@@ -108,6 +109,7 @@ class BillDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final asyncBill = ref.watch(billDetailsProvider(billId));
+    final role = ref.watch(roleProvider);
 
     ref.listen<AsyncValue<void>>(billNotifierProvider, (prev, next) {
       if (prev is AsyncLoading && !next.isLoading) {
@@ -143,67 +145,69 @@ class BillDetailsScreen extends ConsumerWidget {
                   ? 'Bulanan' : 'Khusus'),
               _buildPropertyItem(context, 'Jatuh Tempo', DateFormat('dd MMMM yyyy', 'id_ID').format(bill.dueDate)),
               _buildPropertyItem(context, 'Nominal', currencyFormatter.format(bill.amount)),
-              const Spacer(),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 15),
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    side: BorderSide(color: AppColors.primary90, width: 1.5.w), // Lebar border dengan .w
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7.r),
+              if (role!.contains('ketua'))...[
+                const Spacer(),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15),
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      side: BorderSide(color: AppColors.primary200, width: 1.5.w), // Lebar border dengan .w
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7.r),
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => EditBillsScreen(existingBill: bill),
-                        )
-                    );
-                  },
-                  child: Text(
-                    'Edit Iuran',
-                    textAlign: TextAlign.center, // Menambahkan text align center
-                    style: GoogleFonts.roboto(
-                      fontSize: 15.sp, // Ukuran font disesuaikan
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primary90,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EditBillsScreen(existingBill: bill),
+                          )
+                      );
+                    },
+                    child: Text(
+                      'Edit Iuran',
+                      textAlign: TextAlign.center, // Menambahkan text align center
+                      style: GoogleFonts.roboto(
+                        fontSize: 15.sp, // Ukuran font disesuaikan
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary200,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 15.h),
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 15),
-                child: ElevatedButton.icon(
-                  label: Text(
-                    'Hapus Iuran',
-                    style: GoogleFonts.roboto(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                SizedBox(height: 15.h),
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(horizontal: 15),
+                  child: ElevatedButton.icon(
+                    label: Text(
+                      'Hapus Iuran',
+                      style: GoogleFonts.roboto(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.negative,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.w),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.negative,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.w),
+                      ),
+                      elevation: 2,
                     ),
-                    elevation: 2,
+                    onPressed: () async {
+                      final bool shouldDelete = await _showDeleteConfirmationDialog(context, billId);
+                      if (shouldDelete) {
+                        await ref.read(billNotifierProvider.notifier)
+                            .executeDeleteBill(billId);
+                      }
+                    },
                   ),
-                  onPressed: () async {
-                    final bool shouldDelete = await _showDeleteConfirmationDialog(context, billId);
-                    if (shouldDelete) {
-                      await ref.read(billNotifierProvider.notifier)
-                          .executeDeleteBill(billId);
-                    }
-                  },
                 ),
-              ),
-              SizedBox(height: 20)
+                SizedBox(height: 20)
+              ]
             ],
           );
         },
