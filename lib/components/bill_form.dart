@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class BillForm extends StatelessWidget {
@@ -32,7 +33,12 @@ class BillForm extends StatelessWidget {
           TextFormField(
             controller: titleController,
             validator: (value) => value!.isEmpty ? 'Nama iuran tidak boleh kosong' : null,
-            decoration: InputDecoration(labelText: 'Nama Iuran', prefixIcon: Icon(Icons.title_rounded)),
+            decoration: InputDecoration(
+                labelText: 'Nama Iuran',
+                prefixIcon: Icon(Icons.title_rounded),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface
+            ),
           ),
           SizedBox(height: 16.h),
 
@@ -42,7 +48,12 @@ class BillForm extends StatelessWidget {
             validator: (value) => value!.isEmpty ? 'Nominal tidak boleh kosong' : null,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(labelText: 'Nominal', prefixIcon: Icon(Icons.monetization_on_outlined)),
+            decoration: InputDecoration(
+                labelText: 'Nominal',
+                prefixIcon: Icon(Icons.monetization_on_outlined),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface
+            ),
           ),
           SizedBox(height: 16.h),
 
@@ -52,8 +63,11 @@ class BillForm extends StatelessWidget {
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: 'Batas Akhir Pembayaran',
+                labelStyle: GoogleFonts.roboto(color: Colors.grey),
                 prefixIcon: Icon(Icons.calendar_today_outlined),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface
               ),
               child: Text(
                 selectedDueDate == null
@@ -67,7 +81,9 @@ class BillForm extends StatelessWidget {
           // TextField Deskripsi
           TextFormField(
             controller: descriptionController,
-            decoration: InputDecoration(labelText: 'Deskripsi (Opsional)', prefixIcon: Icon(Icons.notes_rounded)),
+            decoration: InputDecoration(labelText: 'Deskripsi (Opsional)',
+                prefixIcon: Icon(Icons.notes_rounded),
+                filled: true, fillColor: Theme.of(context).colorScheme.surface),
             maxLines: 3,
           ),
         ],
